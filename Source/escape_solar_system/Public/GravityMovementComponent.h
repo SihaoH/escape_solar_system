@@ -1,4 +1,4 @@
-// Copyright 2020 H2S. All Rights Reserved.
+﻿// Copyright 2020 H2S. All Rights Reserved.
 
 #pragma once
 
@@ -84,8 +84,16 @@ protected:
 	virtual FVector ScaleInputAcceleration(const FVector& InputAcceleration) const override;
 	// End UCharacterMovementComponent overrides
 
+	/** 自定义方向，值为单位向量 */
+	UPROPERTY(Category = "Character Movement (General Settings)", EditAnywhere, BlueprintReadWrite)
+	FVector GravityDirection = FVector::ZeroVector;
+
+	/** 自定义重力（加速度），默认值为980cm/s2，一般情况为非负数 */
+	UPROPERTY(Category = "Character Movement (General Settings)", EditAnywhere, BlueprintReadWrite)
+	float GravityZ = 980.0f;
+
 	// When moving debug lines are shown - velocity, acceleration
-	UPROPERTY(EditAnywhere, Category = "Debug")
+	UPROPERTY(Category = "Debug", EditAnywhere)
 	bool bShowDebugLines = false;
 
 private:
@@ -99,7 +107,4 @@ private:
 	bool IsWithinEdgeToleranceNew(const FVector& CapsuleLocation, const FVector& CapsuleDown, const FVector& TestImpactPoint, const float CapsuleRadius) const;
 	bool bFallingRemovesSpeedZ;
 	bool bIgnoreBaseRollMove;
-
-	UPROPERTY()
-	FVector CustomGravityDirection = FVector::ZeroVector;
 };

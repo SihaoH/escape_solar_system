@@ -1,4 +1,4 @@
-// Copyright 2020 H2S. All Rights Reserved.
+﻿// Copyright 2020 H2S. All Rights Reserved.
 
 #include "GravityMovementComponent.h"
 #include "GameFramework/PhysicsVolume.h"
@@ -37,33 +37,18 @@ UGravityMovementComponent::UGravityMovementComponent()
 {
 	bFallingRemovesSpeedZ = true;
 	bIgnoreBaseRollMove = true;
-	CustomGravityDirection = FVector::ZeroVector;
+	GravityDirection = FVector::ZeroVector;
 }
 
 FVector UGravityMovementComponent::GetGravityDirection(bool bAvoidZeroGravity) const
 {
-	// Gravity direction can be influenced by the custom gravity scale value.
-	if (GravityScale != 0.0f)
+	if (!GravityDirection.IsZero())
 	{
-		if (!CustomGravityDirection.IsZero())
-		{
-			return CustomGravityDirection * ((GravityScale > 0.0f) ? 1.0f : -1.0f);
-		}
-
-		const float WorldGravityZ = Super::GetGravityZ();
-		if (bAvoidZeroGravity || WorldGravityZ != 0.0f)
-		{
-			return FVector(0.0f, 0.0f, ((WorldGravityZ > 0.0f) ? 1.0f : -1.0f) * ((GravityScale > 0.0f) ? 1.0f : -1.0f));
-		}
+		return GravityDirection;
 	}
-	else if (bAvoidZeroGravity)
+	else if (bAvoidZeroGravity) 
 	{
-		if (!CustomGravityDirection.IsZero())
-		{
-			return CustomGravityDirection;
-		}
-
-		return FVector(0.0f, 0.0f, (Super::GetGravityZ() > 0.0f) ? 1.0f : -1.0f);
+		return FVector(0.0f, 0.0f, (-GravityZ*GravityScale > 0.0f) ? 1.0f : -1.0f);
 	}
 
 	return FVector::ZeroVector;
@@ -71,7 +56,7 @@ FVector UGravityMovementComponent::GetGravityDirection(bool bAvoidZeroGravity) c
 
 void UGravityMovementComponent::SetGravityDirection(FVector NewGravityDirection)
 {
-	CustomGravityDirection = NewGravityDirection.GetSafeNormal();
+	GravityDirection = NewGravityDirection.GetSafeNormal();
 }
 
 void UGravityMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
@@ -1042,7 +1027,7 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 	}
 
 	// Abort if no valid gravity can be obtained.
-	const FVector GravityDirection = GetGravityDirection();
+	//const FVector GravityDirection = GetGravityDirection();
 	const FVector GravityDir = GetGravityDirection();
 	if (GravityDir.IsZero())
 	{
@@ -1327,8 +1312,8 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 
 FVector UGravityMovementComponent::GetFallingLateralAcceleration(float DeltaTime)
 {
-	const FVector GravityDirection = GetGravityDirection();
-	FVector FallAcceleration = FVector::VectorPlaneProject(Acceleration, GravityDirection);
+	const FVector GravityDir = GetGravityDirection();
+	FVector FallAcceleration = FVector::VectorPlaneProject(Acceleration, GravityDir);
 
 	// bound acceleration, falling object has minimal ability to impact acceleration
 	if (!HasAnimRootMotion() && FallAcceleration.SizeSquared2D() > 0.f)
@@ -1337,7 +1322,7 @@ FVector UGravityMovementComponent::GetFallingLateralAcceleration(float DeltaTime
 
 		// Allow a burst of initial acceleration.
 		if (FallAirControl != 0.0f && AirControlBoostMultiplier > 0.0f &&
-			FVector::VectorPlaneProject(Velocity, GravityDirection).SizeSquared() < FMath::Square(AirControlBoostVelocityThreshold))
+			FVector::VectorPlaneProject(Velocity, GravityDir).SizeSquared() < FMath::Square(AirControlBoostVelocityThreshold))
 		{
 			FallAirControl = FMath::Min(1.0f, AirControlBoostMultiplier * FallAirControl);
 		}
@@ -2650,12 +2635,12 @@ bool UGravityMovementComponent::IsWithinEdgeTolerance(const FVector& CapsuleLoca
 
 FVector UGravityMovementComponent::GetGravity() const
 {
-	if (!CustomGravityDirection.IsZero())
+	if (!GravityDirection.IsZero())
 	{
-		return CustomGravityDirection * (FMath::Abs(Super::GetGravityZ()) * GravityScale);
+		return GravityDirection * GravityZ * GravityScale;
 	}
 
-	return FVector(0.0f, 0.0f, GetGravityZ());
+	return FVector(0.0f, 0.0f, -GravityZ * GravityScale);
 }
 
 FVector UGravityMovementComponent::GetComponentDesiredAxisZ() const
