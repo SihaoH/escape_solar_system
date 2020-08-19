@@ -33,11 +33,5 @@ protected:
 
 private:
 	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom = nullptr;
-
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera = nullptr;
-
-	bool bMoveForward = false;
-	float YawOffset = 0;
 };

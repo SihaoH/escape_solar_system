@@ -48,20 +48,6 @@ public:
 	// End UCharacterMovementComponent overrides
 
 protected:
-	// Return the normalized direction of the current gravity.
-	// @note Could return zero gravity.
-	// 
-	// @param bAvoidZeroGravity - If true, zero gravity isn't returned.
-	// @return Normalized direction of current gravity
-	UFUNCTION(Category = "Pawn|Components|CharacterMovement", BlueprintCallable)
-	virtual FVector GetGravityDirection(bool bAvoidZeroGravity = false) const;
-
-	// Set a custom gravity direction; use 0, 0, 0 to remove any custom direction.
-	// @note It can be influenced by GravityScale.
-	// @param NewGravityDirection - New gravity direction, assumes it isn't normalize
-	UFUNCTION(Category = "Pawn|Components|CharacterMovement", BlueprintCallable)
-	virtual void SetGravityDirection(FVector NewGravityDirection);
-
 	// Begin UCharacterMovementComponent overrides
 	virtual void PhysFlying(float deltaTime, int32 Iterations) override;
 	virtual float BoostAirControl(float DeltaTime, float TickAirControl, const FVector& FallAcceleration) override;
@@ -98,7 +84,6 @@ protected:
 
 private:
 	FVector GetGravity() const;
-	FVector GetComponentDesiredAxisZ() const;
 	void UpdateComponentRotation();
 	FORCEINLINE FQuat GetCapsuleRotation() const;
 	FORCEINLINE FVector GetCapsuleAxisX() const;

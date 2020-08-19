@@ -15,10 +15,8 @@ AGravityCharacter::AGravityCharacter(const FObjectInitializer& ObjectInitializer
 	// 若为true，走到球体下方时，会走不动
 	bUseControllerRotationYaw = false;
 
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	CameraBoom->SetupAttachment(GetCapsuleComponent());
-	FollowCamera->SetupAttachment(CameraBoom);
+	FollowCamera->SetupAttachment(GetCapsuleComponent());
 }
 
 // Called to bind functionality to input
@@ -47,56 +45,26 @@ void AGravityCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bMoveForward)
-	{
-		float offset = CameraBoom->GetRelativeRotation().Yaw;
-		if (FMath::Abs(offset) > 1 && FMath::Abs(offset) > FMath::Abs(YawOffset))
-		{
-			YawOffset = offset;
-		}
-		else if (FMath::Abs(offset) <= 1)
-		{
-			YawOffset = 0;
-		}
-
-		if (YawOffset != 0)
-		{
-			float delta = YawOffset * DeltaTime * 5;
-			AddActorLocalRotation(FRotator(0, delta, 0));
-			CameraBoom->AddRelativeRotation(FRotator(0, -delta, 0));
-		}
-	}
-	else {
-		YawOffset = 0;
-	}
 }
 
 void AGravityCharacter::Turn(float Value)
 {
-	if (bMoveForward)
-	{
-		AddActorLocalRotation(FRotator(0, Value, 0));
-	}
-	else 
-	{
-		CameraBoom->AddRelativeRotation(FRotator(0, Value, 0));
-	}
+	AddActorLocalRotation(FRotator(0, Value, 0));
 }
 
 void AGravityCharacter::LookUp(float Value)
 {
 	Value = Value * -1;
-	FRotator current = CameraBoom->GetRelativeRotation();
+	FRotator current = FollowCamera->GetRelativeRotation();
 	float target = current.Pitch + Value;
 	if (target > -89 && target < 89) 
 	{
-		CameraBoom->AddRelativeRotation(FRotator(Value, 0, 0));
+		FollowCamera->AddRelativeRotation(FRotator(Value, 0, 0));
 	}
 }
 
 void AGravityCharacter::MoveForward(float Value)
 {
-	bMoveForward = (Value != 0);
 	AddMovementInput(GetActorForwardVector(), Value);
 }
 

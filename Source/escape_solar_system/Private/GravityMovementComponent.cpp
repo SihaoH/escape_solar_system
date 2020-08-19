@@ -37,26 +37,6 @@ UGravityMovementComponent::UGravityMovementComponent()
 {
 	bFallingRemovesSpeedZ = true;
 	bIgnoreBaseRollMove = true;
-	GravityDirection = FVector::ZeroVector;
-}
-
-FVector UGravityMovementComponent::GetGravityDirection(bool bAvoidZeroGravity) const
-{
-	if (!GravityDirection.IsZero())
-	{
-		return GravityDirection;
-	}
-	else if (bAvoidZeroGravity) 
-	{
-		return FVector(0.0f, 0.0f, (-GravityZ*GravityScale > 0.0f) ? 1.0f : -1.0f);
-	}
-
-	return FVector::ZeroVector;
-}
-
-void UGravityMovementComponent::SetGravityDirection(FVector NewGravityDirection)
-{
-	GravityDirection = NewGravityDirection.GetSafeNormal();
 }
 
 void UGravityMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
@@ -67,8 +47,7 @@ void UGravityMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 	}
 
 	// Abort if no valid gravity can be obtained.
-	const FVector GravityDir = GetGravityDirection();
-	if (GravityDir.IsZero())
+	if (GravityDirection.IsZero())
 	{
 		Acceleration = FVector::ZeroVector;
 		Velocity = FVector::ZeroVector;
@@ -96,17 +75,17 @@ void UGravityMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 
 	if (CharacterOwner && Hit.Time < 1.0f)
 	{
-		const float UpDown = GravityDir | Velocity.GetSafeNormal();
+		const float UpDown = GravityDirection | Velocity.GetSafeNormal();
 		bool bSteppedUp = false;
 
-		if (UpDown < 0.5f && UpDown > -0.2f && FMath::Abs(Hit.ImpactNormal | GravityDir) < 0.2f && CanStepUp(Hit))
+		if (UpDown < 0.5f && UpDown > -0.2f && FMath::Abs(Hit.ImpactNormal | GravityDirection) < 0.2f && CanStepUp(Hit))
 		{
 			const FVector StepLocation = CharacterOwner->GetActorLocation();
 
-			bSteppedUp = StepUp(GravityDir, Adjusted * (1.0f - Hit.Time), Hit);
+			bSteppedUp = StepUp(GravityDirection, Adjusted * (1.0f - Hit.Time), Hit);
 			if (bSteppedUp)
 			{
-				OldLocation += GravityDir * ((CharacterOwner->GetActorLocation() - StepLocation) | GravityDir);
+				OldLocation += GravityDirection * ((CharacterOwner->GetActorLocation() - StepLocation) | GravityDirection);
 			}
 		}
 
@@ -127,7 +106,8 @@ void UGravityMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
 float UGravityMovementComponent::BoostAirControl(float DeltaTime, float TickAirControl, const FVector& FallAcceleration)
 {
 	// Allow a burst of initial acceleration.
-	if (AirControlBoostMultiplier > 0.0f && FVector::VectorPlaneProject(Velocity, GetGravityDirection(true)).SizeSquared() < FMath::Square(AirControlBoostVelocityThreshold))
+	//GetGravityDirection(true)
+	if (AirControlBoostMultiplier > 0.0f && FVector::VectorPlaneProject(Velocity, GravityDirection).SizeSquared() < FMath::Square(AirControlBoostVelocityThreshold))
 	{
 		TickAirControl = FMath::Min(1.0f, AirControlBoostMultiplier * TickAirControl);
 	}
@@ -973,8 +953,8 @@ FVector UGravityMovementComponent::CalcAnimRootMotionVelocity(const FVector& Roo
 	// Do not override vertical velocity if in falling physics, we want to keep the effect of gravity.
 	if (IsFalling())
 	{
-		const FVector GravityDir = GetGravityDirection(true);
-		RootMotionVelocity = FVector::VectorPlaneProject(RootMotionVelocity, GravityDir) + GravityDir * (Velocity | GravityDir);
+		//GetGravityDirection(true);
+		RootMotionVelocity = FVector::VectorPlaneProject(RootMotionVelocity, GravityDirection) + GravityDirection * (Velocity | GravityDirection);
 	}
 
 	return RootMotionVelocity;
@@ -994,10 +974,9 @@ void UGravityMovementComponent::StartFalling(int32 Iterations, float remainingTi
 		remainingTime += timeTick * (1.0f - FMath::Min(1.0f, ActualDist / DesiredDist));
 	}
 
-	const FVector GravityDir = GetGravityDirection();
-	if (bFallingRemovesSpeedZ && !GravityDir.IsZero())
+	if (bFallingRemovesSpeedZ && !GravityDirection.IsZero())
 	{
-		Velocity = FVector::VectorPlaneProject(Velocity, GravityDir);
+		Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection);
 	}
 
 	if (IsMovingOnGround())
@@ -1027,14 +1006,12 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 	}
 
 	// Abort if no valid gravity can be obtained.
-	//const FVector GravityDirection = GetGravityDirection();
-	const FVector GravityDir = GetGravityDirection();
-	if (GravityDir.IsZero())
-	{
-		Acceleration = FVector::ZeroVector;
-		Velocity = FVector::ZeroVector;
-		return;
-	}
+	//if (GravityDirection.IsZero())
+	//{
+	//	Acceleration = FVector::ZeroVector;
+	//	Velocity = FVector::ZeroVector;
+	//	return;
+	//}
 
 	FVector FallAcceleration = GetFallingLateralAcceleration(deltaTime);
 	const bool bHasAirControl = FallAcceleration.SizeSquared() > 0.0f;
@@ -1061,7 +1038,7 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		// Apply input.
 		if (!HasAnimRootMotion())
 		{
-			const FVector OldVelocityZ = GravityDir * (Velocity | GravityDir);
+			const FVector OldVelocityZ = GravityDirection * (Velocity | GravityDirection);
 
 			// Compute VelocityNoAirControl.
 			if (bHasAirControl)
@@ -1070,9 +1047,9 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 				TGuardValue<FVector> RestoreAcceleration(Acceleration, FVector::ZeroVector);
 				TGuardValue<FVector> RestoreVelocity(Velocity, Velocity);
 
-				Velocity = FVector::VectorPlaneProject(Velocity, GravityDir);
+				Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection);
 				CalcVelocity(TimeTick, FallingLateralFriction, false, BrakingDecelerationFalling);
-				VelocityNoAirControl = FVector::VectorPlaneProject(Velocity, GravityDir) + OldVelocityZ;
+				VelocityNoAirControl = FVector::VectorPlaneProject(Velocity, GravityDirection) + OldVelocityZ;
 			}
 
 			// Compute Velocity.
@@ -1080,9 +1057,9 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 				// Acceleration = FallAcceleration for CalcVelocity(), but we restore it after using it.
 				TGuardValue<FVector> RestoreAcceleration(Acceleration, FallAcceleration);
 
-				Velocity = FVector::VectorPlaneProject(Velocity, GravityDir);
+				Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection);
 				CalcVelocity(TimeTick, FallingLateralFriction, false, BrakingDecelerationFalling);
-				Velocity = FVector::VectorPlaneProject(Velocity, GravityDir) + OldVelocityZ;
+				Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection) + OldVelocityZ;
 
 
 			}
@@ -1100,7 +1077,7 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		VelocityNoAirControl = NewFallVelocity(VelocityNoAirControl, Gravity, TimeTick);
 		const FVector AirControlAccel = (Velocity - VelocityNoAirControl) / TimeTick;
 
-		if (bNotifyApex && CharacterOwner->Controller && ((Velocity | GravityDir) * -1.0f) <= 0.0f)
+		if (bNotifyApex && CharacterOwner->Controller && ((Velocity | GravityDirection) * -1.0f) <= 0.0f)
 		{
 			// Just passed jump apex since now going down.
 			bNotifyApex = false;
@@ -1187,7 +1164,7 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 					}
 					else
 					{
-						Velocity = FVector::VectorPlaneProject(Velocity, GravityDir) + GravityDir * (NewVelocity | GravityDir);
+						Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection) + GravityDirection * (NewVelocity | GravityDirection);
 					}
 				}
 
@@ -1218,7 +1195,7 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 						}
 
 						// Act as if there was no air control on the last move when computing new deflection.
-						if (bHasAirControl && (Hit.Normal | GravityDir) < -VERTICAL_SLOPE_NORMAL_Z)
+						if (bHasAirControl && (Hit.Normal | GravityDirection) < -VERTICAL_SLOPE_NORMAL_Z)
 						{
 							Delta = ComputeSlideVector(VelocityNoAirControl * LastMoveTimeSlice, 1.0f, OldHitNormal, Hit);
 						}
@@ -1249,23 +1226,23 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 							}
 							else
 							{
-								Velocity = FVector::VectorPlaneProject(Velocity, GravityDir) + GravityDir * (NewVelocity | GravityDir);
+								Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection) + GravityDirection * (NewVelocity | GravityDirection);
 							}
 						}
 
 						// bDitch=true means that pawn is straddling two slopes, neither of which he can stand on.
-						bool bDitch = ((OldHitImpactNormal | GravityDir) < 0.0f && (Hit.ImpactNormal | GravityDir) < 0.0f &&
-							FMath::Abs(Delta | GravityDir) <= KINDA_SMALL_NUMBER && (Hit.ImpactNormal | OldHitImpactNormal) < 0.0f);
+						bool bDitch = ((OldHitImpactNormal | GravityDirection) < 0.0f && (Hit.ImpactNormal | GravityDirection) < 0.0f &&
+							FMath::Abs(Delta | GravityDirection) <= KINDA_SMALL_NUMBER && (Hit.ImpactNormal | OldHitImpactNormal) < 0.0f);
 
 						SafeMoveUpdatedComponent(Delta, PawnRotation, true, Hit);
 
 						if (Hit.Time == 0.0f)
 						{
 							// If we are stuck then try to side step.
-							FVector SideDelta = FVector::VectorPlaneProject(OldHitNormal + Hit.ImpactNormal, GravityDir).GetSafeNormal();
+							FVector SideDelta = FVector::VectorPlaneProject(OldHitNormal + Hit.ImpactNormal, GravityDirection).GetSafeNormal();
 							if (SideDelta.IsNearlyZero())
 							{
-								SideDelta = GravityDir ^ (FVector::VectorPlaneProject(OldHitNormal, GravityDir).GetSafeNormal());
+								SideDelta = GravityDirection ^ (FVector::VectorPlaneProject(OldHitNormal, GravityDirection).GetSafeNormal());
 							}
 
 							SafeMoveUpdatedComponent(SideDelta, PawnRotation, true, Hit);
@@ -1278,19 +1255,19 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 
 							return;
 						}
-						else if (GetPerchRadiusThreshold() > 0.0f && Hit.Time == 1.0f && (OldHitImpactNormal | GravityDir) <= -GetWalkableFloorZ())
+						else if (GetPerchRadiusThreshold() > 0.0f && Hit.Time == 1.0f && (OldHitImpactNormal | GravityDirection) <= -GetWalkableFloorZ())
 						{
 							// We might be in a virtual 'ditch' within our perch radius. This is rare.
 							const FVector PawnLocation = CharacterOwner->GetActorLocation();
-							const float ZMovedDist = FMath::Abs((PawnLocation - OldLocation) | GravityDir);
-							const float MovedDist2DSq = (FVector::VectorPlaneProject(PawnLocation - OldLocation, GravityDir)).SizeSquared();
+							const float ZMovedDist = FMath::Abs((PawnLocation - OldLocation) | GravityDirection);
+							const float MovedDist2DSq = (FVector::VectorPlaneProject(PawnLocation - OldLocation, GravityDirection)).SizeSquared();
 
 							if (ZMovedDist <= 0.2f * TimeTick && MovedDist2DSq <= 4.0f * TimeTick)
 							{
 								Velocity.X += 0.25f * GetMaxSpeed() * (FMath::FRand() - 0.5f);
 								Velocity.Y += 0.25f * GetMaxSpeed() * (FMath::FRand() - 0.5f);
 								Velocity.Z += 0.25f * GetMaxSpeed() * (FMath::FRand() - 0.5f);
-								Velocity = FVector::VectorPlaneProject(Velocity, GravityDir) + GravityDir * (FMath::Max<float>(JumpZVelocity * 0.25f, 1.0f) * -1.0f);
+								Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection) + GravityDirection * (FMath::Max<float>(JumpZVelocity * 0.25f, 1.0f) * -1.0f);
 								Delta = Velocity * TimeTick;
 
 								SafeMoveUpdatedComponent(Delta, PawnRotation, true, Hit);
@@ -1301,9 +1278,9 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 			}
 		}
 
-		if ((FVector::VectorPlaneProject(Velocity, GravityDir)).SizeSquared() <= KINDA_SMALL_NUMBER * 10.0f)
+		if ((FVector::VectorPlaneProject(Velocity, GravityDirection)).SizeSquared() <= KINDA_SMALL_NUMBER * 10.0f)
 		{
-			Velocity = GravityDir * (Velocity | GravityDir);
+			Velocity = GravityDirection * (Velocity | GravityDirection);
 		}
 	}
 
@@ -1312,8 +1289,7 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 
 FVector UGravityMovementComponent::GetFallingLateralAcceleration(float DeltaTime)
 {
-	const FVector GravityDir = GetGravityDirection();
-	FVector FallAcceleration = FVector::VectorPlaneProject(Acceleration, GravityDir);
+	FVector FallAcceleration = FVector::VectorPlaneProject(Acceleration, GravityDirection);
 
 	// bound acceleration, falling object has minimal ability to impact acceleration
 	if (!HasAnimRootMotion() && FallAcceleration.SizeSquared2D() > 0.f)
@@ -1322,7 +1298,7 @@ FVector UGravityMovementComponent::GetFallingLateralAcceleration(float DeltaTime
 
 		// Allow a burst of initial acceleration.
 		if (FallAirControl != 0.0f && AirControlBoostMultiplier > 0.0f &&
-			FVector::VectorPlaneProject(Velocity, GravityDir).SizeSquared() < FMath::Square(AirControlBoostVelocityThreshold))
+			FVector::VectorPlaneProject(Velocity, GravityDirection).SizeSquared() < FMath::Square(AirControlBoostVelocityThreshold))
 		{
 			FallAirControl = FMath::Min(1.0f, AirControlBoostMultiplier * FallAirControl);
 		}
@@ -2433,7 +2409,7 @@ void UGravityMovementComponent::CalcVelocity(float DeltaTime, float Friction, bo
 
 void UGravityMovementComponent::ApplyAccumulatedForces(float DeltaSeconds)
 {
-	if ((!PendingImpulseToApply.IsZero() || !PendingForceToApply.IsZero()) && IsMovingOnGround())
+	if (!PendingImpulseToApply.IsZero() || !PendingForceToApply.IsZero())
 	{
 		const FVector Impulse = PendingImpulseToApply + PendingForceToApply * DeltaSeconds + GetGravity() * DeltaSeconds;
 
@@ -2635,33 +2611,24 @@ bool UGravityMovementComponent::IsWithinEdgeTolerance(const FVector& CapsuleLoca
 
 FVector UGravityMovementComponent::GetGravity() const
 {
-	if (!GravityDirection.IsZero())
-	{
-		return GravityDirection * GravityZ * GravityScale;
-	}
-
-	return FVector(0.0f, 0.0f, -GravityZ * GravityScale);
-}
-
-FVector UGravityMovementComponent::GetComponentDesiredAxisZ() const
-{
-	return GetGravityDirection(true) * -1.0f;
+	return GravityDirection * GravityZ * GravityScale;
 }
 
 void UGravityMovementComponent::UpdateComponentRotation()
 {
-	if (!UpdatedComponent)
+	if (!UpdatedComponent || GetGravity().IsZero())
 	{
 		return;
 	}
 
-	const FVector DesiredCapsuleUp = GetComponentDesiredAxisZ();
+	const FVector DesiredCapsuleUp = GravityDirection * -1.f;
 
-	// Abort if angle between new and old capsule 'up' axis almost equals to 0 degrees.
-	if ((DesiredCapsuleUp | GetCapsuleAxisZ()) >= THRESH_NORMALS_ARE_PARALLEL)
-	{
-		return;
-	}
+	// 如果新旧两个"向上"的向量夹角几乎为0度，则不调整旋转
+	// 但是这样会使镜头抖动，这个"几乎"有点问题，所以先注释
+	//if ((DesiredCapsuleUp | GetCapsuleAxisZ()) >= THRESH_NORMALS_ARE_PARALLEL)
+	//{
+	//	return;
+	//}
 
 	// Take desired Z rotation axis of capsule, try to keep current X rotation axis of capsule.
 	const FMatrix RotationMatrix = FRotationMatrix::MakeFromZX(DesiredCapsuleUp, GetCapsuleAxisX());
