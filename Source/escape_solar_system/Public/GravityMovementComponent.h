@@ -20,26 +20,20 @@ public:
 	virtual void StartFalling(int32 Iterations, float remainingTime, float timeTick, const FVector& Delta, const FVector& subLoc) override;
 	virtual void PhysFalling(float deltaTime, int32 Iterations) override;
 	virtual FVector GetFallingLateralAcceleration(float DeltaTime) override;
-	virtual FVector NewFallVelocity(const FVector& InitialVelocity, const FVector& Gravity, float DeltaTime) const override;
 	virtual void UpdateBasedMovement(float DeltaSeconds) override;
 	virtual bool DoJump(bool bReplayingMoves) override;
 	virtual FVector GetImpartedMovementBaseVelocity() const override;
 	virtual void JumpOff(AActor* MovementBaseActor) override;
-	virtual void FindFloor(const FVector& CapsuleLocation, FFindFloorResult& OutFloorResult, bool bZeroDelta, const FHitResult* DownwardSweepResult = NULL) const override;
-	virtual void UpdateBasedRotation(FRotator& FinalRotation, const FRotator& ReducedRotation) override;
 	virtual bool FloorSweepTest(struct FHitResult& OutHit, const FVector& Start, const FVector& End, ECollisionChannel TraceChannel, const struct FCollisionShape& CollisionShape, const struct FCollisionQueryParams& Params, const struct FCollisionResponseParams& ResponseParam) const override;
 	virtual bool IsValidLandingSpot(const FVector& CapsuleLocation, const FHitResult& Hit) const override;
 	virtual bool ShouldCheckForValidLandingSpot(float DeltaTime, const FVector& Delta, const FHitResult& Hit) const override;
 	virtual bool ShouldComputePerchResult(const FHitResult& InHit, bool bCheckRadius = true) const override;
 	virtual bool ComputePerchResult(const float TestRadius, const FHitResult& InHit, const float InMaxFloorDist, FFindFloorResult& OutPerchFloorResult) const override;
-	virtual bool CanStepUp(const FHitResult& Hit) const override;
 	virtual bool StepUp(const FVector& GravDir, const FVector& Delta, const FHitResult &Hit, struct UCharacterMovementComponent::FStepDownResult* OutStepDownResult = NULL) override;
-	virtual void SetMovementMode(EMovementMode NewMovementMode, uint8 NewCustomMode = 0) override;
 	virtual void SetDefaultMovementMode() override;
 	virtual void AdjustFloorHeight() override;
 	virtual bool CheckLedgeDirection(const FVector& OldLocation, const FVector& SideStep, const FVector& GravDir) const override;
 	virtual FVector GetLedgeMove(const FVector& OldLocation, const FVector& Delta, const FVector& GravDir) const override;
-	virtual void StartNewPhysics(float deltaTime, int32 Iterations) override;
 	virtual void CalcVelocity(float DeltaTime, float Friction, bool bFluid, float BrakingDeceleration) override;
 	virtual void ApplyAccumulatedForces(float DeltaSeconds) override;
 	virtual bool IsWalkable(const FHitResult& Hit) const override;
@@ -54,7 +48,6 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PerformMovement(float DeltaTime) override;
 	virtual void HandleImpact(const FHitResult& Hit, float TimeSlice = 0.f, const FVector& MoveDelta = FVector::ZeroVector) override;
-	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations) override;
 
 	// Tells if we are moving vertical / horizontal -> neccesary for all ground checks and fly
 	virtual void MaintainHorizontalGroundVelocity() override;
@@ -90,6 +83,4 @@ private:
 	FORCEINLINE FVector GetCapsuleAxisZ() const;
 	FORCEINLINE FVector GetSafeNormalPrecise(const FVector& V);
 	bool IsWithinEdgeToleranceNew(const FVector& CapsuleLocation, const FVector& CapsuleDown, const FVector& TestImpactPoint, const float CapsuleRadius) const;
-	bool bFallingRemovesSpeedZ;
-	bool bIgnoreBaseRollMove;
 };
