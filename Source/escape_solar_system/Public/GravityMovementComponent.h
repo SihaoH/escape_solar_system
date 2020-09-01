@@ -34,7 +34,6 @@ public:
 	virtual void AdjustFloorHeight() override;
 	virtual bool CheckLedgeDirection(const FVector& OldLocation, const FVector& SideStep, const FVector& GravDir) const override;
 	virtual FVector GetLedgeMove(const FVector& OldLocation, const FVector& Delta, const FVector& GravDir) const override;
-	virtual void CalcVelocity(float DeltaTime, float Friction, bool bFluid, float BrakingDeceleration) override;
 	virtual void ApplyAccumulatedForces(float DeltaSeconds) override;
 	virtual bool IsWalkable(const FHitResult& Hit) const override;
 	virtual void ComputeFloorDist(const FVector& CapsuleLocation, float LineDistance, float SweepDistance, FFindFloorResult& OutFloorResult, float SweepRadius, const FHitResult* DownwardSweepResult = NULL) const override;
@@ -70,6 +69,9 @@ protected:
 	/** 自定义重力（加速度），默认值为980cm/s2，一般情况为非负数 */
 	UPROPERTY(Category = "Character Movement (General Settings)", EditAnywhere, BlueprintReadWrite)
 	float GravityZ = 980.0f;
+
+	/** 基底（角色所站立的星球）的自转角速度，在起跳时获取，为了让角色起跳后能保持跟星球同样的角速度 */
+	FVector BaseAngularVelocity = FVector::ZeroVector;
 
 	// When moving debug lines are shown - velocity, acceleration
 	UPROPERTY(Category = "Debug", EditAnywhere)

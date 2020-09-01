@@ -5,7 +5,6 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-
 #include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
@@ -57,7 +56,7 @@ void AGravityCharacter::LookUp(float Value)
 	Value = Value * -1;
 	FRotator current = FollowCamera->GetRelativeRotation();
 	float target = current.Pitch + Value;
-	if (target > -89 && target < 89) 
+	if (target > -89 && target < 89)
 	{
 		FollowCamera->AddRelativeRotation(FRotator(Value, 0, 0));
 	}

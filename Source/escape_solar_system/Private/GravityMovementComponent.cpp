@@ -4,10 +4,8 @@
 #include "GameFramework/PhysicsVolume.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/NavMovementComponent.h"
-#include "Navigation/PathFollowingComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "AI/Navigation/AvoidanceManager.h"
-#include "NavigationSystem.h"
 #include "DrawDebugHelpers.h"
 #include "AI/Navigation/PathFollowingAgentInterface.h"
 
@@ -831,14 +829,6 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		return;
 	}
 
-	// Abort if no valid gravity can be obtained.
-	//if (GravityDirection.IsZero())
-	//{
-	//	Acceleration = FVector::ZeroVector;
-	//	Velocity = FVector::ZeroVector;
-	//	return;
-	//}
-
 	FVector FallAcceleration = GetFallingLateralAcceleration(deltaTime);
 	const bool bHasAirControl = FallAcceleration.SizeSquared() > 0.0f;
 
@@ -849,12 +839,11 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		const float TimeTick = GetSimulationTimeStep(RemainingTime, Iterations);
 		RemainingTime -= TimeTick;
 
-		const FVector OldLocation = CharacterOwner->GetActorLocation();
-		const FRotator PawnRotation = CharacterOwner->GetActorRotation();
+		const FVector OldLocation = UpdatedComponent->GetComponentLocation();
+		FQuat PawnRotation = UpdatedComponent->GetComponentQuat();
 
-		// test
-		//GravityDirection.RotateAngleAxis(90.0f, FVector(1.f, 0.f, 0.f));
-		//const FRotator PawnRotation = GravityDirection.Rotation();
+		FVector DeltaAngular = BaseAngularVelocity * deltaTime;
+		FRotator NewRotation = UpdatedComponent->GetComponentRotation().Add(DeltaAngular.Y, DeltaAngular.Z, DeltaAngular.X);
 
 		bJustTeleported = false;
 
@@ -886,8 +875,6 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 				Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection);
 				CalcVelocity(TimeTick, FallingLateralFriction, false, BrakingDecelerationFalling);
 				Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection) + OldVelocityZ;
-
-
 			}
 
 			// Just copy Velocity to VelocityNoAirControl if they are the same (ie no acceleration).
@@ -915,6 +902,7 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		FVector Adjusted = 0.5f * (OldVelocity + Velocity) * TimeTick;
 
 		SafeMoveUpdatedComponent(Adjusted, PawnRotation, true, Hit);
+		PawnRotation = UpdatedComponent->GetComponentQuat();
 
 		if (!HasValidData())
 		{
@@ -1169,7 +1157,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 	}
 
 	// Find change in rotation.
-	const bool bRotationChanged = !OldBaseQuat.Equals(NewBaseQuat);
+	const bool bRotationChanged = !OldBaseQuat.Equals(NewBaseQuat, 1e-8f);
 	if (bRotationChanged)
 	{
 		DeltaQuat = NewBaseQuat * OldBaseQuat.Inverse();
@@ -1186,20 +1174,34 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 		{
 			FRotationTranslationMatrix HardRelMatrix(CharacterOwner->GetBasedMovement().Rotation, CharacterOwner->GetBasedMovement().Location);
 			const FMatrix NewWorldTM = HardRelMatrix * NewLocalToWorld;
-			const FRotator NewWorldRot = bIgnoreBaseRotation ? CharacterOwner->GetActorRotation() : NewWorldTM.Rotator();
-			MoveUpdatedComponent(NewWorldTM.GetOrigin() - CharacterOwner->GetActorLocation(), NewWorldRot, true);
+			const FQuat NewWorldRot = bIgnoreBaseRotation ? UpdatedComponent->GetComponentQuat() : NewWorldTM.ToQuat();
+			MoveUpdatedComponent(NewWorldTM.GetOrigin() - UpdatedComponent->GetComponentLocation(), NewWorldRot, true);
 		}
 		else
 		{
-			FQuat FinalQuat = CharacterOwner->GetActorQuat();
+			FQuat FinalQuat = UpdatedComponent->GetComponentQuat();
 
 			if (bRotationChanged && !bIgnoreBaseRotation)
 			{
 				// Apply change in rotation and pipe through FaceRotation to maintain axis restrictions.
-				const FQuat PawnOldQuat = CharacterOwner->GetActorQuat();
-				FinalQuat = DeltaQuat * FinalQuat;
-				CharacterOwner->FaceRotation(FinalQuat.Rotator(), 0.0f);
-				FinalQuat = CharacterOwner->GetActorQuat();
+				const FQuat PawnOldQuat = UpdatedComponent->GetComponentQuat();
+				const FQuat TargetQuat = DeltaQuat * FinalQuat;
+				FRotator TargetRotator(TargetQuat);
+				MoveUpdatedComponent(FVector::ZeroVector, TargetRotator, true);
+				FinalQuat = UpdatedComponent->GetComponentQuat();
+
+				if (PawnOldQuat.Equals(FinalQuat, 1e-6f))
+				{
+					// Nothing changed. This means we probably are using another rotation mechanism (bOrientToMovement etc). We should still follow the base object.
+					// @todo: This assumes only Yaw is used, currently a valid assumption. This is the only reason FaceRotation() is used above really, aside from being a virtual hook.
+					if (bOrientRotationToMovement || (bUseControllerDesiredRotation && CharacterOwner->Controller))
+					{
+						TargetRotator.Pitch = 0.f;
+						TargetRotator.Roll = 0.f;
+						MoveUpdatedComponent(FVector::ZeroVector, TargetRotator, false);
+						FinalQuat = UpdatedComponent->GetComponentQuat();
+					}
+				}
 
 				// Pipe through ControlRotation, to affect camera.
 				if (CharacterOwner->Controller)
@@ -1207,7 +1209,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 					const FQuat PawnDeltaRotation = FinalQuat * PawnOldQuat.Inverse();
 					FRotator FinalRotation = FinalQuat.Rotator();
 					UpdateBasedRotation(FinalRotation, PawnDeltaRotation.Rotator());
-					FinalQuat = FinalRotation.Quaternion();
+					FinalQuat = UpdatedComponent->GetComponentQuat();
 				}
 			}
 
@@ -1215,7 +1217,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 			float HalfHeight, Radius;
 			CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(Radius, HalfHeight);
 
-			const FVector BaseOffset = GetCapsuleAxisZ() * HalfHeight;
+			const FVector BaseOffset = FVector::ZeroVector;	//GetCapsuleAxisZ() * HalfHeight
 			const FVector LocalBasePos = OldLocalToWorld.InverseTransformPosition(CharacterOwner->GetActorLocation() - BaseOffset);
 			const FVector NewWorldPos = ConstrainLocationToPlane(NewLocalToWorld.TransformPosition(LocalBasePos) + BaseOffset);
 			DeltaPosition = ConstrainDirectionToPlane(NewWorldPos - CharacterOwner->GetActorLocation());
@@ -1230,7 +1232,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 			{
 				FHitResult MoveOnBaseHit(1.0f);
 				const FVector OldLocation = UpdatedComponent->GetComponentLocation();
-				MoveUpdatedComponent(DeltaPosition, FinalQuat.Rotator(), true, &MoveOnBaseHit);
+				MoveUpdatedComponent(DeltaPosition, FinalQuat, true, &MoveOnBaseHit);
 				if (!((UpdatedComponent->GetComponentLocation() - (OldLocation + DeltaPosition)).IsNearlyZero()))
 				{
 					OnUnableToFollowBaseMove(DeltaPosition, OldLocation, MoveOnBaseHit);
@@ -1254,6 +1256,12 @@ bool UGravityMovementComponent::DoJump(bool bReplayingMoves)
 		// If movement isn't constrained or the angle between plane normal and jump direction is between 60 and 120 degrees...
 		if (!bConstrainToPlane || FMath::Abs(PlaneConstraintNormal | JumpDir) < 0.5f)
 		{
+			UPrimitiveComponent* MovementBase = CharacterOwner->GetMovementBase();
+			if (IsValid(MovementBase))
+			{
+				BaseAngularVelocity = MovementBase->GetPhysicsAngularVelocityInDegrees();
+			}
+
 			// Set to zero the vertical component of velocity.
 			Velocity = FVector::VectorPlaneProject(Velocity, JumpDir);
 
@@ -1830,96 +1838,6 @@ FVector UGravityMovementComponent::GetLedgeMove(const FVector& OldLocation, cons
 	return FVector::ZeroVector;
 }
 
-void UGravityMovementComponent::CalcVelocity(float DeltaTime, float Friction, bool bFluid, float BrakingDeceleration)
-{
-	// Do not update velocity when using root motion
-	if (!HasValidData() || HasAnimRootMotion() || DeltaTime < MIN_TICK_TIME)
-	{
-		return;
-	}
-
-	Friction = FMath::Max(0.f, Friction);
-	const float MaxAccel = GetMaxAcceleration();
-	float MaxSpeed = GetMaxSpeed();
-
-	// Check if path following requested movement
-	bool bZeroRequestedAcceleration = true;
-	FVector RequestedAcceleration = FVector::ZeroVector;
-	float RequestedSpeed = 0.0f;
-	if (ApplyRequestedMove(DeltaTime, MaxAccel, MaxSpeed, Friction, BrakingDeceleration, RequestedAcceleration, RequestedSpeed))
-	{
-		RequestedAcceleration = RequestedAcceleration.GetClampedToMaxSize(MaxAccel);
-		bZeroRequestedAcceleration = false;
-	}
-
-	if (bForceMaxAccel)
-	{
-		// Force acceleration at full speed.
-		// In consideration order for direction: Acceleration, then Velocity, then Pawn's rotation.
-		if (Acceleration.SizeSquared() > SMALL_NUMBER)
-		{
-			Acceleration = GetSafeNormalPrecise(Acceleration) * MaxAccel;
-		}
-		else
-		{
-			Acceleration = MaxAccel * (Velocity.SizeSquared() < SMALL_NUMBER ? CharacterOwner->GetActorRotation().Vector() : GetSafeNormalPrecise(Velocity));
-		}
-
-		AnalogInputModifier = 1.f;
-	}
-
-	// Path following above didn't care about the analog modifier, but we do for everything else below, so get the fully modified value.
-	// Use max of requested speed and max speed if we modified the speed in ApplyRequestedMove above.
-	MaxSpeed = FMath::Max(RequestedSpeed, MaxSpeed * AnalogInputModifier);
-
-	// Apply braking or deceleration
-	const bool bZeroAcceleration = Acceleration.IsZero();
-	const bool bVelocityOverMax = IsExceedingMaxSpeed(MaxSpeed);
-
-
-	// Only apply braking if there is no acceleration, or we are over our max speed and need to slow down to it.
-	if ((bZeroAcceleration && bZeroRequestedAcceleration) || bVelocityOverMax)
-	{
-		const FVector OldVelocity = Velocity;
-		ApplyVelocityBraking(DeltaTime, Friction, BrakingDeceleration);
-
-		// Don't allow braking to lower us below max speed if we started above it.
-		if (bVelocityOverMax && Velocity.SizeSquared() < FMath::Square(MaxSpeed) && FVector::DotProduct(Acceleration, OldVelocity) > 0.0f)
-		{
-			Velocity = GetSafeNormalPrecise(OldVelocity) * MaxSpeed;
-		}
-	}
-	else if (!bZeroAcceleration)
-	{
-		// Friction affects our ability to change direction. This is only done for input acceleration, not path following.
-		const FVector AccelDir = GetSafeNormalPrecise(Acceleration);
-		const float VelSize = Velocity.Size();
-		Velocity = Velocity - (Velocity - AccelDir * VelSize) * FMath::Min(DeltaTime * Friction, 1.f);
-	}
-
-	// Apply fluid friction
-	if (bFluid)
-	{
-		Velocity = Velocity * (1.f - FMath::Min(Friction * DeltaTime, 1.f));
-	}
-
-	// Apply acceleration
-	const float NewMaxSpeed = (IsExceedingMaxSpeed(MaxSpeed)) ? Velocity.Size() : MaxSpeed;
-	Velocity += Acceleration * DeltaTime;
-	Velocity += RequestedAcceleration * DeltaTime;
-	Velocity = GetClampedToMaxSizePrecise(Velocity, NewMaxSpeed);
-
-	if (bUseRVOAvoidance)
-	{
-		CalcAvoidanceVelocity(DeltaTime);
-	}
-
-	if (bShowDebugLines)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Requested acceleration %s    Acceleration %s    Velocity %s"), *RequestedAcceleration.ToString(), *Acceleration.ToString(), *Velocity.ToString());
-	}
-}
-
 void UGravityMovementComponent::ApplyAccumulatedForces(float DeltaSeconds)
 {
 	if (!PendingImpulseToApply.IsZero() || !PendingForceToApply.IsZero())
@@ -2147,7 +2065,7 @@ void UGravityMovementComponent::UpdateComponentRotation()
 	const FMatrix RotationMatrix = FRotationMatrix::MakeFromZX(DesiredCapsuleUp, GetCapsuleAxisX());
 
 	// Intentionally not using MoveUpdatedComponent to bypass constraints.
-	UpdatedComponent->MoveComponent(FVector::ZeroVector, RotationMatrix.Rotator(), true);
+	MoveUpdatedComponent(FVector::ZeroVector, RotationMatrix.Rotator(), true);
 }
 
 FORCEINLINE FQuat UGravityMovementComponent::GetCapsuleRotation() const
