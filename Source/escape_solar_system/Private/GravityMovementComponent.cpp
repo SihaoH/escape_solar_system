@@ -1,4 +1,4 @@
-﻿// Copyright 2020 H2S. All Rights Reserved.
+﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "GravityMovementComponent.h"
 #include "GameFramework/PhysicsVolume.h"

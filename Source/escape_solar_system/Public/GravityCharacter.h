@@ -1,13 +1,14 @@
-﻿// Copyright 2020 H2S. All Rights Reserved.
+﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #pragma once
 
+#include "MassActorInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GravityCharacter.generated.h"
 
 UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API AGravityCharacter : public ACharacter
+class ESCAPE_SOLAR_SYSTEM_API AGravityCharacter : public ACharacter, public IMassActorInterface
 {
 	GENERATED_BODY()
 
@@ -24,6 +25,8 @@ protected:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
 
 	void Turn(float Value);
 	void LookUp(float Value);

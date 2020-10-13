@@ -1,4 +1,4 @@
-﻿// Copyright 2020 H2S. All Rights Reserved.
+﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "GravityCharacter.h"
 #include "GravityMovementComponent.h"
@@ -43,7 +43,13 @@ void AGravityCharacter::BeginPlay()
 void AGravityCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+void AGravityCharacter::GravityActed_Implementation(FVector Direction, float Accel)
+{
+	UGravityMovementComponent* Movement = Cast<UGravityMovementComponent>(GetCharacterMovement());
+	Movement->GravityDirection = Direction;
+	Movement->GravityZ = Accel;
 }
 
 void AGravityCharacter::Turn(float Value)

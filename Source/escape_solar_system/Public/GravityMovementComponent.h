@@ -1,4 +1,4 @@
-﻿// Copyright 2020 H2S. All Rights Reserved.
+﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #pragma once
 
@@ -85,4 +85,6 @@ private:
 	FORCEINLINE FVector GetCapsuleAxisZ() const;
 	FORCEINLINE FVector GetSafeNormalPrecise(const FVector& V);
 	bool IsWithinEdgeToleranceNew(const FVector& CapsuleLocation, const FVector& CapsuleDown, const FVector& TestImpactPoint, const float CapsuleRadius) const;
+
+	friend class AGravityCharacter;
 };
