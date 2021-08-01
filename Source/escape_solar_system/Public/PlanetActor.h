@@ -15,6 +15,9 @@ class ESCAPE_SOLAR_SYSTEM_API APlanetActor : public AStaticMeshActor
 	GENERATED_BODY()
 	APlanetActor(const FObjectInitializer& ObjectInitializer);
 
+public:
+	virtual FVector GetVelocity() const override;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -32,13 +35,9 @@ protected:
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	float Mass = 1.0f;
 
-	/** 旋转中心的坐标 */
+	/** 旋转中心的星球 */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
-	FVector CentralLocation = FVector::ZeroVector;
-
-	/** 和旋转中心的距离 */
-	UPROPERTY(Category = "Planet", VisibleInstanceOnly, BlueprintReadOnly)
-	float DistanceRadius = 0.0f;
+	AActor* CentralActor = nullptr;
 
 private:
 	void PerformRotation(float DeltaTime);
@@ -51,4 +50,8 @@ private:
 private:
 	UPROPERTY(Category = "Planet", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* GravityZone = nullptr;
+
+	/** 和旋转中心的距离 */
+	UPROPERTY(Category = "Planet", VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float DistanceRadius = 0.0f;
 };

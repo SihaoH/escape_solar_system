@@ -26,10 +26,10 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void Raise(float Value);
+	void Adjust(float Value);
 	void TakeOff(float Value);
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
@@ -49,23 +49,40 @@ private:
 	class UCameraComponent* FollowCamera = nullptr;
 
 protected:
+	/** 最大功率 */
 	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
 	float Power = 0;
 
+	/** 当前能量值 */
 	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
-	float MaxEnergy = 0;
+	float MaxEnergy = 1;
 
+	/** 最大能量值 */
 	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
 	float CurEnergy = 0;
+
+	/** 推进速度 */
+	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
+	float ThrustingSpeed = 500;
+
+	/** 调增飞行姿态的速度 */
+	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
+	float AdjustingSpeed = 1;
+
+	/** 重力加速度，cm/s² */
+	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly)
+	float GravityAccel = 0;
+
+	/** 重力方向 */
+	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly)
+	FVector GravityDirection = FVector::ZeroVector;
 
 private:
 	float ForwardValue = 0;
 	float UpValue = 0;
-	float RightValue = 0;
-	float RaiseValue = 0;
 
+	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float ForwardForce = 0;
+	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float UpForce = 0;
-	float RightForce = 0;
-	float RaiseForce = 0;
 };

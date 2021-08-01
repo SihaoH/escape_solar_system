@@ -2042,7 +2042,7 @@ bool UGravityMovementComponent::IsWithinEdgeTolerance(const FVector& CapsuleLoca
 
 FVector UGravityMovementComponent::GetGravity() const
 {
-	return GravityDirection * GravityZ * GravityScale;
+	return GravityDirection * GravityAccel * GravityScale;
 }
 
 void UGravityMovementComponent::UpdateComponentRotation()

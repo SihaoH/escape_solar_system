@@ -15,9 +15,27 @@ APlanetActor::APlanetActor(const FObjectInitializer& ObjectInitializer)
 	GravityZone->OnComponentEndOverlap.AddDynamic(this, &APlanetActor::OnComponentEndOverlap);
 }
 
+/** 
+ * 默认实现需要开启[模拟物理]才能获取到速度
+ * 但开启[模拟物理]后会和各种物体（包括角色）产生物理效果
+ * 而星球本身是要保持稳定的，只能按自转和公转来运动，所以重载该函数
+ * 实现和UPrimitiveComponent::GetComponentVelocity类似，只是去掉了[模拟物理]的判断
+ */
+FVector APlanetActor::GetVelocity() const
+{
+	FVector Velocity = FVector::ZeroVector;
+	FBodyInstance* BodyInst = GetStaticMeshComponent()->GetBodyInstance();
+	if (BodyInst != NULL)
+	{
+		Velocity = BodyInst->GetUnrealWorldVelocity();
+	}
+	return Velocity;
+}
+
 void APlanetActor::BeginPlay()
 {
 	Super::BeginPlay();
+	DistanceRadius = FVector::Distance(CentralActor->GetActorLocation(), GetActorLocation());
 }
 
 void APlanetActor::Tick(float DeltaTime)
@@ -35,8 +53,8 @@ void APlanetActor::PerformRotation(float DeltaTime)
 
 void APlanetActor::PerformRevolution(float DeltaTime)
 {
+	FVector CentralLocation = CentralActor->GetActorLocation();
 	FVector Location = GetActorLocation();
-	DistanceRadius = FVector::Distance(CentralLocation, Location);
 	Location = Location - CentralLocation;
 	float Angle = FMath::Acos(Location.CosineAngle2D(FVector(1.0f, 0, 0))) * FMath::Sign(Location.Y);
 	float NewAngle = Angle + FMath::DegreesToRadians( RevolutionSpeed * DeltaTime );

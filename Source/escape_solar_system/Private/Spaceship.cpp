@@ -35,8 +35,9 @@ void ASpaceship::BeginPlay()
 
 void ASpaceship::GravityActed_Implementation(FVector Direction, float Accel)
 {
-	ShipMesh->AddForce(Direction * Accel, NAME_None, true);
-	GEngine->AddOnScreenDebugMessage(4, 1, FColor::Green, TEXT("Gravity:") + FString::SanitizeFloat(Accel));
+	GravityAccel = Accel;
+	GravityDirection = Direction;
+	ShipMesh->AddForce(GravityDirection * GravityAccel, NAME_None, true);
 }
 
 void ASpaceship::Turn(float Value)
@@ -46,6 +47,7 @@ void ASpaceship::Turn(float Value)
 
 void ASpaceship::LookUp(float Value)
 {
+	// 自动修正摄像机视角
 	Value = Value * -1;
 	FRotator current = SpringArm->GetRelativeRotation();
 	float target = current.Pitch + Value;
@@ -57,8 +59,8 @@ void ASpaceship::LookUp(float Value)
 
 void ASpaceship::MoveForward(float Value)
 {
-	if (CurEnergy <= 0) {
-		ForwardValue = 0;
+	if (CurEnergy <= 0)
+	{
 		return;
 	}
 	ForwardValue = Value;
@@ -66,36 +68,56 @@ void ASpaceship::MoveForward(float Value)
 
 void ASpaceship::MoveRight(float Value)
 {
-	if (CurEnergy <= 0) {
-		RightValue = 0;
+	if (CurEnergy <= 0)
+	{
 		return;
 	}
-	RightValue = Value;
-	const FVector ForwardVector = ShipMesh->GetForwardVector();
-	ShipMesh->AddTorqueInRadians(ForwardVector * -Value * 0.1, NAME_None, true);
+	const FVector UpVector = ShipMesh->GetUpVector();
+	ShipMesh->AddTorqueInRadians(UpVector * Value * 0.1, NAME_None, true);
 }
 
 void ASpaceship::Raise(float Value)
 {
-	if (CurEnergy <= 0) {
-		RaiseValue = 0;
+	if (CurEnergy <= 0)
+	{
 		return;
 	}
-	RaiseValue = Value;
 	const FVector RightVector = ShipMesh->GetRightVector();
 	ShipMesh->AddTorqueInRadians(RightVector * -Value * 0.1, NAME_None, true);
 }
 
+/**
+ * 调增飞行姿态，即飞船在世界坐标系中的旋转角度
+ * 实现和UGravityMovementComponent::UpdateComponentRotation类似
+*/
+void ASpaceship::Adjust(float Value)
+{
+	if (CurEnergy <= 0)
+	{
+		return;
+	}
+	if (Value > 0 && !GravityDirection.IsZero())
+	{
+		const FVector DesiredUp = GravityDirection * -1.f;
+		const FMatrix RotationMatrix = FRotationMatrix::MakeFromZX(DesiredUp, ShipMesh->GetForwardVector());
+		const FRotator TargetRotator = FMath::RInterpTo(
+										ShipMesh->GetComponentRotation(), 
+										RotationMatrix.Rotator(), 
+										GetWorld()->GetDeltaSeconds(), 
+										AdjustingSpeed);
+		ShipMesh->SetWorldRotation(TargetRotator);
+	}
+}
+
 void ASpaceship::TakeOff(float Value)
 {
-	if (CurEnergy <= 0) {
-		UpValue = 0;
+	if (CurEnergy <= 0)
+	{
 		return;
 	}
 	UpValue = Value;
 }
 
-// Called every frame
 void ASpaceship::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -103,56 +125,44 @@ void ASpaceship::Tick(float DeltaTime)
 	const FVector UpVector = ShipMesh->GetUpVector();
 	const FVector ForwardVector = ShipMesh->GetForwardVector();
 	const FVector RightVector = ShipMesh->GetRightVector();
+	// 前进和起飞都按的话，各方向就只能按50%的功率推进
 	const float MaxPower = (UpValue != 0 && ForwardValue != 0) ? Power * 0.5 : Power;
 
-	// 向上
-	if (UpValue > 0 && UpForce < MaxPower)
+	// 向上or向下
+	if (UpValue != 0)
 	{
-		UpForce += Power * UpValue * DeltaTime / 10;
-		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, TEXT("UpForce:") + FString::SanitizeFloat(UpForce));
+		UpForce = FMath::FInterpConstantTo(UpForce, MaxPower * UpValue, DeltaTime, ThrustingSpeed);
 	}
-	else if ((UpValue == 0 && UpForce > 0) || UpForce > MaxPower)
+	else if (UpForce != 0)
 	{
-		UpForce -= Power * DeltaTime / 10;
-		if (UpForce < 0)
-		{
-			UpForce = 0;
-		}
-		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Green, TEXT("UpForce:") + FString::SanitizeFloat(UpForce));
+		UpForce = FMath::FInterpConstantTo(UpForce, 0, DeltaTime, ThrustingSpeed);
 	}
 	
 	// 向前or向后
-	// 向后的推力只能是20%
-	const float MaxRate = ForwardValue < 0 ? 0.2 : 1;
-	if ((ForwardValue > 0 && ForwardForce < MaxPower) || (ForwardValue < 0 && ForwardForce > -MaxPower * MaxRate))
+	if (ForwardValue != 0)
 	{
-		ForwardForce += Power * ForwardValue * DeltaTime / 10;
-		GEngine->AddOnScreenDebugMessage(1, 1, FColor::Red, TEXT("ForwardForce:") + FString::SanitizeFloat(ForwardForce));
+		ForwardForce = FMath::FInterpConstantTo(ForwardForce, MaxPower * ForwardValue, DeltaTime, ThrustingSpeed);
 	}
-	else if ((ForwardValue == 0 && FMath::Abs(ForwardForce) > 0) || FMath::Abs(ForwardForce) > MaxPower * MaxRate)
+	else if (ForwardForce != 0)
 	{
-		const float ForwardUnit = ForwardForce > 0 ? 1 : -1;
-		const float DeltaForce = Power * ForwardUnit * DeltaTime / 10;
-		ForwardForce -= DeltaForce;
-		if (FMath::Abs(ForwardForce) < FMath::Abs(DeltaForce))
-		{
-			ForwardForce = 0;
-		}
-		GEngine->AddOnScreenDebugMessage(1, 1, FColor::Green, TEXT("ForwardForce:") + FString::SanitizeFloat(ForwardForce));
+		ForwardForce = FMath::FInterpConstantTo(ForwardForce, 0, DeltaTime, ThrustingSpeed);
 	}
 	
 	float Total = FMath::Abs(UpForce) + FMath::Abs(ForwardForce);
 	if (Total > 0)
 	{
-		ShipMesh->AddForce(UpVector*UpForce + ForwardVector * ForwardForce);
+		//引擎的加速度单位是cm/s²，转换成现实m/s²，需要乘以100
+		ShipMesh->AddForce((UpVector*UpForce + ForwardVector*ForwardForce) * 100);
 		CurEnergy -= Total * DeltaTime;
 		if (CurEnergy < 0)
 		{
 			CurEnergy = 0;
 		}
 	}
-	GEngine->AddOnScreenDebugMessage(2, 1, FColor::Green, TEXT("CurEnergy:") + FString::SanitizeFloat(CurEnergy));
-	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, TEXT("CurPower:") + FString::SanitizeFloat(Total/Power * 100) + "%");
+
+	UpValue = 0;
+	ForwardValue = 0;
+	//GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, TEXT("CurPower:") + FString::SanitizeFloat(Total/Power * 100) + "%");
 }
 
 // Called to bind functionality to input
@@ -166,6 +176,7 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASpaceship::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ASpaceship::MoveRight);
 	PlayerInputComponent->BindAxis("Raise", this, &ASpaceship::Raise);
+	PlayerInputComponent->BindAxis("Adjust", this, &ASpaceship::Adjust);
 	PlayerInputComponent->BindAxis("TakeOff", this, &ASpaceship::TakeOff);
 }
 

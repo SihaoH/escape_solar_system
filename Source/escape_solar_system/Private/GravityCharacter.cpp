@@ -33,6 +33,12 @@ void AGravityCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("MoveRight", this, &AGravityCharacter::MoveRight);
 }
 
+float AGravityCharacter::GetGravityAccel() const
+{
+	UGravityMovementComponent* Movement = Cast<UGravityMovementComponent>(GetCharacterMovement());
+	return Movement->GravityAccel;
+}
+
 // Called when the game starts or when spawned
 void AGravityCharacter::BeginPlay()
 {
@@ -49,7 +55,7 @@ void AGravityCharacter::GravityActed_Implementation(FVector Direction, float Acc
 {
 	UGravityMovementComponent* Movement = Cast<UGravityMovementComponent>(GetCharacterMovement());
 	Movement->GravityDirection = Direction;
-	Movement->GravityZ = Accel;
+	Movement->GravityAccel = Accel;
 }
 
 void AGravityCharacter::Turn(float Value)

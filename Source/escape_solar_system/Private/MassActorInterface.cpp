@@ -3,4 +3,7 @@
 
 #include "MassActorInterface.h"
 
-// Add default functionality here for any IMassActorInterface functions that are not pure virtual.
+UMassActorInterface::UMassActorInterface(const FObjectInitializer& ObjectInitializer)
+: Super(ObjectInitializer)
+{
+}
