@@ -9,8 +9,11 @@
 #include "DrawDebugHelpers.h"
 #include "AI/Navigation/PathFollowingAgentInterface.h"
 
-const float VERTICAL_SLOPE_NORMAL_Z = 0.001f; // Slope is vertical if Abs(Normal.Z) <= this threshold. Accounts for precision problems that sometimes angle normals slightly off horizontal for vertical surface.
-const float MAX_STEP_SIDE_Z = 0.08f;	// maximum z value for the normal on the vertical side of steps
+// 如果 Abs(Normal.Z) <= 此阈值，则斜率是垂直的。 解决了有时垂直表面的法线角度略微偏离水平的精度问题。
+const float VERTICAL_SLOPE_NORMAL_Z = 0.001f;
+
+// 台阶垂直侧法线的最大Z值
+const float MAX_STEP_SIDE_Z = 0.08f;
 
 // Version that does not use inverse sqrt estimate, for higher precision.
 FORCEINLINE FVector GetClampedToMaxSizePrecise(const FVector& V, float MaxSize)
@@ -225,12 +228,12 @@ void UGravityMovementComponent::MaintainHorizontalGroundVelocity()
 		if (bMaintainHorizontalGroundVelocity)
 		{
 			// Just remove the vertical component.
-			Velocity = FVector::VectorPlaneProject(Velocity, GetCapsuleAxisZ());
+			Velocity = FVector::VectorPlaneProject(Velocity, GetUpVector());
 		}
 		else
 		{
 			// Project the vector and maintain its original magnitude.
-			Velocity = FVector::VectorPlaneProject(Velocity, GetCapsuleAxisZ()).GetSafeNormal() * Velocity.Size();
+			Velocity = FVector::VectorPlaneProject(Velocity, GetUpVector()).GetSafeNormal() * Velocity.Size();
 		}
 	}
 }
@@ -245,7 +248,7 @@ float UGravityMovementComponent::SlideAlongSurface(const FVector& Delta, float T
 	FVector NewNormal = Normal;
 	if (IsMovingOnGround())
 	{
-		const FVector CapsuleUp = GetCapsuleAxisZ();
+		const FVector CapsuleUp = GetUpVector();
 		const float Dot = NewNormal | CapsuleUp;
 
 		// We don't want to be pushed up an unwalkable surface.
@@ -372,7 +375,7 @@ void UGravityMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 				const float DesiredDist = Delta.Size();
 				if (DesiredDist > KINDA_SMALL_NUMBER)
 				{
-					const float ActualDist = FVector::VectorPlaneProject(CharacterOwner->GetActorLocation() - OldLocation, GetCapsuleAxisZ()).Size();
+					const float ActualDist = FVector::VectorPlaneProject(CharacterOwner->GetActorLocation() - OldLocation, GetUpVector()).Size();
 					RemainingTime += TimeTick * (1.0f - FMath::Min(1.0f, ActualDist / DesiredDist));
 				}
 
@@ -402,7 +405,7 @@ void UGravityMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 		if (bCheckLedges && !CurrentFloor.IsWalkableFloor())
 		{
 			// Calculate possible alternate movement.
-			const FVector NewDelta = bTriedLedgeMove ? FVector::ZeroVector : GetLedgeMove(OldLocation, Delta, GetCapsuleAxisZ() * -1.0f);
+			const FVector NewDelta = bTriedLedgeMove ? FVector::ZeroVector : GetLedgeMove(OldLocation, Delta, GetUpVector() * -1.0f);
 			if (!NewDelta.IsZero())
 			{
 				// First revert this move.
@@ -459,7 +462,7 @@ void UGravityMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 				// The floor check failed because it started in penetration.
 				// We do not want to try to move downward because the downward sweep failed, rather we'd like to try to pop out of the floor.
 				FHitResult Hit(CurrentFloor.HitResult);
-				Hit.TraceEnd = Hit.TraceStart + GetCapsuleAxisZ() * MAX_FLOOR_DIST;
+				Hit.TraceEnd = Hit.TraceStart + GetUpVector() * MAX_FLOOR_DIST;
 				const FVector RequestedAdjustment = GetPenetrationAdjustment(Hit);
 				ResolvePenetration(RequestedAdjustment, Hit, CharacterOwner->GetActorRotation());
 			}
@@ -511,7 +514,7 @@ void UGravityMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 FVector UGravityMovementComponent::ComputeGroundMovementDelta(const FVector& Delta, const FHitResult& RampHit, const bool bHitFromLineTrace) const	// OK
 {
 	const FVector FloorNormal = RampHit.ImpactNormal;
-	const FVector ContactNormal = GetCapsuleAxisZ();
+	const FVector ContactNormal = GetUpVector();
 
 	// THIS IS THE PROBLEM
 	bool bb = true; // = FMath::Abs(Delta | FloorNormal) > THRESH_NORMALS_ARE_ORTHOGONAL;
@@ -548,7 +551,7 @@ void UGravityMovementComponent::MoveAlongFloor(const FVector& InVelocity, float 
 	}
 
 	FHitResult Hit(1.0f);
-	const FVector CapsuleUp = GetCapsuleAxisZ();
+	const FVector CapsuleUp = GetUpVector();
 	const FVector Delta = FVector::VectorPlaneProject(InVelocity, CapsuleUp) * DeltaSeconds;
 	FVector RampVector = ComputeGroundMovementDelta(Delta, CurrentFloor.HitResult, CurrentFloor.bLineTrace);
 
@@ -759,7 +762,7 @@ FVector UGravityMovementComponent::ConstrainInputAcceleration(const FVector& Inp
 	// Walking or falling pawns ignore up/down sliding.
 	if (IsMovingOnGround() || IsFalling())
 	{
-		return FVector::VectorPlaneProject(InputAcceleration, GetCapsuleAxisZ());
+		return FVector::VectorPlaneProject(InputAcceleration, GetUpVector());
 	}
 
 	return InputAcceleration;
@@ -1217,7 +1220,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 			float HalfHeight, Radius;
 			CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(Radius, HalfHeight);
 
-			const FVector BaseOffset = FVector::ZeroVector;	//GetCapsuleAxisZ() * HalfHeight
+			const FVector BaseOffset = FVector::ZeroVector;	//GetUpVector() * HalfHeight
 			const FVector LocalBasePos = OldLocalToWorld.InverseTransformPosition(CharacterOwner->GetActorLocation() - BaseOffset);
 			const FVector NewWorldPos = ConstrainLocationToPlane(NewLocalToWorld.TransformPosition(LocalBasePos) + BaseOffset);
 			DeltaPosition = ConstrainDirectionToPlane(NewWorldPos - CharacterOwner->GetActorLocation());
@@ -1251,7 +1254,7 @@ bool UGravityMovementComponent::DoJump(bool bReplayingMoves)
 {
 	if (CharacterOwner && CharacterOwner->CanJump())
 	{
-		const FVector JumpDir = GetCapsuleAxisZ();
+		const FVector JumpDir = GetUpVector();
 
 		// If movement isn't constrained or the angle between plane normal and jump direction is between 60 and 120 degrees...
 		if (!bConstrainToPlane || FMath::Abs(PlaneConstraintNormal | JumpDir) < 0.5f)
@@ -1288,7 +1291,7 @@ FVector UGravityMovementComponent::GetImpartedMovementBaseVelocity() const
 
 			if (bImpartBaseAngularVelocity)
 			{
-				const FVector CharacterBasePosition = (UpdatedComponent->GetComponentLocation() - GetCapsuleAxisZ() * CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+				const FVector CharacterBasePosition = (UpdatedComponent->GetComponentLocation() - GetUpVector() * CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 				const FVector BaseTangentialVel = MovementBaseUtility::GetMovementBaseTangentialVelocity(MovementBase, CharacterOwner->GetBasedMovement().BoneName, CharacterBasePosition);
 				BaseVelocity += BaseTangentialVel;
 			}
@@ -1322,7 +1325,7 @@ void UGravityMovementComponent::JumpOff(AActor* MovementBaseActor)
 			const float MaxSpeed = GetMaxSpeed() * 0.85f;
 			Velocity += GetBestDirectionOffActor(MovementBaseActor) * MaxSpeed;
 
-			const FVector JumpDir = GetCapsuleAxisZ();
+			const FVector JumpDir = GetUpVector();
 			FVector Velocity2D = FVector::VectorPlaneProject(Velocity, JumpDir);
 
 			if (Velocity2D.Size() > MaxSpeed)
@@ -1380,7 +1383,7 @@ bool UGravityMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocatio
 		return false;
 	}
 
-	const FVector CapsuleDown = GetCapsuleAxisZ() * -1.0f;
+	const FVector CapsuleDown = GetUpVector() * -1.0f;
 
 	// Skip some checks if penetrating. Penetration will be handled by the FindFloor call (using a smaller capsule).
 	if (!Hit.bStartPenetrating)
@@ -1438,7 +1441,7 @@ bool UGravityMovementComponent::IsValidLandingSpot(const FVector& CapsuleLocatio
 
 bool UGravityMovementComponent::ShouldCheckForValidLandingSpot(float DeltaTime, const FVector& Delta, const FHitResult& Hit) const
 {
-	const FVector CapsuleUp = GetCapsuleAxisZ();
+	const FVector CapsuleUp = GetUpVector();
 
 	// See if we hit an edge of a surface on the lower portion of the capsule.
 	// In this case the normal will not equal the impact normal, and a downward sweep may find a walkable surface on top of the edge.
@@ -1466,7 +1469,7 @@ bool UGravityMovementComponent::ShouldComputePerchResult(const FHitResult& InHit
 
 	if (bCheckRadius)
 	{
-		const FVector CapsuleDown = GetCapsuleAxisZ() * -1.0f;
+		const FVector CapsuleDown = GetUpVector() * -1.0f;
 		const float DistFromCenterSq = (InHit.Location + CapsuleDown * ((InHit.ImpactPoint - InHit.Location) | CapsuleDown) - InHit.ImpactPoint).SizeSquared();
 		const float StandOnEdgeRadiusSq = FMath::Square(GetValidPerchRadius());
 
@@ -1491,7 +1494,7 @@ bool UGravityMovementComponent::ComputePerchResult(const float TestRadius, const
 	float PawnRadius, PawnHalfHeight;
 	CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
 
-	const FVector CapsuleDown = GetCapsuleAxisZ() * -1.0f;
+	const FVector CapsuleDown = GetUpVector() * -1.0f;
 	const float InHitAboveBase = (InHit.Location + CapsuleDown * ((InHit.ImpactPoint - InHit.Location) | CapsuleDown) -
 		(InHit.Location + CapsuleDown * PawnHalfHeight)).Size();
 	const float PerchLineDist = FMath::Max(0.0f, InMaxFloorDist - InHitAboveBase);
@@ -1525,7 +1528,7 @@ bool UGravityMovementComponent::StepUp(const FVector& GravDir, const FVector& De
 	float PawnRadius, PawnHalfHeight;
 	CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
 
-	const FVector CapsuleDown = GetCapsuleAxisZ() * -1.0f;
+	const FVector CapsuleDown = GetUpVector() * -1.0f;
 
 	// Get the axis of the capsule bounded by the following two end points.
 	const FVector BottomPoint = OldLocation + CapsuleDown * PawnHalfHeight;
@@ -1752,7 +1755,7 @@ void UGravityMovementComponent::AdjustFloorHeight()
 		FHitResult AdjustHit(1.0f);
 		const float AvgFloorDist = (MIN_FLOOR_DIST + MAX_FLOOR_DIST) * 0.5f;
 		const float MoveDist = AvgFloorDist - OldFloorDist;
-		const FVector CapsuleUp = GetCapsuleAxisZ();
+		const FVector CapsuleUp = GetUpVector();
 		const FVector InitialLocation = UpdatedComponent->GetComponentLocation();
 
 		SafeMoveUpdatedComponent(CapsuleUp * MoveDist, CharacterOwner->GetActorRotation(), true, AdjustHit);
@@ -1845,7 +1848,7 @@ void UGravityMovementComponent::ApplyAccumulatedForces(float DeltaSeconds)
 		const FVector Impulse = PendingImpulseToApply + PendingForceToApply * DeltaSeconds + GetGravity() * DeltaSeconds;
 
 		// Check to see if applied momentum is enough to overcome gravity.
-		if ((Impulse | GetCapsuleAxisZ()) > SMALL_NUMBER)
+		if ((Impulse | GetUpVector()) > SMALL_NUMBER)
 		{
 			SetMovementMode(MOVE_Falling);
 		}
@@ -1876,7 +1879,7 @@ bool UGravityMovementComponent::IsWalkable(const FHitResult& Hit) const
 	}
 
 	// Can't walk on this surface if it is too steep.
-	if ((Hit.ImpactNormal | GetCapsuleAxisZ()) < TestWalkableZ)
+	if ((Hit.ImpactNormal | GetUpVector()) < TestWalkableZ)
 	{
 		return false;
 	}
@@ -1897,7 +1900,7 @@ void UGravityMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation,
 	float PawnRadius, PawnHalfHeight;
 	CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(PawnRadius, PawnHalfHeight);
 
-	const FVector CapsuleDown = GetCapsuleAxisZ() * -1.0f;
+	const FVector CapsuleDown = GetUpVector() * -1.0f;
 
 	bool bSkipSweep = false;
 	if (DownwardSweepResult != NULL && DownwardSweepResult->IsValidBlockingHit())
@@ -2032,7 +2035,7 @@ void UGravityMovementComponent::ComputeFloorDist(const FVector& CapsuleLocation,
 
 bool UGravityMovementComponent::IsWithinEdgeTolerance(const FVector& CapsuleLocation, const FVector& TestImpactPoint, const float CapsuleRadius) const
 {
-	const FVector CapsuleDown = GetCapsuleAxisZ() * -1.0f;
+	const FVector CapsuleDown = GetUpVector() * -1.0f;
 
 	const float DistFromCenterSq = (CapsuleLocation + CapsuleDown * ((TestImpactPoint - CapsuleLocation) | CapsuleDown) - TestImpactPoint).SizeSquared();
 	const float ReducedRadiusSq = FMath::Square(FMath::Max(KINDA_SMALL_NUMBER, CapsuleRadius - SWEEP_EDGE_REJECT_DISTANCE));
@@ -2052,20 +2055,23 @@ void UGravityMovementComponent::UpdateComponentRotation()
 		return;
 	}
 
-	const FVector DesiredCapsuleUp = GravityDirection * -1.f;
-
 	// 如果新旧两个"向上"的向量夹角几乎为0度，则不调整旋转
-	// 但是这样会使镜头抖动，这个"几乎"有点问题，所以先注释
-	//if ((DesiredCapsuleUp | GetCapsuleAxisZ()) >= THRESH_NORMALS_ARE_PARALLEL)
-	//{
-	//	return;
-	//}
+	const FVector DesiredCapsuleUp = GravityDirection * -1.f;
+	if ((DesiredCapsuleUp | GetUpVector()) >= THRESH_NORMALS_ARE_PARALLEL)
+	{
+		return;
+	}
 
 	// Take desired Z rotation axis of capsule, try to keep current X rotation axis of capsule.
-	const FMatrix RotationMatrix = FRotationMatrix::MakeFromZX(DesiredCapsuleUp, GetCapsuleAxisX());
+	const FMatrix RotationMatrix = FRotationMatrix::MakeFromZX(DesiredCapsuleUp, GetForwardVector());
+	const FRotator TargetRotator = FMath::RInterpTo(
+		GetCapsuleRotation().Rotator(),
+		RotationMatrix.Rotator(),
+		GetWorld()->GetDeltaSeconds(),
+		GravityAccel*0.001);
 
 	// Intentionally not using MoveUpdatedComponent to bypass constraints.
-	MoveUpdatedComponent(FVector::ZeroVector, RotationMatrix.Rotator(), true);
+	MoveUpdatedComponent(FVector::ZeroVector, TargetRotator, true);
 }
 
 FORCEINLINE FQuat UGravityMovementComponent::GetCapsuleRotation() const
@@ -2073,24 +2079,19 @@ FORCEINLINE FQuat UGravityMovementComponent::GetCapsuleRotation() const
 	return UpdatedComponent->GetComponentQuat();
 }
 
-FORCEINLINE FVector UGravityMovementComponent::GetCapsuleAxisX() const
+FORCEINLINE FVector UGravityMovementComponent::GetForwardVector() const
 {
-	// Fast simplification of FQuat::RotateVector() with FVector(1,0,0).
-	const FQuat CapsuleRotation = GetCapsuleRotation();
-	const FVector QuatVector(CapsuleRotation.X, CapsuleRotation.Y, CapsuleRotation.Z);
-
-	return FVector(FMath::Square(CapsuleRotation.W) - QuatVector.SizeSquared(), CapsuleRotation.Z * CapsuleRotation.W * 2.0f,
-		CapsuleRotation.Y * CapsuleRotation.W * -2.0f) + QuatVector * (CapsuleRotation.X * 2.0f);
+	return UpdatedComponent->GetForwardVector();
 }
 
-FORCEINLINE FVector UGravityMovementComponent::GetCapsuleAxisZ() const
+FORCEINLINE FVector UGravityMovementComponent::GetRightVector() const
 {
-	// Fast simplification of FQuat::RotateVector() with FVector(0,0,1).
-	const FQuat CapsuleRotation = GetCapsuleRotation();
-	const FVector QuatVector(CapsuleRotation.X, CapsuleRotation.Y, CapsuleRotation.Z);
+	return UpdatedComponent->GetRightVector();
+}
 
-	return FVector(CapsuleRotation.Y * CapsuleRotation.W * 2.0f, CapsuleRotation.X * CapsuleRotation.W * -2.0f,
-		FMath::Square(CapsuleRotation.W) - QuatVector.SizeSquared()) + QuatVector * (CapsuleRotation.Z * 2.0f);
+FORCEINLINE FVector UGravityMovementComponent::GetUpVector() const
+{
+	return UpdatedComponent->GetUpVector();
 }
 
 // Version that does not use inverse sqrt estimate, for higher precision.

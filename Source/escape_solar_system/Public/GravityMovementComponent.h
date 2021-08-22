@@ -40,6 +40,11 @@ public:
 	virtual bool IsWithinEdgeTolerance(const FVector& CapsuleLocation, const FVector& TestImpactPoint, const float CapsuleRadius) const override;
 	// End UCharacterMovementComponent overrides
 
+	FORCEINLINE FQuat GetCapsuleRotation() const;
+	FORCEINLINE FVector GetForwardVector() const;
+	FORCEINLINE FVector GetRightVector() const;
+	FORCEINLINE FVector GetUpVector() const;
+
 protected:
 	// Begin UCharacterMovementComponent overrides
 	virtual void PhysFlying(float deltaTime, int32 Iterations) override;
@@ -66,9 +71,9 @@ protected:
 	UPROPERTY(Category = "Character Movement (General Settings)", EditAnywhere, BlueprintReadWrite)
 	FVector GravityDirection = FVector::ZeroVector;
 
-	/** 自定义重力（加速度），默认值为980cm/s2，一般情况为非负数 */
+	/** 自定义重力（加速度），单位cm/s² */
 	UPROPERTY(Category = "Character Movement (General Settings)", EditAnywhere, BlueprintReadWrite)
-	float GravityAccel = 980.0f;
+	float GravityAccel = 0.f;
 
 	/** 基底（角色所站立的星球）的自转角速度，在起跳时获取，为了让角色起跳后能保持跟星球同样的角速度 */
 	FVector BaseAngularVelocity = FVector::ZeroVector;
@@ -80,9 +85,7 @@ protected:
 private:
 	FVector GetGravity() const;
 	void UpdateComponentRotation();
-	FORCEINLINE FQuat GetCapsuleRotation() const;
-	FORCEINLINE FVector GetCapsuleAxisX() const;
-	FORCEINLINE FVector GetCapsuleAxisZ() const;
+
 	FORCEINLINE FVector GetSafeNormalPrecise(const FVector& V);
 	bool IsWithinEdgeToleranceNew(const FVector& CapsuleLocation, const FVector& CapsuleDown, const FVector& TestImpactPoint, const float CapsuleRadius) const;
 

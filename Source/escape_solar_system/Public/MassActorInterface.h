@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "MassActorInterface.generated.h"
 
-// This class does not need to be modified.
+
 UINTERFACE(Blueprintable)
 class UMassActorInterface : public UInterface
 {
@@ -20,8 +20,14 @@ class ESCAPE_SOLAR_SYSTEM_API IMassActorInterface
 {
 	GENERATED_IINTERFACE_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(Category = Gravity, BlueprintNativeEvent)
 	void GravityActed(FVector Direction, float Accel);
+
+	FORCEINLINE class APlanetActor* GetPlanetOwner() { return PlanetOwner; }
+
+private:
+	class APlanetActor* PlanetOwner = nullptr;
+
+	friend class APlanetActor;
 };

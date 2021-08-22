@@ -3,44 +3,63 @@
 #pragma once
 
 #include "MassActorInterface.h"
+#include "Controllable.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Spaceship.generated.h"
 
 UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API ASpaceship : public APawn, public IMassActorInterface
+class ESCAPE_SOLAR_SYSTEM_API ASpaceship : public APawn, public IMassActorInterface, public IControllable
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
-	ASpaceship();
+	ASpaceship(const FObjectInitializer& ObjectInitializer);
+
+	void SetPilot(APawn* Pilot);
+
+	virtual void GetHP(float& Current, float& Max) const override;
+	virtual void GetMP(float& Current, float& Max) const override;
+	virtual float GetGravityAccel() const override;
 
 protected:
-	// Called when the game starts or when spawned
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void Controlled() override;
+	virtual void UnControlled() override;
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
+
 	void Turn(float Value);
 	void LookUp(float Value);
+	void FreeLook();
+	void UnFreeLook();
+	void UnDrive();
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
-	void Raise(float Value);
-	void Adjust(float Value);
-	void TakeOff(float Value);
+	void MoveUp(float Value);
 
-public:
-	virtual void Tick(float DeltaTime) override;
+	void PerformTurn(float DeltaTime);
+	void PerformThrust(float DeltaTime);
+	void PerformAdjust(float DeltaTime);
+	void PerformFOV(float DeltaTime);
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+private:
+	UFUNCTION()
+	void OnSomethingClosed(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnSomethingLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* ShipMesh = nullptr;
 
-	//UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	//class USceneComponent* ViewOrigin = nullptr;
+	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* ContactTrigger = nullptr;
+
+	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USceneComponent* OriginComponent = nullptr;
 
 	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm = nullptr;
@@ -49,7 +68,7 @@ private:
 	class UCameraComponent* FollowCamera = nullptr;
 
 protected:
-	/** 最大功率 */
+	/** 最大功率(推进力)，单位N（1N=1 kg·m/s²） */
 	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
 	float Power = 0;
 
@@ -65,11 +84,7 @@ protected:
 	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
 	float ThrustingSpeed = 500;
 
-	/** 调增飞行姿态的速度 */
-	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
-	float AdjustingSpeed = 1;
-
-	/** 重力加速度，cm/s² */
+	/** 重力加速度，单位cm/s² */
 	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly)
 	float GravityAccel = 0;
 
@@ -78,6 +93,8 @@ protected:
 	FVector GravityDirection = FVector::ZeroVector;
 
 private:
+	bool bFreeLook = true;
+
 	float ForwardValue = 0;
 	float UpValue = 0;
 
@@ -85,4 +102,6 @@ private:
 	float ForwardForce = 0;
 	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float UpForce = 0;
+
+	APawn* CurrentPilot = nullptr;
 };
