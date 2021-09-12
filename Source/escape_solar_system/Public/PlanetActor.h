@@ -6,14 +6,16 @@
 #include "Engine/StaticMeshActor.h"
 #include "PlanetActor.generated.h"
 
-
+/**
+ * 星体基类，发射引力，信息显示等
+ */
 UCLASS()
 class ESCAPE_SOLAR_SYSTEM_API APlanetActor : public AStaticMeshActor
 {
 	GENERATED_BODY()
 
 public:
-	APlanetActor(const FObjectInitializer& ObjectInitializer);
+	APlanetActor();
 	virtual FVector GetVelocity() const override;
 
 	void SetLooked(bool Looked);
@@ -50,6 +52,10 @@ protected:
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	float SurfaceGravity = 1.0f;
 
+	/** 星球的半径，单位cm，会决定对物体的引力；如不指定，则自动获取网格体的大小，可能会以最高峰为准 */
+	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	float SelfRadius = -1.f;
+
 	/** 旋转中心的星球 */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	AActor* CentralActor = nullptr;
@@ -62,10 +68,6 @@ private:
 	/** 和旋转中心的距离 */
 	UPROPERTY(Category = "Planet", VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float DistanceRadius = 0.0f;
-
-	/** 星球的半径，会决定对物体的引力 */
-	UPROPERTY(Category = "Planet", VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float SelfRadius = 1.0f;
 
 	UPROPERTY(Category = "Planet", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* GravityZone = nullptr;

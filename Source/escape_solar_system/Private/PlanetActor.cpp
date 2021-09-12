@@ -1,14 +1,12 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
-
 #include "PlanetActor.h"
 #include "MassActorInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 
-APlanetActor::APlanetActor(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+APlanetActor::APlanetActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
@@ -54,7 +52,10 @@ void APlanetActor::SetLocked(bool Locked)
 void APlanetActor::BeginPlay()
 {
 	Super::BeginPlay();
-	SelfRadius = GetStaticMeshComponent()->Bounds.SphereRadius;
+	if (SelfRadius <= 0)
+	{
+		SelfRadius = GetStaticMeshComponent()->Bounds.SphereRadius;
+	}
 	if (CentralActor)
 	{
 		DistanceRadius = FVector::Distance(CentralActor->GetActorLocation(), GetActorLocation());

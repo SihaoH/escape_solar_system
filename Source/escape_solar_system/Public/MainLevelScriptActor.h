@@ -22,6 +22,7 @@ protected:
 
 private:
 	void OnPaused();
+	void OnMenuOpened();
 
 private:
 	class APlayerController* MainController = nullptr;

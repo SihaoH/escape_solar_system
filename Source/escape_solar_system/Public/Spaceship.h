@@ -8,15 +8,19 @@
 #include "GameFramework/Pawn.h"
 #include "Spaceship.generated.h"
 
+/**
+ * 主载具（飞船）类
+ */
 UCLASS()
 class ESCAPE_SOLAR_SYSTEM_API ASpaceship : public APawn, public IMassActorInterface, public IControllable
 {
 	GENERATED_BODY()
 
 public:
-	ASpaceship(const FObjectInitializer& ObjectInitializer);
+	ASpaceship();
 
 	void SetPilot(APawn* Pilot);
+	class UBackpackComponent* GetBackpack() const { return Storehouse; }
 
 	virtual void GetHP(float& Current, float& Max) const override;
 	virtual void GetMP(float& Current, float& Max) const override;
@@ -46,10 +50,6 @@ protected:
 	void PerformFOV(float DeltaTime);
 
 private:
-	UFUNCTION()
-	void OnSomethingClosed(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-	void OnSomethingLeft(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -103,5 +103,10 @@ private:
 	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float UpForce = 0;
 
+private:
+	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	APawn* CurrentPilot = nullptr;
+
+	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBackpackComponent* Storehouse = nullptr;
 };

@@ -36,6 +36,7 @@ FORCEINLINE FVector GetClampedToMaxSizePrecise(const FVector& V, float MaxSize)
 
 UGravityMovementComponent::UGravityMovementComponent()
 {
+	PushForceFactor = 500.f;
 }
 
 void UGravityMovementComponent::PhysFlying(float deltaTime, int32 Iterations)

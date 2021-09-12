@@ -21,8 +21,8 @@ void AMainLevelScriptActor::BeginPlay()
 	PlayingWidget->AddToViewport();
 
 	MainController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	// 在编辑器中ESC被占用，所以暂时使用F12；发布时要改成ESC键
-	InputComponent->BindKey(EKeys::F12, IE_Pressed, this, &AMainLevelScriptActor::OnPaused);
+	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScriptActor::OnPaused);
+	InputComponent->BindKey(EKeys::Tab, IE_Pressed, this, &AMainLevelScriptActor::OnMenuOpened);
 }
 
 void AMainLevelScriptActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -38,10 +38,14 @@ void AMainLevelScriptActor::Tick(float DeltaTime)
 void AMainLevelScriptActor::OnPaused()
 {
 	// 弹出暂停界面
-	UGameplayStatics::SetGamePaused(GetWorld(), true);
 	UUserWidget* PauseWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Pause.WB_Pause_C'")));
 	PauseWidget->AddToViewport();
-	APlayerController* Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	Controller->bShowMouseCursor = true;
-	UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(Controller);
+}
+
+void AMainLevelScriptActor::OnMenuOpened()
+{
+	UUserWidget* PauseWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Menu.WB_Menu_C'")));
+	PauseWidget->AddToViewport();
+	MainController->bShowMouseCursor = true;
+	UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(MainController);
 }

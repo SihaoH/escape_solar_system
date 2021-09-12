@@ -89,5 +89,5 @@ private:
 	FORCEINLINE FVector GetSafeNormalPrecise(const FVector& V);
 	bool IsWithinEdgeToleranceNew(const FVector& CapsuleLocation, const FVector& CapsuleDown, const FVector& TestImpactPoint, const float CapsuleRadius) const;
 
-	friend class AGravityCharacter;
+	friend class AMainCharacter;
 };

@@ -1,19 +1,19 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "Spaceship.h"
-#include "GravityCharacter.h"
+#include "MainCharacter.h"
+#include "BackpackComponent.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/BoxComponent.h>
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
 #include <Kismet/GameplayStatics.h>
 
-
-ASpaceship::ASpaceship(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+ASpaceship::ASpaceship()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	Storehouse = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
 	ShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShipMesh"));
 	ContactTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("ContactTrigger"));
 	OriginComponent = CreateDefaultSubobject<USceneComponent>(TEXT("OriginComponent"));
@@ -36,9 +36,6 @@ ASpaceship::ASpaceship(const FObjectInitializer& ObjectInitializer)
 	ContactTrigger->SetMassOverrideInKg(NAME_None, 0.001f);
 	SpringArm->SetRelativeLocation(FVector(0, 0, 220));
 	SpringArm->TargetArmLength = 1200;
-
-	ContactTrigger->OnComponentBeginOverlap.AddDynamic(this, &ASpaceship::OnSomethingClosed);
-	ContactTrigger->OnComponentEndOverlap.AddDynamic(this, &ASpaceship::OnSomethingLeft);
 }
 
 void ASpaceship::SetPilot(APawn* Pilot)
@@ -83,6 +80,8 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
+	Storehouse->AddItem("0000", 33);
+	Storehouse->AddItem("1000", 66);
 }
 
 void ASpaceship::Tick(float DeltaTime)
@@ -253,22 +252,4 @@ void ASpaceship::PerformFOV(float DeltaTime)
 	float Velocity = GetVelocity().Size();
 	float Value = FMath::GetMappedRangeValueClamped(TRange<float>(1000, 10000), TRange<float>(80, 105), Velocity);
 	FollowCamera->SetFieldOfView(Value);
-}
-
-void ASpaceship::OnSomethingClosed(UPrimitiveComponent*, AActor* OtherActor, UPrimitiveComponent*, int32, bool, const FHitResult&)
-{
-	AGravityCharacter* MainCharacter = Cast<AGravityCharacter>(OtherActor);
-	if (MainCharacter)
-	{
-		MainCharacter->SetNearSpaceship(this);
-	}
-}
-
-void ASpaceship::OnSomethingLeft(UPrimitiveComponent*, AActor* OtherActor, UPrimitiveComponent*, int32)
-{
-	AGravityCharacter* MainCharacter = Cast<AGravityCharacter>(OtherActor);
-	if (MainCharacter)
-	{
-		MainCharacter->SetNearSpaceship(nullptr);
-	}
 }
