@@ -23,13 +23,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-
 private:
 	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* MeshComponent;
-
-	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* TiggerComponent;
+	class USphereComponent* TiggerComponent = nullptr;
 
 	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBackpackComponent* Storehouse = nullptr;

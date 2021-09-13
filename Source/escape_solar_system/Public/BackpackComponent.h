@@ -51,6 +51,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 CountItem(const FName& RowName) const;
 	FBackpackItemInfo FindItem(int32 Index) const;
+	int32 FindItem(const FName& RowName) const;
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurGrid() const;

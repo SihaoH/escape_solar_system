@@ -9,6 +9,7 @@
 APlanetActor::APlanetActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	RootComponent = GetStaticMeshComponent();
 	GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 
 	GravityZone = CreateDefaultSubobject<USphereComponent>(TEXT("GravityZone"));
@@ -56,9 +57,9 @@ void APlanetActor::BeginPlay()
 	{
 		SelfRadius = GetStaticMeshComponent()->Bounds.SphereRadius;
 	}
-	if (CentralActor)
+	if (GetAttachParentActor())
 	{
-		DistanceRadius = FVector::Distance(CentralActor->GetActorLocation(), GetActorLocation());
+		DistanceRadius = FVector::Dist(GetAttachParentActor()->GetActorLocation(), GetActorLocation());
 	}
 
 	CallWidgetFunc("SetNameText", &Name);
@@ -70,7 +71,6 @@ void APlanetActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	PerformRotation(DeltaTime);
-	PerformRevolution(DeltaTime);
 	PerformGravity(DeltaTime);
 }
 
@@ -90,30 +90,6 @@ void APlanetActor::PerformRotation(float DeltaTime)
 	if (RotationSpeed != 0)
 	{
 		AddActorLocalRotation(FRotator(0, RotationSpeed * DeltaTime, 0));
-	}
-}
-
-/**
- * 计算坐标，处理公转动作
- * 因为精度问题，在接近0度时，计算出来的当前位置可能和上个位置一样，导致星球不动
- * 所以在此加了个循环积累值，当前帧的位置必须较上一帧有所变化
- */
-void APlanetActor::PerformRevolution(float DeltaTime)
-{
-	if (CentralActor && RevolutionSpeed != 0)
-	{
-		FVector CentralLocation = CentralActor->GetActorLocation();
-		FVector Location = GetActorLocation();
-		Location = Location - CentralLocation;
-		float Angle = FMath::Acos(Location.CosineAngle2D(FVector(1.f, 0, 0))) * FMath::Sign(Location.Y);
-		float NewX = Location.X;
-		float NewY = Location.Y;
-		do {
-			Angle += FMath::DegreesToRadians(RevolutionSpeed * DeltaTime);
-			NewX = FMath::Cos(Angle) * DistanceRadius;
-			NewY = FMath::Sin(Angle) * DistanceRadius;
-		} while (FMath::IsNearlyEqual(NewX, Location.X, 1.f) && FMath::IsNearlyEqual(NewY, Location.Y, 1.f));
-		SetActorLocation(FVector(NewX, NewY, 0) + CentralLocation);
 	}
 }
 

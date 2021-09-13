@@ -6,9 +6,14 @@
 #include "EarthBaseActor.h"
 #include "BackpackView.h"
 #include "ItemDataObject.h"
+#include "MainFunctionLibrary.h"
+
+#define LOCTEXT_NAMESPACE "MenuBackpack"
 
 void UMenuBackpack::NativePreConstruct()
 {
+	ItemIcon.ImageSize = FVector2D(64.f, 64.f);
+
 	BpView_Body = Cast<UBackpackView>(GetWidgetFromName(TEXT("BpView_Body")));
 	BpView_Base = Cast<UBackpackView>(GetWidgetFromName(TEXT("BpView_Base")));
 	BpView_Ship = Cast<UBackpackView>(GetWidgetFromName(TEXT("BpView_Ship")));
@@ -57,5 +62,19 @@ void UMenuBackpack::OnBpViewItemClicked(UBackpackView* BpView, UObject* Item)
 
 void UMenuBackpack::SelectItem(UItemDataObject* Item)
 {
-	// TODO 展示选中物品的信息，以及丢弃功能
+	// TODO 丢弃的功能
+	NoneVisibility = Item ? ESlateVisibility::Hidden : ESlateVisibility::Visible;
+	ItemVisibility = Item ? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
+	if (Item)
+	{
+		FBasicItemData& Data = UMainFunctionLibrary::GetBasicItemData(Item->RowName);
+		ItemIcon.SetResourceObject(Data.Icon.LoadSynchronous());
+		ItemName = Data.Name;
+		ItemDesc = Data.Desc;
+		ItemMass = FText::Format(LOCTEXT("Mass", "重量: {0}KG"), Data.Mass);
+		ItemStack = FText::Format(LOCTEXT("Stack", "最大堆叠数: {0}"), Data.MaxStack);
+		ItemCount = FText::Format(LOCTEXT("Count", "当前物品槽: {0}"), Item->Count);
+	}
 }
+
+#undef LOCTEXT_NAMESPACE

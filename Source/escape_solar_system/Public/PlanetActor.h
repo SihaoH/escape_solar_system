@@ -7,7 +7,7 @@
 #include "PlanetActor.generated.h"
 
 /**
- * 星体基类，发射引力，信息显示等
+ * 星球基类，发射引力，信息显示等
  */
 UCLASS()
 class ESCAPE_SOLAR_SYSTEM_API APlanetActor : public AStaticMeshActor
@@ -28,7 +28,6 @@ protected:
 private:
 	void CallWidgetFunc(const FName& FuncName, void* FuncParm);
 	void PerformRotation(float DeltaTime);
-	void PerformRevolution(float DeltaTime);
 	void PerformGravity(float DeltaTime);
 	void UpdateInfoWidget();
 
@@ -44,10 +43,6 @@ protected:
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	float RotationSpeed = 0.0f;
 
-	/** 公转的角速度，以角度为单位 */
-	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
-	float RevolutionSpeed = 0.0f;
-
 	/** 星球的表面重力加速度，单位cm/s² */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	float SurfaceGravity = 1.0f;
@@ -55,10 +50,6 @@ protected:
 	/** 星球的半径，单位cm，会决定对物体的引力；如不指定，则自动获取网格体的大小，可能会以最高峰为准 */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	float SelfRadius = -1.f;
-
-	/** 旋转中心的星球 */
-	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
-	AActor* CentralActor = nullptr;
 
 private:
 	FTimerHandle InfoTimer;

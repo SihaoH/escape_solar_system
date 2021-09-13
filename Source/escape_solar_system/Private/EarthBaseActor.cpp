@@ -8,12 +8,11 @@
 
 AEarthBaseActor::AEarthBaseActor()
 {
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	RootComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	TiggerComponent = CreateDefaultSubobject<USphereComponent>(TEXT("TiggerComponent"));
 	Storehouse = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
 
-	RootComponent = MeshComponent;
-	TiggerComponent->SetupAttachment(MeshComponent);
+	TiggerComponent->SetupAttachment(GetRootComponent());
 	TiggerComponent->SetSphereRadius(1000.f);
 	Storehouse->MaxGrid = 50;
 	Storehouse->MaxBearing = -1.f;

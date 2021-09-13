@@ -127,6 +127,18 @@ FBackpackItemInfo UBackpackComponent::FindItem(int32 Index) const
 	return FBackpackItemInfo();
 }
 
+int32 UBackpackComponent::FindItem(const FName& RowName) const
+{
+	for (int32 i=0; i < ItemList.Num(); i ++)
+	{
+		if (ItemList[i].RowName == RowName)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 int32 UBackpackComponent::GetCurGrid() const
 {
 	int32 Num = 0;
