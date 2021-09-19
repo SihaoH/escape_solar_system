@@ -13,6 +13,9 @@ class ESCAPE_SOLAR_SYSTEM_API UItemDataObject : public UObject
 
 public:
 	UPROPERTY(Category = ItemDataObject, EditAnywhere, BlueprintReadWrite)
+	int32 Index = -1;
+
+	UPROPERTY(Category = ItemDataObject, EditAnywhere, BlueprintReadWrite)
 	FName RowName = NAME_None;
 
 	UPROPERTY(Category = ItemDataObject, EditAnywhere, BlueprintReadWrite)

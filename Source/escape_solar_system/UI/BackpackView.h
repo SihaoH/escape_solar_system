@@ -6,7 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "BackpackView.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnItemClickedDynamic, class UBackpackView*, BackpackView, UObject*, Item);
+class UBackpackComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemDropDynamic, UBackpackComponent*, DstBp, UBackpackComponent*, SrcBp, int32, SrcIdx);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemClickedDynamic, UObject*, Item);
 
 /**
  * 菜单背包部件的背包列表视图，包括背包名称、承重信息、物品列表
@@ -17,8 +20,10 @@ class ESCAPE_SOLAR_SYSTEM_API UBackpackView : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	void SetBackpack(class UBackpackComponent* Bp);
-	void ClearSelection();
+	void SetBackpack(UBackpackComponent* Bp);
+
+	UFUNCTION(BlueprintCallable)
+	void OnEntryWidgetInited(UUserWidget* Entry);
 
 protected:
 	virtual void NativePreConstruct() override;
@@ -32,10 +37,14 @@ private:
 	void OnTileViewItemClicked(UObject* Item);
 
 public:
+	FOnItemDropDynamic OnItemDrop;
 	FOnItemClickedDynamic OnItemClicked;
+	FOnItemClickedDynamic OnEntryClicked;
 
 private:
-	class UBackpackComponent* BpComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FText InfoBearing;
+
+	UBackpackComponent* Backpack = nullptr;
 	class UTileView* TileView_Item = nullptr;
-	class UTextBlock* TextBlock_Bearing = nullptr;
 };

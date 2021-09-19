@@ -32,7 +32,4 @@ ASpaceship* AEarthBaseActor::FindSpaceship() const
 void AEarthBaseActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Storehouse->AddItem("0000", 44);
-	Storehouse->AddItem("1000", 66);
 }

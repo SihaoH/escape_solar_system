@@ -7,6 +7,14 @@
 #include <UMG.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
+UObject* UBackpackEntry::SelectedItem = nullptr;
+
+void UBackpackEntry::OnEntryClicked(UObject* Item)
+{
+	SelectedItem = Item;
+	SetSelectedStyle(SelfItem == Item);
+}
+
 void UBackpackEntry::NativePreConstruct()
 {
 	Image_Icon = Cast<UImage>(GetWidgetFromName(TEXT("Image_Icon")));
@@ -16,16 +24,13 @@ void UBackpackEntry::NativePreConstruct()
 
 void UBackpackEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
+	SelfItem = ListItemObject;
 	UItemDataObject* ItemObj = Cast<UItemDataObject>(ListItemObject);
 	FBasicItemData& ItemDat = UMainFunctionLibrary::GetBasicItemData(ItemObj->RowName);
 	Image_Icon->SetBrushFromSoftTexture(ItemDat.Icon);
 	TextBlock_Count->SetText(ItemObj->Count > 0 ? FText::AsNumber(ItemObj->Count) : FText());
-
-	//UTileView* Parent = Cast<UTileView>(GetOwningListView());
-	//if (ItemObj == Parent->GetSelectedItem())
-	SetSelectedStyle(IsListItemSelected());
+	SetSelectedStyle(SelectedItem == ItemObj);
 	
-
 	SetVisibility(ItemObj->RowName == EMPTY_NAME ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Visible);
 }
 
@@ -40,13 +45,6 @@ void UBackpackEntry::NativeOnDragDetected(const FGeometry& InGeometry, const FPo
 	OutOperation = NewObject<UDragDropOperation>();
 	OutOperation->Payload = this;
 	OutOperation->DefaultDragVisual = Image_Icon;
-}
-
-void UBackpackEntry::NativeOnItemSelectionChanged(bool bIsSelected)
-{
-	SetSelectedStyle(bIsSelected);
-
-	return IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
 }
 
 void UBackpackEntry::SetSelectedStyle(bool bIsSelected)

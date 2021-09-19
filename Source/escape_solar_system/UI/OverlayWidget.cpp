@@ -34,5 +34,9 @@ FReply UOverlayWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEv
 		Close();
 		return FReply::Handled();
 	}
+	else if (InKeyEvent.GetKey() == EKeys::Tab)
+	{
+		return FReply::Handled();
+	}
 	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
 }

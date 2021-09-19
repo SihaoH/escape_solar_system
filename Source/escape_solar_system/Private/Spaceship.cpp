@@ -80,8 +80,6 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
-	Storehouse->AddItem("0000", 33);
-	Storehouse->AddItem("1000", 66);
 }
 
 void ASpaceship::Tick(float DeltaTime)

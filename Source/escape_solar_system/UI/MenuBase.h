@@ -14,27 +14,35 @@ class ESCAPE_SOLAR_SYSTEM_API UMenuBase : public UUserWidget
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void NativePreConstruct() override;
-	virtual void NativeConstruct() override;
+public:
+	UFUNCTION(BlueprintCallable)
+	void InitMakeableListView(class UListView* ListView);
+	UFUNCTION(BlueprintCallable)
+	void OnItemSelectionChanged(UObject* Item, float& MakeableMin, float& MakeableMax);
+	UFUNCTION(BlueprintCallable)
+	void OnMakeCountChanged(UObject* SelItem, float Count, FText& DemandText);
+	UFUNCTION(BlueprintCallable)
+	void MakeItem(UObject* SelItem, float Count);
 
 private:
-	int32 GetMaxMakeableCount(const FName& RowName);
+	int32 GetMaxMakeableCount(const FName& RowName) const;
+	FORCEINLINE class UBackpackComponent* GetStorehouse() const;
 
 private:
-	void OnItemSelectionChanged(UObject*Item);
-	UFUNCTION()
-	void OnMakeClicked();
-	UFUNCTION()
-	void OnMakeCountChanged(float Count);
-
-private:
-	class UListView* ListView_Makeable = nullptr;
-	class UUserWidget* WB_NumberEditor = nullptr;
-	class UButton* Button_Make = nullptr;
-	class UImage* Image_Item = nullptr;
-	class UTextBlock* TextBlock_Name = nullptr;
-	class UTextBlock* TextBlock_Owned = nullptr;
-	class UTextBlock* TextBlock_Desc = nullptr;
-	class UTextBlock* TextBlock_Demand = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	ESlateVisibility UnmakeableVisibility;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	ESlateVisibility MakeableVisibility;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FSlateBrush ItemIcon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FText ItemName;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FText ItemDesc;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FText ItemMass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FText ItemStack;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FText ItemCount;
 };

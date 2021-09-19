@@ -1,6 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "BackpackView.h"
+#include "BackpackEntry.h"
 #include "BackpackComponent.h"
 #include "ItemDataObject.h"
 #include <UMG.h>
@@ -9,12 +10,12 @@
 
 void UBackpackView::SetBackpack(UBackpackComponent* Bp)
 {
-	BpComp = Bp;
-	if (BpComp)
+	Backpack = Bp;
+	if (Backpack)
 	{
 		SetVisibility(ESlateVisibility::Visible);
 		OnBackpackChanged();
-		BpComp->OnChanged.AddUniqueDynamic(this, &UBackpackView::OnBackpackChanged);
+		Backpack->OnChanged.AddUniqueDynamic(this, &UBackpackView::OnBackpackChanged);
 	}
 	else
 	{
@@ -22,15 +23,16 @@ void UBackpackView::SetBackpack(UBackpackComponent* Bp)
 	}
 }
 
-void UBackpackView::ClearSelection()
+void UBackpackView::OnEntryWidgetInited(UUserWidget* Entry)
 {
-	TileView_Item->ClearSelection();
+	// OnEntryClicked由MenuBackpack发出广播，这里绑定是需要通知到每个Entry
+	// 由于C++没有对应的接口，所以这里交给BP调用
+	OnEntryClicked.AddUniqueDynamic(Cast<UBackpackEntry>(Entry), &UBackpackEntry::OnEntryClicked);
 }
 
 void UBackpackView::NativePreConstruct()
 {
 	TileView_Item = Cast<UTileView>(GetWidgetFromName(TEXT("TileView_Item")));
-	TextBlock_Bearing = Cast<UTextBlock>(GetWidgetFromName(TEXT("TextBlock_Bearing")));
 	TileView_Item->OnItemClicked().AddUObject(this, &UBackpackView::OnTileViewItemClicked);
 
 	return Super::NativePreConstruct();
@@ -42,11 +44,8 @@ bool UBackpackView::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 	UTileView* OtherItemView = Cast<UTileView>(Entry->GetOwningListView());
 	if (OtherItemView != TileView_Item)
 	{
-		// TODO 需要弹出选择个数对话框，按用户输入的数量进行操作
 		UItemDataObject* ItemObj = Cast<UItemDataObject>(Entry->GetListItem());
-		int32 OtherIndex = OtherItemView->GetIndexForItem(ItemObj);
-		int32 AddedCount = BpComp->AddItem(ItemObj->RowName, ItemObj->Count);
-		ItemObj->Owner->RemoveItem(OtherIndex, AddedCount);
+		OnItemDrop.Broadcast(Backpack, ItemObj->Owner, OtherItemView->GetIndexForItem(ItemObj));
 		return true;
 	}
 	return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
@@ -54,26 +53,27 @@ bool UBackpackView::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEve
 
 void UBackpackView::OnBackpackChanged()
 {
-	float CurMass = BpComp->GetCurMass();
-	FText MaxBearing = BpComp->MaxBearing < 0 ? INVTEXT("∞") : FText::AsNumber(BpComp->MaxBearing);
-	TextBlock_Bearing->SetText(FText::Format(LOCTEXT("Bearing", "承重(kg): {0}/{1}"), CurMass, MaxBearing));
+	float CurMass = Backpack->GetCurMass();
+	FText MaxBearing = Backpack->MaxBearing < 0 ? INVTEXT("∞") : FText::AsNumber(Backpack->MaxBearing);
+	InfoBearing = FText::Format(LOCTEXT("Bearing", "承重(kg): {0}/{1}"), CurMass, MaxBearing);
 
 	TileView_Item->ClearListItems();
-	const TArray<FBackpackItemInfo>& ItemList = BpComp->GetItemList();
-	for (int32 i = 0; i < BpComp->MaxGrid; i++)
+	const TArray<FBackpackItemInfo>& ItemList = Backpack->GetItemList();
+	for (int32 i = 0; i < Backpack->MaxGrid; i++)
 	{
 		UItemDataObject* Obj = NewObject<UItemDataObject>(this);
+		Obj->Index = i;
 		Obj->RowName = ItemList[i].RowName;
 		Obj->Count = ItemList[i].Count;
-		Obj->Owner = BpComp;
+		Obj->Owner = Backpack;
 		TileView_Item->AddItem(Obj);
 	}
-	OnItemClicked.Broadcast(this, nullptr);
+	OnItemClicked.Broadcast(nullptr);
 }
 
 void UBackpackView::OnTileViewItemClicked(UObject* Item)
 {
-	OnItemClicked.Broadcast(this, Item);
+	OnItemClicked.Broadcast(Item);
 }
 
 #undef LOCTEXT_NAMESPACE

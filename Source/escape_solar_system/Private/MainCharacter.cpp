@@ -139,9 +139,6 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Instance = this;
-
-	Backpack->AddItem("0000", 44);
-	Backpack->AddItem("1000", 99);
 }
 
 void AMainCharacter::Tick(float DeltaTime)

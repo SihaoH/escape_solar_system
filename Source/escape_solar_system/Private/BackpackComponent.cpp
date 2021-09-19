@@ -72,8 +72,8 @@ void UBackpackComponent::RemoveItem(const FName& RowName, int32 Count)
 		{
 			if (Pending >= ItemList[i].Count)
 			{	//丢弃的量≥当前格子物品的量，先把该格子清空，再找下一个格子
-				ItemList[i].Count -= ItemList[i].Count;
 				Pending -= ItemList[i].Count;
+				ItemList[i].Count -= ItemList[i].Count;
 				ItemList[i] = FBackpackItemInfo();
 			}
 			else
@@ -88,7 +88,7 @@ void UBackpackComponent::RemoveItem(const FName& RowName, int32 Count)
 			}
 		}
 	}
-	check(Pending > 0);
+	check(Pending == 0);
 
 	OnChanged.Broadcast();
 }
