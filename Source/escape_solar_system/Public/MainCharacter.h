@@ -28,21 +28,21 @@ public:
 	class ASpaceship* FindSpaceship() const;
 	class AEarthBaseActor* FindEarthBase() const;
 
-	virtual void Controlled() override;
-	virtual void UnControlled() override;
 	virtual FVector GetVelocity() const override;
 	virtual void GetHP(float& Current, float& Max) const override;
 	virtual void GetMP(float& Current, float& Max) const override;
 	virtual float GetGravityAccel() const override;
 
 protected:
+	virtual void Controlled() override;
+	virtual void UnControlled() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
 
-	void Drive();
+	void DriveShip();
+	void PickupItem();
 	void Turn(float Value);
 	void LookUp(float Value);
 
@@ -50,19 +50,26 @@ protected:
 	void MoveRight(float Value);
 	void MoveUp(float Value);
 
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 private:
 	static AMainCharacter* Instance;
 
 private:
 	/** 最大功率(推进力)，单位N（1N=1 kg·m/s²）；角色暂且固定50N */
 	const float Power = 50;
+	class UGravityMovementComponent* Movement = nullptr;
+	class ASpaceship* CurrentVehicle = nullptr;
+
+	UPROPERTY(Category = MainCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class APickableItemActor* PickableItem = nullptr;
 
 	UPROPERTY(Category = MainCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera = nullptr;
 
 	UPROPERTY(Category = MainCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBackpackComponent* Backpack = nullptr;
-
-	class UGravityMovementComponent* Movement = nullptr;
-	class ASpaceship* CurrentVehicle = nullptr;
 };

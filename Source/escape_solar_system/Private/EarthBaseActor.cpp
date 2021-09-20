@@ -8,12 +8,13 @@
 
 AEarthBaseActor::AEarthBaseActor()
 {
-	RootComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	TiggerComponent = CreateDefaultSubobject<USphereComponent>(TEXT("TiggerComponent"));
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	ScopeTigger = CreateDefaultSubobject<USphereComponent>(TEXT("ScopeTigger"));
 	Storehouse = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
 
-	TiggerComponent->SetupAttachment(GetRootComponent());
-	TiggerComponent->SetSphereRadius(1000.f);
+	RootComponent = StaticMesh;
+	ScopeTigger->SetupAttachment(GetRootComponent());
+	ScopeTigger->SetSphereRadius(1000.f);
 	Storehouse->MaxGrid = 50;
 	Storehouse->MaxBearing = -1.f;
 }
@@ -21,7 +22,7 @@ AEarthBaseActor::AEarthBaseActor()
 ASpaceship* AEarthBaseActor::FindSpaceship() const
 {
 	TArray<AActor*> NearbyActors;
-	TiggerComponent->GetOverlappingActors(NearbyActors, ASpaceship::StaticClass());
+	ScopeTigger->GetOverlappingActors(NearbyActors, ASpaceship::StaticClass());
 	if (NearbyActors.Num() > 0)
 	{
 		return Cast<ASpaceship>(NearbyActors[0]);

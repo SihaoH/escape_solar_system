@@ -65,19 +65,19 @@ public:
 
 public:
 	/** 背包物品改变时发出的广播 */
-	UPROPERTY(BlueprintAssignable, Category = "Backpack")
+	UPROPERTY(Category = BackpackComponent, BlueprintAssignable)
 	FOnBackpackChangedEvent OnChanged;
 
 public:
 	/** 背包格子数，不能小于0 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = BackpackComponent, EditAnywhere, BlueprintReadWrite)
 	int32 MaxGrid = 8;
 
 	/** 背包承重（容量），单位kg；-1代表无限承重 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = BackpackComponent, EditAnywhere, BlueprintReadWrite)
 	float MaxBearing = 100.f;
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = BackpackComponent, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TArray<FBackpackItemInfo> ItemList;
 };

@@ -24,6 +24,11 @@ FBasicItemData& UMainFunctionLibrary::GetBasicItemData(const FName& RowName)
 	return *BasicItemDataTable->FindRow<FBasicItemData>(RowName, FString());
 }
 
+FPickableItemData& UMainFunctionLibrary::GetPickableItemData(const FName& RowName)
+{
+	return *PickableItemDataTable->FindRow<FPickableItemData>(RowName, FString());
+}
+
 TArray<FName> UMainFunctionLibrary::GetMakeableItemList()
 {
 	return MakeableItemDataTable->GetRowNames();

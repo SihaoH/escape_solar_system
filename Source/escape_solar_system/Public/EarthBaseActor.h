@@ -24,8 +24,11 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent* StaticMesh = nullptr;
+
 	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* TiggerComponent = nullptr;
+	class USphereComponent* ScopeTigger = nullptr;
 
 	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBackpackComponent* Storehouse = nullptr;

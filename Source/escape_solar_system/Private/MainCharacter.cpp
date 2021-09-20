@@ -5,6 +5,8 @@
 #include "BackpackComponent.h"
 #include "Spaceship.h"
 #include "EarthBaseActor.h"
+#include "PickableItemActor.h"
+#include "MainFunctionLibrary.h"
 #include <Components/CapsuleComponent.h>
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
@@ -21,10 +23,13 @@ AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 
 	Movement = Cast<UGravityMovementComponent>(GetCharacterMovement());
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	Backpack = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
+
 	FollowCamera->SetupAttachment(GetCapsuleComponent());
 	FollowCamera->SetRelativeLocation(FVector(-30.f, 0.f, 60.f));
 
-	Backpack = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddUniqueDynamic(this, &AMainCharacter::OnBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddUniqueDynamic(this, &AMainCharacter::OnEndOverlap);
 }
 
 void AMainCharacter::SetVelocity(const FVector& Velocity)
@@ -65,31 +70,6 @@ AEarthBaseActor* AMainCharacter::FindEarthBase() const
 	return nullptr;
 }
 
-void AMainCharacter::Controlled()
-{
-	if (CurrentVehicle)
-	{
-		const FVector TargetLocation = CurrentVehicle->GetActorLocation() + CurrentVehicle->GetRootComponent()->GetRightVector() * 200;
-		const FRotator TargetRotation = CurrentVehicle->GetActorRotation();
-		const FVector TargetVelocity = CurrentVehicle->GetVelocity();
-		
-		TeleportTo(TargetLocation, TargetRotation);
-		SetVelocity(TargetVelocity);
-	}
-	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
-	CurrentVehicle = nullptr;
-}
-
-void AMainCharacter::UnControlled()
-{
-	SetActorHiddenInGame(true);
-	// 该函数会调用UpdateOverlaps，飞船会立即发出碰撞事件，导致NearSpaceship为nullptr
-	SetActorEnableCollision(false);
-	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
-	SetVelocity(FVector::ZeroVector);
-}
-
 FVector AMainCharacter::GetVelocity() const
 {
 	FVector Velocity = FVector::ZeroVector;
@@ -118,6 +98,31 @@ float AMainCharacter::GetGravityAccel() const
 	return Movement->GravityAccel;
 }
 
+void AMainCharacter::Controlled()
+{
+	if (CurrentVehicle)
+	{
+		const FVector TargetLocation = CurrentVehicle->GetActorLocation() + CurrentVehicle->GetRootComponent()->GetRightVector() * 200;
+		const FRotator TargetRotation = CurrentVehicle->GetActorRotation();
+		const FVector TargetVelocity = CurrentVehicle->GetVelocity();
+
+		TeleportTo(TargetLocation, TargetRotation);
+		SetVelocity(TargetVelocity);
+	}
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	CurrentVehicle = nullptr;
+}
+
+void AMainCharacter::UnControlled()
+{
+	SetActorHiddenInGame(true);
+	// 该函数会调用UpdateOverlaps，飞船会立即发出碰撞事件，导致NearSpaceship为nullptr
+	SetActorEnableCollision(false);
+	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
+	SetVelocity(FVector::ZeroVector);
+}
+
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -125,7 +130,8 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Lock", IE_Pressed, this, &IControllable::LockPlanet);
-	PlayerInputComponent->BindAction("Drive", IE_Pressed, this, &AMainCharacter::Drive);
+	PlayerInputComponent->BindAction("Drive", IE_Pressed, this, &AMainCharacter::DriveShip);
+	PlayerInputComponent->BindAction("Pickup", IE_Pressed, this, &AMainCharacter::PickupItem);
 
 	PlayerInputComponent->BindAxis("Turn", this, &AMainCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &AMainCharacter::LookUp);
@@ -154,7 +160,7 @@ void AMainCharacter::GravityActed_Implementation(FVector Direction, float Accel)
 	Movement->GravityAccel = Accel;
 }
 
-void AMainCharacter::Drive()
+void AMainCharacter::DriveShip()
 {
 	ASpaceship* NearbySpaceship = FindSpaceship();
 	if (NearbySpaceship)
@@ -162,6 +168,24 @@ void AMainCharacter::Drive()
 		NearbySpaceship->SetPilot(this);
 		CurrentVehicle = NearbySpaceship;
 		ChangePawn(NearbySpaceship);
+	}
+}
+
+void AMainCharacter::PickupItem()
+{
+	if (PickableItem)
+	{
+		FName RowName;
+		int32 PickedCount = 0;
+		PickableItem->Pickup(RowName, PickedCount);
+		int32 AddedCount = Backpack->AddItem(RowName, PickedCount);
+
+		// TODO 实际拾取的，提示
+		UKismetSystemLibrary::PrintText(GetWorld(), FText::Format(
+			INVTEXT("拾取了 {0} x{1}"),
+			UMainFunctionLibrary::GetBasicItemData(RowName).Name, 
+			PickedCount)
+		);
 	}
 }
 
@@ -227,4 +251,22 @@ void AMainCharacter::MoveUp(float Value)
 
 	UCapsuleComponent* Capsule = GetCapsuleComponent();
 	Movement->AddForce(Value * Capsule->GetUpVector() * Power * 100);
+}
+
+void AMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	APickableItemActor* ItemActor = Cast<APickableItemActor>(OtherActor);
+	if (ItemActor)
+	{
+		PickableItem = ItemActor;
+	}
+}
+
+void AMainCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	APickableItemActor* ItemActor = Cast<APickableItemActor>(OtherActor);
+	if (ItemActor == PickableItem)
+	{
+		PickableItem = nullptr;
+	}
 }

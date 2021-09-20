@@ -20,6 +20,9 @@ public:
 	static FBasicItemData& GetBasicItemData(const FName& RowName);
 
 	UFUNCTION(BlueprintCallable)
+	static FPickableItemData& GetPickableItemData(const FName& RowName);
+
+	UFUNCTION(BlueprintCallable)
 	static TArray<FName> GetMakeableItemList();
 
 	UFUNCTION(BlueprintCallable)
