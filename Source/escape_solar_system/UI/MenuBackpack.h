@@ -25,7 +25,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DiscardItem(float Count);
 
-public:
+protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnItemSelected(float Max);
 

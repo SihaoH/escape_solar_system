@@ -2,6 +2,7 @@
 
 #include "PlanetActor.h"
 #include "MassActorInterface.h"
+#include "../UI/PlanetInfo.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
@@ -42,12 +43,12 @@ FVector APlanetActor::GetVelocity() const
 
 void APlanetActor::SetLooked(bool Looked)
 {
-	CallWidgetFunc("SetLooked", &Looked);
+	InfoWidgetObject->SetLooked(Looked);
 }
 
 void APlanetActor::SetLocked(bool Locked)
 {
-	CallWidgetFunc("SetLocked", &Locked);
+	InfoWidgetObject->SetLocked(Locked);
 }
 
 void APlanetActor::BeginPlay()
@@ -62,7 +63,8 @@ void APlanetActor::BeginPlay()
 		DistanceRadius = FVector::Dist(GetAttachParentActor()->GetActorLocation(), GetActorLocation());
 	}
 
-	CallWidgetFunc("SetNameText", &Name);
+	InfoWidgetObject = Cast<UPlanetInfo>(InfoWidget->GetUserWidgetObject());
+	InfoWidgetObject->SetName(Name);
 	GetWorldTimerManager().SetTimer(InfoTimer, this, &APlanetActor::UpdateInfoWidget, 0.1f, true, 0.f);
 }
 
@@ -72,17 +74,6 @@ void APlanetActor::Tick(float DeltaTime)
 
 	PerformRotation(DeltaTime);
 	PerformGravity(DeltaTime);
-}
-
-void APlanetActor::CallWidgetFunc(const FName& FuncName, void* FuncParm)
-{
-	UUserWidget* InfoWidgetObj = InfoWidget->GetUserWidgetObject();
-	if (InfoWidgetObj)
-	{
-		UFunction* Func = InfoWidgetObj->GetClass()->FindFunctionByName(FuncName);
-		check(Func);
-		InfoWidgetObj->ProcessEvent(Func, FuncParm);
-	}
 }
 
 void APlanetActor::PerformRotation(float DeltaTime)
@@ -124,8 +115,8 @@ void APlanetActor::UpdateInfoWidget()
 	if (PreDistance != 0)
 	{
 		float Delta = (Distance - PreDistance) / 0.1;
-		CallWidgetFunc("SetSpeedValue", &Delta);
-		CallWidgetFunc("SetDistanceValue", &Distance);
+		InfoWidgetObject->SetSpeed(Delta);
+		InfoWidgetObject->SetDistance(Distance);
 	}
 	PreDistance = Distance;
 }

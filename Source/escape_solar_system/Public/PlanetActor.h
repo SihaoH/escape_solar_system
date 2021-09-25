@@ -26,7 +26,6 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	void CallWidgetFunc(const FName& FuncName, void* FuncParm);
 	void PerformRotation(float DeltaTime);
 	void PerformGravity(float DeltaTime);
 	void UpdateInfoWidget();
@@ -65,4 +64,5 @@ private:
 
 	UPROPERTY(Category = "Planet", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* InfoWidget = nullptr;
+	class UPlanetInfo* InfoWidgetObject = nullptr;
 };
