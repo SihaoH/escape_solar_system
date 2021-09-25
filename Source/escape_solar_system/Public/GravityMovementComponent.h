@@ -51,11 +51,11 @@ protected:
 	virtual float BoostAirControl(float DeltaTime, float TickAirControl, const FVector& FallAcceleration) override;
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PerformMovement(float DeltaTime) override;
-	virtual void HandleImpact(const FHitResult& Hit, float TimeSlice = 0.f, const FVector& MoveDelta = FVector::ZeroVector) override;
+	virtual void HandleImpact(const FHitResult& Impact, float TimeSlice = 0.f, const FVector& MoveDelta = FVector::ZeroVector) override;
 
 	// Tells if we are moving vertical / horizontal -> neccesary for all ground checks and fly
 	virtual void MaintainHorizontalGroundVelocity() override;
-	virtual float SlideAlongSurface(const FVector& Delta, float Time, const FVector& Normal, FHitResult& Hit, bool bHandleImpact) override;
+	virtual float SlideAlongSurface(const FVector& Delta, float Time, const FVector& InNormal, FHitResult& Hit, bool bHandleImpact) override;
 	virtual void SetPostLandedPhysics(const FHitResult& Hit) override;
 	virtual void PhysWalking(float deltaTime, int32 Iterations) override;
 	virtual FVector ComputeGroundMovementDelta(const FVector& Delta, const FHitResult& RampHit, const bool bHitFromLineTrace) const override;
