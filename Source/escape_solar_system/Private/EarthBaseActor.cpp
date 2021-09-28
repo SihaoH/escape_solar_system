@@ -15,7 +15,6 @@ AEarthBaseActor::AEarthBaseActor()
 	RootComponent = StaticMesh;
 	ScopeTigger->SetupAttachment(GetRootComponent());
 	ScopeTigger->SetSphereRadius(1000.f);
-	Storehouse->MaxGrid = 50;
 	Storehouse->MaxBearing = -1.f;
 }
 

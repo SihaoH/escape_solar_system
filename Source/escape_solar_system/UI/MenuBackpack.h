@@ -29,6 +29,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnItemSelected(float Max);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnItemDrop(float MaxAdd);
+
 private:
 	void CheckBpView();
 	void SelectItem(class UItemDataObject* Item);
@@ -36,7 +39,7 @@ private:
 	UFUNCTION()
 	void OnBpViewItemClicked(UObject* Item);
 	UFUNCTION()
-	void OnBpViewItemDrop(UBackpackComponent* DstBp, UBackpackComponent* SrcBp, int32 SrcIdx);
+	void OnBpViewItemDrop(UBackpackComponent* DstBp, UBackpackComponent* SrcBp, FName RowName);
 
 private:
 	UBackpackView* BpView_Body = nullptr;
@@ -56,14 +59,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FText ItemMass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FText ItemStack;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FText ItemCount;
 
-	// 准备转移物品的相关对象：目标背包、源背包、源物品槽
+	// 准备转移物品的相关对象：目标背包、源背包、源物品
 	class UBackpackComponent* DstBackpack = nullptr;
 	class UBackpackComponent* SrcBackpack = nullptr;
-	int32 SrcIndex = -1;
+	FName SrcItem = NAME_None;
 
 	// 当前选中的物品
 	class UItemDataObject* SelectedItem = nullptr;

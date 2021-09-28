@@ -32,9 +32,9 @@ struct FBasicItemData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Mass = 0.f;
 
-	/** 最大堆叠数，-1为不限制 */
+	/** 是否可堆叠 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 MaxStack = -1;
+	bool CanStack = true;
 
 	/** 物品描述 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

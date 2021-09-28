@@ -29,22 +29,21 @@ void UMenuBackpack::InitBpView(UBackpackView* Body, UBackpackView* Base, UBackpa
 
 void UMenuBackpack::AcceptDrop(float Count)
 {
-	if (DstBackpack && SrcBackpack && SrcIndex > -1)
+	if (DstBackpack && SrcBackpack && !SrcItem.IsNone())
 	{
-		FBackpackItemInfo ItemInfo = SrcBackpack->FindItem(SrcIndex);
-		int32 AddNum = DstBackpack->AddItem(ItemInfo.RowName, Count);
-		SrcBackpack->RemoveItem(SrcIndex, AddNum);
+		DstBackpack->AddItem(SrcItem, Count);
+		SrcBackpack->RemoveItem(SrcItem, Count);
 	}
 	DstBackpack = nullptr;
 	SrcBackpack = nullptr;
-	SrcIndex = -1;
+	SrcItem = NAME_None;
 }
 
 void UMenuBackpack::DiscardItem(float Count)
 {
 	if (SelectedItem)
 	{
-		SelectedItem->Owner->RemoveItem(SelectedItem->Index, Count);
+		SelectedItem->Owner->RemoveItem(SelectedItem->RowName, Count);
 	}
 }
 
@@ -77,7 +76,6 @@ void UMenuBackpack::SelectItem(UItemDataObject* Item)
 		ItemName = Data.Name;
 		ItemDesc = Data.Desc;
 		ItemMass = FText::Format(LOCTEXT("Mass", "重量: {0}KG"), Data.Mass);
-		ItemStack = FText::Format(LOCTEXT("Stack", "最大堆叠数: {0}"), Data.MaxStack);
 		ItemCount = FText::Format(LOCTEXT("Count", "当前物品槽: {0}"), Item->Count);
 
 		OnItemSelected(Item->Count);
@@ -93,22 +91,30 @@ void UMenuBackpack::OnBpViewItemClicked(UObject* Item)
 	BpView_Ship->OnEntryClicked.Broadcast(Item);
 }
 
-void UMenuBackpack::OnBpViewItemDrop(UBackpackComponent* DstBp, UBackpackComponent* SrcBp, int32 SrcIdx)
+void UMenuBackpack::OnBpViewItemDrop(UBackpackComponent* DstBp, UBackpackComponent* SrcBp, FName RowName)
 {
-	FBackpackItemInfo ItemInfo = SrcBp->FindItem(SrcIdx);
-	int32 MaxAdd = FMath::Min(ItemInfo.Count, DstBp->GetMaxAddNum(ItemInfo.RowName));
+	int32 MaxAdd = FMath::Min(SrcBp->CountItem(RowName), DstBp->GetMaxAddNum(RowName));
 	if (MaxAdd > 0)
 	{
 		DstBackpack = DstBp;
 		SrcBackpack = SrcBp;
-		SrcIndex = SrcIdx;
+		SrcItem = RowName;
 
-		UUserWidget* WB_Dlg_ItemNum = Cast<UUserWidget>(GetWidgetFromName(TEXT("WB_Dialog_ItemNumber")));
-		USpinBox* SpinBox = Cast<USpinBox>(Cast<UUserWidget>(WB_Dlg_ItemNum->GetWidgetFromName(TEXT("WB_NumberEditor")))->GetWidgetFromName(TEXT("SpinBox_Number")));
-		SpinBox->SetMinValue(1);
-		SpinBox->SetMaxValue(MaxAdd);
-		SpinBox->SetValue(MaxAdd);
-		WB_Dlg_ItemNum->SetVisibility(ESlateVisibility::Visible);
+		FBasicItemData& ItemData = UMainFunctionLibrary::GetBasicItemData(RowName);
+		if (ItemData.CanStack)
+		{
+			OnItemDrop(MaxAdd);
+		}
+		else 
+		{
+			AcceptDrop(1);
+		}
+		//UUserWidget* WB_Dlg_ItemNum = Cast<UUserWidget>(GetWidgetFromName(TEXT("WB_Dialog_ItemNumber")));
+		//USpinBox* SpinBox = Cast<USpinBox>(Cast<UUserWidget>(WB_Dlg_ItemNum->GetWidgetFromName(TEXT("WB_NumberEditor")))->GetWidgetFromName(TEXT("SpinBox_Number")));
+		//SpinBox->SetMinValue(1);
+		//SpinBox->SetMaxValue(MaxAdd);
+		//SpinBox->SetValue(MaxAdd);
+		//WB_Dlg_ItemNum->SetVisibility(ESlateVisibility::Visible);
 	}
 	else
 	{

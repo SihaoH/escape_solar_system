@@ -8,7 +8,7 @@
 
 class UBackpackComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemDropDynamic, UBackpackComponent*, DstBp, UBackpackComponent*, SrcBp, int32, SrcIdx);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemDropDynamic, UBackpackComponent*, DstBp, UBackpackComponent*, SrcBp, FName, RowName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemClickedDynamic, UObject*, Item);
 
 /**
@@ -22,29 +22,31 @@ class ESCAPE_SOLAR_SYSTEM_API UBackpackView : public UUserWidget
 public:
 	void SetBackpack(UBackpackComponent* Bp);
 
-	UFUNCTION(BlueprintCallable)
-	void OnEntryWidgetInited(UUserWidget* Entry);
+protected:
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 protected:
-	virtual void NativePreConstruct() override;
-	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnListViewResetted(const TArray<class UItemDataObject*>& OutItems);
+
+	UFUNCTION(BlueprintCallable)
+	void InitEntryWidget(UUserWidget* Entry);
+
+	UFUNCTION(BlueprintCallable)
+	void ClickItem(UObject* Item);
 
 private:
 	UFUNCTION()
 	void OnBackpackChanged();
 
-	UFUNCTION()
-	void OnTileViewItemClicked(UObject* Item);
-
 public:
 	FOnItemDropDynamic OnItemDrop;
-	FOnItemClickedDynamic OnItemClicked;
 	FOnItemClickedDynamic OnEntryClicked;
+	FOnItemClickedDynamic OnItemClicked;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FText InfoBearing;
 
 	UBackpackComponent* Backpack = nullptr;
-	class UTileView* TileView_Item = nullptr;
 };

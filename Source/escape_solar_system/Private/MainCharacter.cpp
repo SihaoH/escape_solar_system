@@ -178,13 +178,14 @@ void AMainCharacter::PickupItem()
 		FName RowName;
 		int32 PickedCount = 0;
 		PickableItem->Pickup(RowName, PickedCount);
-		int32 AddedCount = Backpack->AddItem(RowName, PickedCount);
+		int32 AddedCount = FMath::Min(Backpack->GetMaxAddNum(RowName), PickedCount);
+		Backpack->AddItem(RowName, AddedCount);
 
 		// TODO 实际拾取的，提示
 		UKismetSystemLibrary::PrintText(GetWorld(), FText::Format(
 			INVTEXT("拾取了 {0} x{1}"),
 			UMainFunctionLibrary::GetBasicItemData(RowName).Name, 
-			PickedCount)
+			AddedCount)
 		);
 	}
 }

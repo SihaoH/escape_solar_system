@@ -50,7 +50,6 @@ void UMenuBase::OnItemSelectionChanged(UObject* Item, float& MakeableMin, float&
 	ItemName = ItemData.Name;
 	ItemDesc = ItemData.Desc;
 	ItemMass = FText::Format(INVTEXT("{0} kg"), ItemData.Mass);
-	ItemStack = FText::AsNumber(ItemData.MaxStack);
 	ItemCount = Storehouse ? FText::AsNumber(Storehouse->CountItem(SelItem->RowName)) : LOCTEXT("unknow", "？？？");
 
 	UnmakeableVisibility = Storehouse ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;

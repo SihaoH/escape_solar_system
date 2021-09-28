@@ -20,19 +20,21 @@ public:
 	void OnEntryClicked(UObject* Item);
 
 protected:
-	virtual void NativePreConstruct() override;
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 	//virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnListItemObjectSetted(const TSoftObjectPtr<UTexture2D>& Icon, const FText& Name, const FText& Count);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSelectedStyleChanged(const FLinearColor& color);
 
 private:
 	void SetSelectedStyle(bool bIsSelected);
 
 private:
-	class UImage* Image_Icon = nullptr;
-	class UImage* Image_Border = nullptr;
-	class UTextBlock* TextBlock_Count = nullptr;
-
 	UObject* SelfItem = nullptr;
 	static UObject* SelectedItem;
 };
