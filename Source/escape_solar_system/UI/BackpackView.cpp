@@ -50,8 +50,8 @@ void UBackpackView::ClickItem(UObject* Item)
 
 void UBackpackView::OnBackpackChanged()
 {
-	float CurMass = Backpack->GetCurMass();
-	FText MaxBearing = Backpack->MaxBearing < 0 ? INVTEXT("∞") : FText::AsNumber(Backpack->MaxBearing);
+	float CurMass = Backpack->GetMass();
+	FText MaxBearing = Backpack->MaxLoad < 0 ? INVTEXT("∞") : FText::AsNumber(Backpack->MaxLoad);
 	InfoBearing = FText::Format(LOCTEXT("Bearing", "承重(kg): {0}/{1}"), CurMass, MaxBearing);
 
 	TArray<UItemDataObject*> OutItems;

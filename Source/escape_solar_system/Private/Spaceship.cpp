@@ -1,8 +1,13 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "Spaceship.h"
+#include "LevelData.h"
 #include "MainCharacter.h"
 #include "BackpackComponent.h"
+#include "BodyComponent.h"
+#include "EngineComponent.h"
+#include "MainPlayerState.h"
+#include "MainFunctionLibrary.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/BoxComponent.h>
 #include <GameFramework/SpringArmComponent.h>
@@ -13,18 +18,21 @@ ASpaceship::ASpaceship()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	Storehouse = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
 	ShipMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShipMesh"));
 	ContactTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("ContactTrigger"));
 	OriginComponent = CreateDefaultSubobject<USceneComponent>(TEXT("OriginComponent"));
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	Storehouse = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
+	Body = CreateDefaultSubobject<UBodyComponent>(TEXT("Body"));
+	Engine = CreateDefaultSubobject<UEngineComponent>(TEXT("Engine"));
 	
 	SetRootComponent(ShipMesh);
 	ContactTrigger->SetupAttachment(ShipMesh);
 	OriginComponent->SetupAttachment(ShipMesh);
 	SpringArm->SetupAttachment(OriginComponent);
 	FollowCamera->SetupAttachment(SpringArm);
+	Body->SetupCollisionComponent(ShipMesh);
 
 	ShipMesh->SetSimulatePhysics(true);
 	ShipMesh->SetEnableGravity(false);
@@ -33,14 +41,32 @@ ASpaceship::ASpaceship()
 	ShipMesh->SetMassOverrideInKg(NAME_None, 200.f); //TODO 飞船重量是可变值，暂时先用200kg
 	ContactTrigger->SetBoxExtent(FVector(400.f, 400.f, 180.f), false);
 	ContactTrigger->SetEnableGravity(false);
-	ContactTrigger->SetMassOverrideInKg(NAME_None, 0.001f);
+	ContactTrigger->SetMassOverrideInKg(NAME_None, KINDA_SMALL_NUMBER);
 	SpringArm->SetRelativeLocation(FVector(0, 0, 220));
 	SpringArm->TargetArmLength = 1200;
 }
 
-void ASpaceship::SetPilot(APawn* Pilot)
+void ASpaceship::SetPilot(AMainCharacter* Pilot)
 {
 	CurrentPilot = Pilot;
+}
+
+void ASpaceship::InitState()
+{
+	//AMainPlayerState* State = GetController()->GetPlayerState<AMainPlayerState>();
+	//Body->MaximumHP = UMainFunctionLibrary::GetLevelValue("ShipStrength", BodyLevel)["HP"];
+	//Body->Mass = UMainFunctionLibrary::GetLevelValue("ShipStrength", BodyLevel)["Mass"];
+	//Body->ShieldCold = UMainFunctionLibrary::GetLevelValue("ShipShieldCold", BodyShieldCold)["ShieldCold"];
+	//Body->ShieldHeat = UMainFunctionLibrary::GetLevelValue("ShipShieldHeat", BodyShieldHeat)["ShieldHeat"];
+	//Body->ShieldPress = UMainFunctionLibrary::GetLevelValue("ShipShieldPress", BodyShieldPress)["ShieldPress"];
+	//Storehouse->MaxLoad = UMainFunctionLibrary::GetLevelValue("ShipBackpack", BackpackLoad)["MaxLoad"];
+	//
+	//auto Engine_Value = UMainFunctionLibrary::GetLevelValue(TEXT("ShipEngine") + FString::FormatAsNumber(EngineType), EngineLevel);
+	//Engine->Power = Engine_Value["Power"];
+	//Engine->Mass = Engine_Value["Mass"];
+	//Engine->EPRatio = Engine_Value["EPRatio"];
+	//Engine->EMRatio = Engine_Value["EMRatio"];
+	//Engine->MaximumEnergy = UMainFunctionLibrary::GetLevelValue(TEXT("ShipEnergy") + FString::FormatAsNumber(EngineType), EngineLevel)["Energy"];
 }
 
 void ASpaceship::GetHP(float & Current, float & Max) const
@@ -51,8 +77,8 @@ void ASpaceship::GetHP(float & Current, float & Max) const
 
 void ASpaceship::GetMP(float & Current, float & Max) const
 {
-	Current = CurEnergy;
-	Max = MaxEnergy;
+	Current = 1;
+	Max = 1;
 }
 
 float ASpaceship::GetGravityAccel() const
@@ -74,12 +100,14 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASpaceship::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ASpaceship::MoveRight);
-	PlayerInputComponent->BindAxis("MoveUp", this, &ASpaceship::MoveUp);
+	PlayerInputComponent->BindAxis("MoveUp", Engine, &UEngineComponent::MoveUp);
 }
 
 void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InitState();
 }
 
 void ASpaceship::Tick(float DeltaTime)
@@ -87,10 +115,10 @@ void ASpaceship::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	LookPlanet();
-	PerformThrust(DeltaTime);
 	PerformTurn(DeltaTime);
 	PerformAdjust(DeltaTime);
 	PerformFOV(DeltaTime);
+	UpdateMass();
 	//GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, TEXT("CurPower:") + FString::SanitizeFloat(Total/Power * 100) + "%");
 }
 
@@ -101,6 +129,11 @@ void ASpaceship::Controlled()
 void ASpaceship::UnControlled()
 {
 	OriginComponent->SetRelativeRotation(FRotator::ZeroRotator);
+}
+
+void ASpaceship::Thrusting(FVector Force)
+{
+	ShipMesh->AddForce(Force);
 }
 
 void ASpaceship::GravityActed_Implementation(FVector Direction, float Accel)
@@ -147,16 +180,12 @@ void ASpaceship::UnDrive()
 
 void ASpaceship::MoveForward(float Value)
 {
-	if (CurEnergy <= 0)
-	{
-		return;
-	}
-	ForwardValue = Value;
+	Engine->MoveForward(Value);
 }
 
 void ASpaceship::MoveRight(float Value)
 {
-	if (CurEnergy <= 0 || bFreeLook)
+	if (Engine->CurrentEnergy <= 0 || bFreeLook)
 	{
 		return;
 	}
@@ -165,16 +194,12 @@ void ASpaceship::MoveRight(float Value)
 
 void ASpaceship::MoveUp(float Value)
 {
-	if (CurEnergy <= 0)
-	{
-		return;
-	}
-	UpValue = Value;
+	Engine->MoveUp(Value);
 }
 
 void ASpaceship::PerformTurn(float DeltaTime)
 {
-	if (CurEnergy <= 0 || bFreeLook) return;
+	if (Engine->CurrentEnergy <= 0 || bFreeLook) return;
 
 	FRotator DeltaRotation = OriginComponent->GetRelativeRotation() * DeltaTime;
 	if (!DeltaRotation.IsNearlyZero(1.e-6f))
@@ -184,55 +209,14 @@ void ASpaceship::PerformTurn(float DeltaTime)
 	}
 }
 
-void ASpaceship::PerformThrust(float DeltaTime)
-{
-	const FVector UpVector = ShipMesh->GetUpVector();
-	const FVector ForwardVector = ShipMesh->GetForwardVector();
-	const FVector RightVector = ShipMesh->GetRightVector();
-
-	// 上下
-	if (UpValue != 0)
-	{
-		UpForce = FMath::FInterpConstantTo(UpForce, Power * UpValue, DeltaTime, ThrustingSpeed);
-	}
-	else if (UpForce != 0)
-	{
-		UpForce = FMath::FInterpConstantTo(UpForce, 0, DeltaTime, ThrustingSpeed);
-	}
-
-	// 前后
-	if (ForwardValue != 0)
-	{
-		ForwardForce = FMath::FInterpConstantTo(ForwardForce, Power * ForwardValue, DeltaTime, ThrustingSpeed);
-	}
-	else if (ForwardForce != 0)
-	{
-		ForwardForce = FMath::FInterpConstantTo(ForwardForce, 0, DeltaTime, ThrustingSpeed);
-	}
-
-	float Total = FMath::Abs(UpForce) + FMath::Abs(ForwardForce) ;
-	if (Total > 0)
-	{
-		// F=ma，a在UI上显示的是m/s²，而引擎中使用的是cm/s²，转换需要乘以100
-		ShipMesh->AddForce((UpVector*UpForce + ForwardVector*ForwardForce) * 100);
-		CurEnergy -= Total * DeltaTime;
-		if (CurEnergy < 0)
-		{
-			CurEnergy = 0;
-		}
-	}
-
-	UpValue = 0;
-	ForwardValue = 0;
-}
-
 /**
  * 调增飞行姿态，即飞船在世界坐标系中的旋转角度
  * 实现和UGravityMovementComponent::UpdateComponentRotation类似
 */
 void ASpaceship::PerformAdjust(float DeltaTime)
 {
-	if (!GravityDirection.IsZero())
+	GetPlayerState();
+	if (!GravityDirection.IsZero() && IsPawnControlled())
 	{
 		const FVector DesiredUp = GravityDirection * -1.f;
 		const FMatrix RotationMatrix = FRotationMatrix::MakeFromZX(DesiredUp, ShipMesh->GetForwardVector());
@@ -240,7 +224,7 @@ void ASpaceship::PerformAdjust(float DeltaTime)
 			ShipMesh->GetComponentRotation(),
 			RotationMatrix.Rotator(),
 			DeltaTime,
-			GravityAccel*0.001);
+			GravityAccel*0.001f);
 		ShipMesh->SetWorldRotation(TargetRotator, true);
 	}
 }
@@ -250,4 +234,13 @@ void ASpaceship::PerformFOV(float DeltaTime)
 	float Velocity = GetVelocity().Size();
 	float Value = FMath::GetMappedRangeValueClamped(TRange<float>(1000, 10000), TRange<float>(80, 105), Velocity);
 	FollowCamera->SetFieldOfView(Value);
+}
+
+void ASpaceship::UpdateMass()
+{
+	const float InMass = Body->Mass + Engine->GetMass() + (CurrentPilot ? CurrentPilot->GetMass() : 0);
+	if (GetMass() != InMass)
+	{
+		ShipMesh->SetMassOverrideInKg(NAME_None, InMass);
+	}
 }

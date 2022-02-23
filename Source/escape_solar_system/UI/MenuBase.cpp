@@ -77,21 +77,9 @@ void UMenuBase::OnMakeCountChanged(UObject* SelItem, float Count, FText& DemandT
 {
 	UItemDataObject* Item = Cast<UItemDataObject>(SelItem);
 	FMakeableItemData& MakeableData = UMainFunctionLibrary::GetMakeableItemData(Item->RowName);
-	FString DemandList;
-	for (const TPair<FName, int32>& Demand : MakeableData.DemandList)
-	{
-		
-		FBasicItemData& DemandData = UMainFunctionLibrary::GetBasicItemData(Demand.Key);
-		int32 NeedCount = Demand.Value * FMath::Max((int32)Count, 1);
-		int32 HoldCount = GetStorehouse() ? GetStorehouse()->CountItem(Demand.Key) : 0;
-		FStringFormatOrderedArguments Arguments;
-		Arguments.Add(DemandData.Name.ToString());
-		Arguments.Add(HoldCount > NeedCount ? TEXT("Default") : TEXT("Warning"));
-		Arguments.Add(FString::FromInt(NeedCount));
-		Arguments.Add(GetStorehouse() ? FString::FromInt(HoldCount) : LOCTEXT("unknow", "？？？").ToString());
-		DemandList += FString::Format(TEXT("{0}  <{1}>x{2}</>  (<img id=\"Storehouse\"/> x{3})\n"), Arguments);
-	}
-	DemandText = FText::FromString(DemandList);
+	auto DemandInfo = UMainFunctionLibrary::GetDemandInfo(MakeableData.DemandList, GetStorehouse(), Count);
+	CanMake = DemandInfo.Key;
+	DemandText = DemandInfo.Value;
 }
 
 class UBackpackComponent* UMenuBase::GetStorehouse() const

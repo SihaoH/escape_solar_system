@@ -19,8 +19,12 @@ class ESCAPE_SOLAR_SYSTEM_API ASpaceship : public APawn, public IMassActorInterf
 public:
 	ASpaceship();
 
-	void SetPilot(APawn* Pilot);
+	void SetPilot(class AMainCharacter* Pilot);
+	void InitState();
 	class UBackpackComponent* GetBackpack() const { return Storehouse; }
+	class UBodyComponent* GetBodyComponent() const { return Body; }
+	class UEngineComponent* GetEngineComponent() const { return Engine; }
+	FORCEINLINE float GetMass() const { return ShipMesh->GetMass(); }
 
 	virtual void GetHP(float& Current, float& Max) const override;
 	virtual void GetMP(float& Current, float& Max) const override;
@@ -32,6 +36,7 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Controlled() override;
 	virtual void UnControlled() override;
+	virtual void Thrusting(FVector Force) override;
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
 
 	void Turn(float Value);
@@ -45,68 +50,58 @@ protected:
 	void MoveUp(float Value);
 
 	void PerformTurn(float DeltaTime);
-	void PerformThrust(float DeltaTime);
 	void PerformAdjust(float DeltaTime);
 	void PerformFOV(float DeltaTime);
+	void UpdateMass();
 
 private:
-
-private:
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* ShipMesh = nullptr;
 
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* ContactTrigger = nullptr;
 
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* OriginComponent = nullptr;
 
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm = nullptr;
 
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera = nullptr;
 
 protected:
-	/** 最大功率(推进力)，单位N（1N=1 kg·m/s²） */
-	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
-	float Power = 0;
-
-	/** 当前能量值 */
-	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
-	float MaxEnergy = 1;
-
-	/** 最大能量值 */
-	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
-	float CurEnergy = 0;
-
-	/** 推进速度 */
-	UPROPERTY(Category = Spaceship, EditAnywhere, BlueprintReadWrite)
-	float ThrustingSpeed = 500;
-
 	/** 重力加速度，单位cm/s² */
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float GravityAccel = 0;
 
 	/** 重力方向 */
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector GravityDirection = FVector::ZeroVector;
 
 private:
 	bool bFreeLook = true;
 
-	float ForwardValue = 0;
-	float UpValue = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class AMainCharacter* CurrentPilot = nullptr;
 
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float ForwardForce = 0;
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float UpForce = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBackpackComponent* Storehouse = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBodyComponent* Body = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UEngineComponent* Engine = nullptr;
 
 private:
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	APawn* CurrentPilot = nullptr;
-
-	UPROPERTY(Category = Spaceship, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBackpackComponent* Storehouse = nullptr;
+	/** 属性等级 */
+	int32 BodyLevel = 0; //包含Mass和HP
+	int32 BackpackLoad = 0; //背包承重
+	int32 BodyShieldCold = 0;
+	int32 BodyShieldHeat = 0;
+	int32 BodyShieldPress = 0;
+	int32 EngineType = 0;
+	int32 EngineLevel = 0; //包含Power、Mass、EPR、EMR
+	int32 EngineEnergy = 0;
 };

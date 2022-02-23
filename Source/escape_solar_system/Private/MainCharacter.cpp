@@ -1,11 +1,15 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "MainCharacter.h"
+#include "LevelData.h"
 #include "GravityMovementComponent.h"
 #include "BackpackComponent.h"
+#include "BodyComponent.h"
+#include "EngineComponent.h"
 #include "Spaceship.h"
 #include "EarthBaseActor.h"
 #include "PickableItemActor.h"
+#include "MainPlayerState.h"
 #include "MainFunctionLibrary.h"
 #include <Components/CapsuleComponent.h>
 #include <GameFramework/SpringArmComponent.h>
@@ -24,9 +28,12 @@ AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 	Movement = Cast<UGravityMovementComponent>(GetCharacterMovement());
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	Backpack = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
+	Body = CreateDefaultSubobject<UBodyComponent>(TEXT("Body"));
+	Engine = CreateDefaultSubobject<UEngineComponent>(TEXT("Engine"));
 
 	FollowCamera->SetupAttachment(GetCapsuleComponent());
 	FollowCamera->SetRelativeLocation(FVector(-30.f, 0.f, 60.f));
+	Body->SetupCollisionComponent(GetCapsuleComponent());
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddUniqueDynamic(this, &AMainCharacter::OnBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddUniqueDynamic(this, &AMainCharacter::OnEndOverlap);
@@ -38,9 +45,26 @@ void AMainCharacter::SetVelocity(const FVector& Velocity)
 	// TODO APlayerController::OnPossess的ClientRestart()调用会把速度置0（UMovementComponent::StopMovementImmediately）
 }
 
+void AMainCharacter::ResetProperties()
+{
+	//AMainPlayerState* State = GetController()->GetPlayerState<AMainPlayerState>();
+	Body->MaximumHP = UMainFunctionLibrary::GetLevelValue(ELevel::CharHP, LevelStrength);
+	Body->Mass = UMainFunctionLibrary::GetLevelValue(ELevel::CharMass, LevelStrength);
+	//Body->ShieldCold = UMainFunctionLibrary::GetLevelValue("CharShieldCold", LevelShieldCold)["ShieldCold"];
+	//Body->ShieldHeat = UMainFunctionLibrary::GetLevelValue("CharShieldHeat", LevelShieldHeat)["ShieldHeat"];
+	//Body->ShieldPress = UMainFunctionLibrary::GetLevelValue("CharShieldPress", LevelShieldPress)["ShieldPress"];
+	//Backpack->MaxLoad = UMainFunctionLibrary::GetLevelValue("CharBackpack", LevelBackpack)["BackpackLoad"];
+	//
+	//Engine->Power = UMainFunctionLibrary::GetLevelValue("CharEngine", LevelEngine)["Power"];
+	//Engine->Mass = UMainFunctionLibrary::GetLevelValue("CharEngine", LevelEngine)["Mass"];
+	//Engine->EPRatio = UMainFunctionLibrary::GetLevelValue("CharEngine", LevelEngine)["EPRatio"];
+	//Engine->EMRatio = UMainFunctionLibrary::GetLevelValue("CharEngine", LevelEngine)["EMRatio"];
+	//Engine->MaximumEnergy = UMainFunctionLibrary::GetLevelValue("CharEnergy", LevelEnergy)["Energy"];
+}
 
 ASpaceship* AMainCharacter::FindSpaceship() const
 {
+	GetPlayerState();
 	ASpaceship* Spaceship = nullptr;
 	if (CurrentVehicle)
 	{
@@ -70,6 +94,11 @@ AEarthBaseActor* AMainCharacter::FindEarthBase() const
 	return nullptr;
 }
 
+FORCEINLINE float AMainCharacter::GetMass() const
+{
+	return Movement->Mass;
+}
+
 FVector AMainCharacter::GetVelocity() const
 {
 	FVector Velocity = FVector::ZeroVector;
@@ -81,13 +110,17 @@ FVector AMainCharacter::GetVelocity() const
 	return Velocity;
 }
 
-void AMainCharacter::GetHP(float & Current, float & Max) const
+void AMainCharacter::GetHP(float& Current, float& Maximum) const
 {
-	Current = 88;
-	Max = 88;
+	int32 Int_Current = 0;
+	int32 Int_Maximum = 0;
+	Body->GetHP(Int_Current, Int_Maximum);
+
+	Current = Int_Current;
+	Maximum = Int_Maximum;
 }
 
-void AMainCharacter::GetMP(float & Current, float & Max) const
+void AMainCharacter::GetMP(float& Current, float& Max) const
 {
 	Current = 88;
 	Max = 88;
@@ -117,7 +150,7 @@ void AMainCharacter::Controlled()
 void AMainCharacter::UnControlled()
 {
 	SetActorHiddenInGame(true);
-	// 该函数会调用UpdateOverlaps，飞船会立即发出碰撞事件，导致NearSpaceship为nullptr
+	// 该函数会调用UpdateOverlaps，飞船会立即发出碰撞事件
 	SetActorEnableCollision(false);
 	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
 	SetVelocity(FVector::ZeroVector);
@@ -145,6 +178,10 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	Instance = this;
+
+	ResetProperties();
+	Body->CurrentHP = Body->MaximumHP;
+	Engine->CurrentEnergy = Engine->MaximumEnergy;
 }
 
 void AMainCharacter::Tick(float DeltaTime)
@@ -152,6 +189,12 @@ void AMainCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	LookPlanet();
+	UpdateMass();
+}
+
+void AMainCharacter::Thrusting(FVector Force)
+{
+	Movement->AddForce(Force);
 }
 
 void AMainCharacter::GravityActed_Implementation(FVector Direction, float Accel)
@@ -221,14 +264,14 @@ void AMainCharacter::MoveForward(float Value)
 {
 	if (Value == 0) return;
 
-	if (GetPlanetOwner())
+	if (!Movement->IsFalling())
 	{
 		AddMovementInput(GetActorForwardVector(), Value);
+		Engine->MoveForward(0);
 	}
 	else
 	{
-		UCapsuleComponent* Capsule = GetCapsuleComponent();
-		Movement->AddForce(Value * Capsule->GetForwardVector() * Power * 100);
+		Engine->MoveForward(Value);
 	}
 }
 
@@ -248,10 +291,16 @@ void AMainCharacter::MoveRight(float Value)
 
 void AMainCharacter::MoveUp(float Value)
 {
-	if (Value == 0) return;
+	Engine->MoveUp(Value);
+}
 
-	UCapsuleComponent* Capsule = GetCapsuleComponent();
-	Movement->AddForce(Value * Capsule->GetUpVector() * Power * 100);
+void AMainCharacter::UpdateMass()
+{
+	const float InMass = Body->Mass + Engine->GetMass() + Backpack->GetMass();
+	if (Movement->Mass != InMass)
+	{
+		Movement->Mass = InMass;
+	}
 }
 
 void AMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

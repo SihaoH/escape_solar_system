@@ -68,11 +68,11 @@ protected:
 	// End UCharacterMovementComponent overrides
 
 	/** 自定义方向，值为单位向量 */
-	UPROPERTY(Category = "Character Movement (General Settings)", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector GravityDirection = FVector::ZeroVector;
 
 	/** 自定义重力（加速度），单位cm/s² */
-	UPROPERTY(Category = "Character Movement (General Settings)", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GravityAccel = 0.f;
 
 	/** 基底（角色所站立的星球）的自转角速度，在起跳时获取，为了让角色起跳后能保持跟星球同样的角速度 */

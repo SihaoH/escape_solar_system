@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ItemData.h"
+#include "LevelData.h"
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MainFunctionLibrary.generated.h"
@@ -16,20 +17,21 @@ public:
 	UMainFunctionLibrary();
 
 public:
-	UFUNCTION(BlueprintCallable)
 	static FBasicItemData& GetBasicItemData(const FName& RowName);
-
-	UFUNCTION(BlueprintCallable)
 	static FPickableItemData& GetPickableItemData(const FName& RowName);
-
-	UFUNCTION(BlueprintCallable)
 	static TArray<FName> GetMakeableItemList();
-
-	UFUNCTION(BlueprintCallable)
 	static FMakeableItemData& GetMakeableItemData(const FName& RowName);
 
+	static FLevelDemand GetLevelDemand(ELevel Level, int32 Val);
+	static float GetLevelValue(ELevel Level, int32 Val);
+
+	static TPair<bool, FText> GetDemandInfo(const TMap<FName, int32>& List, class UBackpackComponent* Backpack = nullptr, int32 Count = 1);
+
 private:
-	static UDataTable* BasicItemDataTable;
-	static UDataTable* PickableItemDataTable;
-	static UDataTable* MakeableItemDataTable;
+	static UDataTable* DT_BasicItem;
+	static UDataTable* DT_PickableItem;
+	static UDataTable* DT_MakeableItem;
+
+	static UDataTable* DT_LevelDemand;
+	static UDataTable* DT_LevelValue;
 };

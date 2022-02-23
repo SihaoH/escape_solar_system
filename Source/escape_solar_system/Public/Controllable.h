@@ -22,10 +22,10 @@ class ESCAPE_SOLAR_SYSTEM_API IControllable
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Controllable)
-	virtual void GetHP(float& Current, float& Max) const;
+	virtual void GetHP(float& Current, float& Maximum) const;
 
 	UFUNCTION(BlueprintCallable, Category = Controllable)
-	virtual void GetMP(float& Current, float& Max) const;
+	virtual void GetMP(float& Current, float& Maximum) const;
 
 	UFUNCTION(BlueprintCallable, Category = Controllable)
 	virtual float GetGravityAccel() const;
@@ -36,6 +36,7 @@ public:
 
 	virtual void Controlled() {};
 	virtual void UnControlled() {};
+	virtual void Thrusting(FVector Force) {};
 
 	void ChangePawn(class APawn* NewPawn);
 	void LookPlanet();

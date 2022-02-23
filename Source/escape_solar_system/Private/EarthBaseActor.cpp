@@ -15,7 +15,7 @@ AEarthBaseActor::AEarthBaseActor()
 	RootComponent = StaticMesh;
 	ScopeTigger->SetupAttachment(GetRootComponent());
 	ScopeTigger->SetSphereRadius(1000.f);
-	Storehouse->MaxBearing = -1.f;
+	Storehouse->MaxLoad = -1.f;
 }
 
 ASpaceship* AEarthBaseActor::FindSpaceship() const

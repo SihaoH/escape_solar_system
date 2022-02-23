@@ -14,16 +14,16 @@ UControllable::UControllable(const FObjectInitializer& ObjectInitializer)
 class APlanetActor* IControllable::LookedPlanet = nullptr;
 class APlanetActor* IControllable::LockedPlanet = nullptr;
 
-void IControllable::GetHP(float& Current, float& Max) const
+void IControllable::GetHP(float& Current, float& Maximum) const
 {
 	Current = 1;
-	Max = 1;
+	Maximum = 1;
 }
 
-void IControllable::GetMP(float& Current, float& Max) const
+void IControllable::GetMP(float& Current, float& Maximum) const
 {
 	Current = 1;
-	Max = 1;
+	Maximum = 1;
 }
 
 float IControllable::GetGravityAccel() const

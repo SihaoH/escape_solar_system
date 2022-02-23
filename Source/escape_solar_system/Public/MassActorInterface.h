@@ -21,7 +21,7 @@ class ESCAPE_SOLAR_SYSTEM_API IMassActorInterface
 	GENERATED_IINTERFACE_BODY()
 
 public:
-	UFUNCTION(Category = Gravity, BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	void GravityActed(FVector Direction, float Accel);
 
 	FORCEINLINE class APlanetActor* GetPlanetOwner() { return PlanetOwner; }

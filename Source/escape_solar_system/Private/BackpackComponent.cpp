@@ -10,6 +10,8 @@ UBackpackComponent::UBackpackComponent()
 
 void UBackpackComponent::AddItem(const FName& RowName, int32 Count)
 {
+	if (Count <= 0) return;
+
 	const FBasicItemData& ItemData = UMainFunctionLibrary::GetBasicItemData(RowName);
 	check(&ItemData);
 	check(Count <= GetMaxAddNum(RowName))
@@ -26,6 +28,7 @@ void UBackpackComponent::AddItem(const FName& RowName, int32 Count)
 		}
 	}
 
+	UpdateMass();
 	OnChanged.Broadcast();
 }
 
@@ -39,21 +42,20 @@ void UBackpackComponent::RemoveItem(const FName& RowName, int32 Count)
 		ItemList.Remove(RowName, 0);
 	}
 
+	UpdateMass();
 	OnChanged.Broadcast();
 }
 
 int32 UBackpackComponent::GetMaxAddNum(const FName& RowName)
 {
-	if (MaxBearing < 0)
+	if (MaxLoad < 0)
 	{
 		return MAX_int32;
 	}
 	const FBasicItemData& ItemData = UMainFunctionLibrary::GetBasicItemData(RowName);
-	float Remaining = MaxBearing - GetCurMass();
+	float Remaining = MaxLoad - GetMass();
 	return FMath::FloorToInt(Remaining / ItemData.Mass);
 }
-
-
 
 int32 UBackpackComponent::CountItem(const FName& RowName) const
 {
@@ -73,14 +75,13 @@ int32 UBackpackComponent::GetCurCount() const
 	return ItemList.Num();
 }
 
-float UBackpackComponent::GetCurMass() const
+void UBackpackComponent::UpdateMass()
 {
-	float Mass = 0.f;
+	Mass = 0.f;
 	for (const auto& Elem : ItemList)
 	{
 		const FBasicItemData& ItemData = UMainFunctionLibrary::GetBasicItemData(Elem.Key);
 		Mass += ItemData.Mass * Elem.Value;
 	}
-	return Mass;
 }
 

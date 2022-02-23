@@ -35,18 +35,22 @@ public:
 	int32 GetCurCount() const;
 
 	UFUNCTION(BlueprintCallable)
-	float GetCurMass() const;
+	FORCEINLINE float GetMass() const { return Mass; }
+
+protected:
+	void UpdateMass();
 
 public:
 	/** 背包物品改变时发出的广播 */
-	UPROPERTY(Category = BackpackComponent, BlueprintAssignable)
+	UPROPERTY(BlueprintAssignable)
 	FOnBackpackChangedEvent OnChanged;
 
 public:
 	/** 背包承重（容量），单位kg；-1代表无限承重 */
-	UPROPERTY(Category = BackpackComponent, EditAnywhere, BlueprintReadWrite)
-	float MaxBearing = 100.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxLoad = 100.f;
 
 private:
 	TMultiMap<FName, int32> ItemList;
+	float Mass = 0.f;
 };
