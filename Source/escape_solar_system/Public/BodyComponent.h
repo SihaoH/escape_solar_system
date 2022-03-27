@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "MainFunctionLibrary.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "BodyComponent.generated.h"
@@ -18,8 +19,22 @@ public:
 	UBodyComponent();
 
 	void SetupCollisionComponent(UPrimitiveComponent* PrimitiveComponent);
-	void ChangeHP(int32 Delta);
-	void GetHP(int32& CurHP, int32& MaxHP);
+	void SetupType(EPawnType T);
+
+	void SetStrength(int32 Level);
+	void SetShieldCold(int32 Level);
+	void SetShieldHeat(int32 Level);
+	void SetShieldPress(int32 Level);
+
+	void ChangeHP(float Delta);
+	FORCEINLINE float GetMass() const { return Mass; }
+	FORCEINLINE float GetCurrentHP() const { return CurrentHP; }
+	FORCEINLINE float GetMaximumHP() const { return MaximumHP; }
+	FORCEINLINE float GetShieldCold() const { return ShieldCold; }
+	FORCEINLINE float GetShieldHeat() const { return ShieldHeat; }
+	FORCEINLINE float GetShieldPress() const { return ShieldPress; }
+	FORCEINLINE float GetCurrentTemp() const { return CurrentTemp; }
+	FORCEINLINE float GetCurrentPress() const { return CurrentPress; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -30,39 +45,40 @@ private:
 	UFUNCTION()
 	void OnComponentHitted(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-public:
+private:
+	EPawnType Type = EPawnType::MainChar;
 	FTimerHandle EnvTimer;
 	UPrimitiveComponent* CollisionComponent = nullptr;
 
 	/** 机体质量，强度(HP)会影响质量 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float Mass = 1.f;
 
 	/** 当前血量 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 CurrentHP = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float CurrentHP = 0;
 
 	/** 最大血量，即机体强度 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 MaximumHP = 1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float MaximumHP = 1;
 
 	/** 耐冷护盾 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 ShieldCold = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float ShieldCold = 0;
 
 	/** 耐热护盾 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 ShieldHeat = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float ShieldHeat = 0;
 
 	/** 耐压护盾 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 ShieldPress = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float ShieldPress = 0;
 
 	/** 机体/躯体当前的温度，当没受到外界温度影响时（比如真空中），物体温度理应维持稳定 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 CurrentTemp = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float CurrentTemp = 0;
 
 	/** 当前气压，真空时为0 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 CurrentPress = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float CurrentPress = 0;
 };

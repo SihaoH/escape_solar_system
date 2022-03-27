@@ -48,8 +48,7 @@ void AMainCharacter::SetVelocity(const FVector& Velocity)
 void AMainCharacter::ResetProperties()
 {
 	//AMainPlayerState* State = GetController()->GetPlayerState<AMainPlayerState>();
-	Body->MaximumHP = UMainFunctionLibrary::GetLevelValue(ELevel::CharHP, LevelStrength);
-	Body->Mass = UMainFunctionLibrary::GetLevelValue(ELevel::CharMass, LevelStrength);
+	Body->SetStrength(LevelStrength);
 	//Body->ShieldCold = UMainFunctionLibrary::GetLevelValue("CharShieldCold", LevelShieldCold)["ShieldCold"];
 	//Body->ShieldHeat = UMainFunctionLibrary::GetLevelValue("CharShieldHeat", LevelShieldHeat)["ShieldHeat"];
 	//Body->ShieldPress = UMainFunctionLibrary::GetLevelValue("CharShieldPress", LevelShieldPress)["ShieldPress"];
@@ -94,11 +93,6 @@ AEarthBaseActor* AMainCharacter::FindEarthBase() const
 	return nullptr;
 }
 
-FORCEINLINE float AMainCharacter::GetMass() const
-{
-	return Movement->Mass;
-}
-
 FVector AMainCharacter::GetVelocity() const
 {
 	FVector Velocity = FVector::ZeroVector;
@@ -108,22 +102,6 @@ FVector AMainCharacter::GetVelocity() const
 		Velocity = BodyInst->GetUnrealWorldVelocity();
 	}
 	return Velocity;
-}
-
-void AMainCharacter::GetHP(float& Current, float& Maximum) const
-{
-	int32 Int_Current = 0;
-	int32 Int_Maximum = 0;
-	Body->GetHP(Int_Current, Int_Maximum);
-
-	Current = Int_Current;
-	Maximum = Int_Maximum;
-}
-
-void AMainCharacter::GetMP(float& Current, float& Max) const
-{
-	Current = 88;
-	Max = 88;
 }
 
 float AMainCharacter::GetGravityAccel() const
@@ -180,8 +158,8 @@ void AMainCharacter::BeginPlay()
 	Instance = this;
 
 	ResetProperties();
-	Body->CurrentHP = Body->MaximumHP;
-	Engine->CurrentEnergy = Engine->MaximumEnergy;
+	Body->ChangeHP(Body->GetMaximumHP() * 0.5);
+	Engine->ChangeEnergy(0xFFFF);
 }
 
 void AMainCharacter::Tick(float DeltaTime)
@@ -227,7 +205,7 @@ void AMainCharacter::PickupItem()
 		// TODO 实际拾取的，提示
 		UKismetSystemLibrary::PrintText(GetWorld(), FText::Format(
 			INVTEXT("拾取了 {0} x{1}"),
-			UMainFunctionLibrary::GetBasicItemData(RowName).Name, 
+			UMainFunctionLibrary::GetItemData(RowName).Name, 
 			AddedCount)
 		);
 	}
@@ -296,7 +274,7 @@ void AMainCharacter::MoveUp(float Value)
 
 void AMainCharacter::UpdateMass()
 {
-	const float InMass = Body->Mass + Engine->GetMass() + Backpack->GetMass();
+	const float InMass = Body->GetMass() + Engine->GetMass() + Backpack->GetMass();
 	if (Movement->Mass != InMass)
 	{
 		Movement->Mass = InMass;

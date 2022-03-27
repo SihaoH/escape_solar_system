@@ -8,6 +8,19 @@ UEngineComponent::UEngineComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+void UEngineComponent::ChangeEnergy(float Delta)
+{
+	CurrentEnergy += Delta;
+	if (CurrentEnergy > MaximumEnergy)
+	{
+		CurrentEnergy = MaximumEnergy;
+	}
+	else if (CurrentEnergy <= 0)
+	{
+		CurrentEnergy = 0;
+	}
+}
+
 void UEngineComponent::MoveForward(float Value)
 {
 	if (Value == 0 || CurrentEnergy <= 0)
@@ -55,9 +68,5 @@ void UEngineComponent::BeginPlay()
 
 void UEngineComponent::UseEnergy(float Used)
 {
-	CurrentEnergy -= Used / EPRatio * GetWorld()->GetDeltaSeconds();
-	if (CurrentEnergy <= 0)
-	{
-		CurrentEnergy = 0;
-	}
+	ChangeEnergy(-Used / EPRatio * GetWorld()->GetDeltaSeconds());
 }

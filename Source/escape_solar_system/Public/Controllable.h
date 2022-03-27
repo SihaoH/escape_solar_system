@@ -6,7 +6,6 @@
 #include "UObject/Interface.h"
 #include "Controllable.generated.h"
 
-
 UINTERFACE(Blueprintable, meta = (CannotImplementInterfaceInBlueprint))
 class UControllable : public UInterface
 {
@@ -21,12 +20,6 @@ class ESCAPE_SOLAR_SYSTEM_API IControllable
 	GENERATED_IINTERFACE_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = Controllable)
-	virtual void GetHP(float& Current, float& Maximum) const;
-
-	UFUNCTION(BlueprintCallable, Category = Controllable)
-	virtual void GetMP(float& Current, float& Maximum) const;
-
 	UFUNCTION(BlueprintCallable, Category = Controllable)
 	virtual float GetGravityAccel() const;
 

@@ -21,13 +21,7 @@ public:
 
 	void SetPilot(class AMainCharacter* Pilot);
 	void InitState();
-	class UBackpackComponent* GetBackpack() const { return Storehouse; }
-	class UBodyComponent* GetBodyComponent() const { return Body; }
-	class UEngineComponent* GetEngineComponent() const { return Engine; }
 	FORCEINLINE float GetMass() const { return ShipMesh->GetMass(); }
-
-	virtual void GetHP(float& Current, float& Max) const override;
-	virtual void GetMP(float& Current, float& Max) const override;
 	virtual float GetGravityAccel() const override;
 
 protected:
@@ -53,6 +47,16 @@ protected:
 	void PerformAdjust(float DeltaTime);
 	void PerformFOV(float DeltaTime);
 	void UpdateMass();
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UBackpackComponent* Backpack = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UBodyComponent* Body = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UEngineComponent* Engine = nullptr;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -84,15 +88,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class AMainCharacter* CurrentPilot = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBackpackComponent* Storehouse = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBodyComponent* Body = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UEngineComponent* Engine = nullptr;
 
 private:
 	/** 属性等级 */

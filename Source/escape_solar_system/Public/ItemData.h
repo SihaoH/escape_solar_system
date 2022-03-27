@@ -20,7 +20,7 @@ struct FSInt32Range
 
 /** 所有物品，RowName为0000~9999 */
 USTRUCT(BlueprintType)
-struct FBasicItemData : public FTableRowBase
+struct FItemData : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -43,30 +43,20 @@ struct FBasicItemData : public FTableRowBase
 	/** 物品图标 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<UTexture2D> Icon;
-};
 
-/** 可拾取的物品 */
-USTRUCT(BlueprintType)
-struct FPickableItemData : public FTableRowBase
-{
-	GENERATED_USTRUCT_BODY()
+	/** 可消耗物：补充的值 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ReplenishedValue;
 
-	/** 在关卡中重新生成的时间, 单位秒 */
+	/** 可拾取物：在关卡中重新生成的时间, 单位秒 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSInt32Range RebirthTime;
-	
-	/** 一次采集可获取的数量 */
+
+	/** 可拾取物：一次采集可获取的数量 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FSInt32Range PickCount;
-};
 
-/** 可合成的物品 */
-USTRUCT(BlueprintType)
-struct FMakeableItemData : public FTableRowBase
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** 合成所需的物品清单 */
+	/** 可合成物：合成所需的物品清单 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FName, int32> DemandList;
 };

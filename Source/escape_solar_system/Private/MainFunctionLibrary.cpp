@@ -4,46 +4,44 @@
 #include "BackpackComponent.h"
 #define LOCTEXT_NAMESPACE "MainFunctionLibrary"
 
-UDataTable* UMainFunctionLibrary::DT_BasicItem = nullptr;
-UDataTable* UMainFunctionLibrary::DT_PickableItem = nullptr;
-UDataTable* UMainFunctionLibrary::DT_MakeableItem = nullptr;
+UDataTable* UMainFunctionLibrary::DT_ItemInfo = nullptr;
 
 UDataTable* UMainFunctionLibrary::DT_LevelDemand = nullptr;
 UDataTable* UMainFunctionLibrary::DT_LevelValue = nullptr;
 
 UMainFunctionLibrary::UMainFunctionLibrary()
 {
-	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Basic(TEXT("DataTable'/Game/DataTable/DT_BasicItem.DT_BasicItem'"));
-	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Pickable(TEXT("DataTable'/Game/DataTable/DT_PickableItem.DT_PickableItem'"));
-	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Makeable(TEXT("DataTable'/Game/DataTable/DT_MakeableItem.DT_MakeableItem'"));
-	DT_BasicItem = Finder_Basic.Object;
-	DT_PickableItem = Finder_Pickable.Object;
-	DT_MakeableItem = Finder_Makeable.Object;
+	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Item(TEXT("DataTable'/Game/DataTable/DT_ItemInfo.DT_ItemInfo'"));
+	DT_ItemInfo = Finder_Item.Object;
+	check(DT_ItemInfo);
 
 	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Demand(TEXT("DataTable'/Game/DataTable/DT_LevelDemand.DT_LevelDemand'"));
 	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Value(TEXT("DataTable'/Game/DataTable/DT_LevelValue.DT_LevelValue'"));
 	DT_LevelDemand = Finder_Demand.Object;
+	check(DT_LevelDemand);
 	DT_LevelValue = Finder_Value.Object;
+	check(DT_LevelValue);
 }
 
-FBasicItemData& UMainFunctionLibrary::GetBasicItemData(const FName& RowName)
+FItemData& UMainFunctionLibrary::GetItemData(const FName& RowName)
 {
-	return *DT_BasicItem->FindRow<FBasicItemData>(RowName, FString());
-}
-
-FPickableItemData& UMainFunctionLibrary::GetPickableItemData(const FName& RowName)
-{
-	return *DT_PickableItem->FindRow<FPickableItemData>(RowName, FString());
+	return *DT_ItemInfo->FindRow<FItemData>(RowName, FString());
 }
 
 TArray<FName> UMainFunctionLibrary::GetMakeableItemList()
 {
-	return DT_MakeableItem->GetRowNames();
-}
-
-FMakeableItemData& UMainFunctionLibrary::GetMakeableItemData(const FName& RowName)
-{
-	return *DT_MakeableItem->FindRow<FMakeableItemData>(RowName, FString());
+	static TArray<FName> List;
+	if (List.Num() <= 0)
+	{
+		for (const FName& Name : DT_ItemInfo->GetRowNames())
+		{
+			if (GetItemData(Name).DemandList.Num() > 0)
+			{
+				List.Add(Name);
+			}
+		}
+	}
+	return List;
 }
 
 FLevelDemand UMainFunctionLibrary::GetLevelDemand(ELevel Level, int32 Val)
@@ -91,7 +89,7 @@ TPair<bool, FText> UMainFunctionLibrary::GetDemandInfo(const TMap<FName, int32>&
 	bool Enough = true;
 	for (const TPair<FName, int32>& Demand : List)
 	{
-		FBasicItemData& DemandData = UMainFunctionLibrary::GetBasicItemData(Demand.Key);
+		FItemData& DemandData = UMainFunctionLibrary::GetItemData(Demand.Key);
 		int32 NeedCount = Demand.Value * FMath::Max(Count, 1);
 		int32 HoldCount = Backpack ? Backpack->CountItem(Demand.Key) : 0;
 		FStringFormatOrderedArguments Arguments;

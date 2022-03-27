@@ -13,7 +13,33 @@ void UBodyComponent::SetupCollisionComponent(UPrimitiveComponent* PrimitiveCompo
 	CollisionComponent = PrimitiveComponent;
 }
 
-void UBodyComponent::ChangeHP(int32 Delta)
+void UBodyComponent::SetupType(EPawnType T)
+{
+	Type = T;
+}
+
+void UBodyComponent::SetStrength(int32 Level)
+{
+	if (Type == EPawnType::MainChar)
+	{
+		MaximumHP = UMainFunctionLibrary::GetLevelValue(ELevel::CharHP, Level);
+		Mass = UMainFunctionLibrary::GetLevelValue(ELevel::CharMass, Level);
+	}
+}
+
+void UBodyComponent::SetShieldCold(int32 Level)
+{
+}
+
+void UBodyComponent::SetShieldHeat(int32 Level)
+{
+}
+
+void UBodyComponent::SetShieldPress(int32 Level)
+{
+}
+
+void UBodyComponent::ChangeHP(float Delta)
 {
 	CurrentHP += Delta;
 	if (CurrentHP > MaximumHP)
@@ -22,15 +48,10 @@ void UBodyComponent::ChangeHP(int32 Delta)
 	}
 	else if (CurrentHP <= 0)
 	{
+		CurrentHP = 0;
 		// TODO 死亡
 		UKismetSystemLibrary::PrintText(GetWorld(), INVTEXT("你死了！"));
 	}
-}
-
-void UBodyComponent::GetHP(int32& CurHP, int32& MaxHP)
-{
-	MaxHP = MaximumHP;
-	CurHP = FMath::Max(0, FMath::Min(CurrentHP, MaximumHP));
 }
 
 void UBodyComponent::BeginPlay()

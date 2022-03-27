@@ -1,71 +1,51 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "BackpackView.h"
-#include "BackpackEntry.h"
 #include "BackpackComponent.h"
+#include "MainCharacter.h"
+#include "Spaceship.h"
+#include "EarthBaseActor.h"
 #include "ItemDataObject.h"
-#include <UMG.h>
 
-#define LOCTEXT_NAMESPACE "BackpackView"
-
-void UBackpackView::SetBackpack(UBackpackComponent* Bp)
+UBackpackComponent* UBackpackViewHelper::GetBackpack() const
 {
-	Backpack = Bp;
-	if (Backpack)
+	UBackpackComponent* Bp = nullptr;
+	AMainCharacter* Char = AMainCharacter::GetInstance();
+	if (Type == EBackpackType::Char)
 	{
-		SetVisibility(ESlateVisibility::Visible);
-		OnBackpackChanged();
-		Backpack->OnChanged.AddUniqueDynamic(this, &UBackpackView::OnBackpackChanged);
+		Bp = Char->Backpack;
 	}
-	else
+	else if (Type == EBackpackType::Ship)
 	{
-		SetVisibility(ESlateVisibility::Collapsed);
+		Bp = Char->FindSpaceship() ? Char->FindSpaceship()->Backpack : nullptr;
 	}
-}
-
-bool UBackpackView::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
-{
-	IUserObjectListEntry* Entry = Cast<IUserObjectListEntry>(InOperation->Payload);
-	UListView* OtherItemView = Cast<UListView>(Entry->GetOwningListView());
-	if (OtherItemView != Cast<UListView>(GetWidgetFromName(TEXT("ListView_Item"))))
+	else if (Type == EBackpackType::Base)
 	{
-		UItemDataObject* ItemObj = Cast<UItemDataObject>(Entry->GetListItem());
-		OnItemDrop.Broadcast(Backpack, ItemObj->Owner, ItemObj->RowName);
-		return true;
+		Bp = Char->FindEarthBase() ? Char->FindEarthBase()->Backpack : nullptr;
 	}
-	return Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	return Bp;
 }
 
-void UBackpackView::InitEntryWidget(UUserWidget* Entry)
+void UBackpackViewHelper::GetListViewItems(TArray<class UItemDataObject*>& OutItems) const
 {
-	// OnEntryClicked由MenuBackpack发出广播，这里绑定是需要通知到每个Entry
-	// 由于C++没有对应的接口来获取生成的Entry，所以这里交给BP调用
-	OnEntryClicked.AddUniqueDynamic(Cast<UBackpackEntry>(Entry), &UBackpackEntry::OnEntryClicked);
-}
+	UBackpackComponent* Bp = GetBackpack();
+	check(Bp);
 
-void UBackpackView::ClickItem(UObject* Item)
-{
-	OnItemClicked.Broadcast(Item);
-}
-
-void UBackpackView::OnBackpackChanged()
-{
-	float CurMass = Backpack->GetMass();
-	FText MaxBearing = Backpack->MaxLoad < 0 ? INVTEXT("∞") : FText::AsNumber(Backpack->MaxLoad);
-	InfoBearing = FText::Format(LOCTEXT("Bearing", "承重(kg): {0}/{1}"), CurMass, MaxBearing);
-
-	TArray<UItemDataObject*> OutItems;
-	const auto& ItemList = Backpack->GetItemList();
+	const auto& ItemList = Bp->GetItemList();
 	for (const auto& Elem : ItemList)
 	{
-		UItemDataObject* Obj = NewObject<UItemDataObject>(this);
+		UItemDataObject* Obj = NewObject<UItemDataObject>(const_cast<UBackpackViewHelper*>(this));
 		Obj->RowName = Elem.Key;
 		Obj->Count = Elem.Value;
-		Obj->Owner = Backpack;
+		Obj->Owner = Bp;
 		OutItems.Add(Obj);
 	}
-	OnListViewResetted(OutItems);
-	OnItemClicked.Broadcast(nullptr);
 }
 
-#undef LOCTEXT_NAMESPACE
+void UBackpackViewHelper::GetBearingInfo(float& CurMass, float& MaxBearing) const
+{
+	UBackpackComponent* Bp = GetBackpack();
+	check(Bp);
+	CurMass = Bp->GetMass();
+	MaxBearing = Bp->MaxLoad;
+}

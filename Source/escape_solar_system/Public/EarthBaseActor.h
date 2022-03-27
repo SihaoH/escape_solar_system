@@ -18,7 +18,10 @@ public:
 	AEarthBaseActor();
 
 	class ASpaceship* FindSpaceship() const;
-	class UBackpackComponent* GetBackpack() const { return Storehouse; }
+
+public:
+	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBackpackComponent* Backpack = nullptr;
 
 protected:
 	virtual void BeginPlay() override;
@@ -30,6 +33,5 @@ private:
 	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* ScopeTigger = nullptr;
 
-	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBackpackComponent* Storehouse = nullptr;
+
 };

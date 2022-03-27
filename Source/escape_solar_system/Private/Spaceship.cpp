@@ -23,7 +23,7 @@ ASpaceship::ASpaceship()
 	OriginComponent = CreateDefaultSubobject<USceneComponent>(TEXT("OriginComponent"));
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	Storehouse = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
+	Backpack = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
 	Body = CreateDefaultSubobject<UBodyComponent>(TEXT("Body"));
 	Engine = CreateDefaultSubobject<UEngineComponent>(TEXT("Engine"));
 	
@@ -67,18 +67,6 @@ void ASpaceship::InitState()
 	//Engine->EPRatio = Engine_Value["EPRatio"];
 	//Engine->EMRatio = Engine_Value["EMRatio"];
 	//Engine->MaximumEnergy = UMainFunctionLibrary::GetLevelValue(TEXT("ShipEnergy") + FString::FormatAsNumber(EngineType), EngineLevel)["Energy"];
-}
-
-void ASpaceship::GetHP(float & Current, float & Max) const
-{
-	Current = 99;
-	Max = 99;
-}
-
-void ASpaceship::GetMP(float & Current, float & Max) const
-{
-	Current = 1;
-	Max = 1;
 }
 
 float ASpaceship::GetGravityAccel() const
@@ -185,7 +173,7 @@ void ASpaceship::MoveForward(float Value)
 
 void ASpaceship::MoveRight(float Value)
 {
-	if (Engine->CurrentEnergy <= 0 || bFreeLook)
+	if (Engine->GetCurrentEnergy() <= 0 || bFreeLook)
 	{
 		return;
 	}
@@ -199,7 +187,7 @@ void ASpaceship::MoveUp(float Value)
 
 void ASpaceship::PerformTurn(float DeltaTime)
 {
-	if (Engine->CurrentEnergy <= 0 || bFreeLook) return;
+	if (Engine->GetCurrentEnergy() <= 0 || bFreeLook) return;
 
 	FRotator DeltaRotation = OriginComponent->GetRelativeRotation() * DeltaTime;
 	if (!DeltaRotation.IsNearlyZero(1.e-6f))
@@ -238,7 +226,7 @@ void ASpaceship::PerformFOV(float DeltaTime)
 
 void ASpaceship::UpdateMass()
 {
-	const float InMass = Body->Mass + Engine->GetMass() + (CurrentPilot ? CurrentPilot->GetMass() : 0);
+	const float InMass = Body->GetMass() + Engine->GetTotalMass() + (CurrentPilot ? CurrentPilot->GetMass() : 0);
 	if (GetMass() != InMass)
 	{
 		ShipMesh->SetMassOverrideInKg(NAME_None, InMass);

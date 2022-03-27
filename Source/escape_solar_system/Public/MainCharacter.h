@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "GravityMovementComponent.h"
 #include "MassActorInterface.h"
 #include "Controllable.h"
 #include "CoreMinimal.h"
@@ -17,7 +18,7 @@ class ESCAPE_SOLAR_SYSTEM_API AMainCharacter : public ACharacter, public IMassAc
 	GENERATED_UCLASS_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	static AMainCharacter* GetInstance() { return Instance; }
 
 public:
@@ -25,16 +26,12 @@ public:
 	void SetVelocity(const FVector& Velocity);
 	void ResetProperties();
 
-	class UBackpackComponent* GetBackpack() const { return Backpack; }
+	UFUNCTION(BlueprintCallable)
 	class ASpaceship* FindSpaceship() const;
 	class AEarthBaseActor* FindEarthBase() const;
-	class UBodyComponent* GetBodyComponent() const { return Body; }
-	class UEngineComponent* GetEngineComponent() const { return Engine; }
-	FORCEINLINE float GetMass() const;
+	FORCEINLINE float GetMass() const { return Movement->Mass; }
 
 	virtual FVector GetVelocity() const override;
-	virtual void GetHP(float& Current, float& Maximum) const override;
-	virtual void GetMP(float& Current, float& Maximum) const override;
 	virtual float GetGravityAccel() const override;
 
 protected:
@@ -62,6 +59,16 @@ protected:
 	UFUNCTION()
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UBackpackComponent* Backpack = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UBodyComponent* Body = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UEngineComponent* Engine = nullptr;
+
 private:
 	static AMainCharacter* Instance;
 
@@ -75,17 +82,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBackpackComponent* Backpack = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBodyComponent* Body = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UEngineComponent* Engine = nullptr;
-
 private:
-	friend class UMenuLevel;
+	friend class UMenuLevelHelper;
 	/** 属性等级 */
 	int32 LevelStrength = 0; //包含Mass和HP
 	int32 LevelBackpack = 0; //背包承重

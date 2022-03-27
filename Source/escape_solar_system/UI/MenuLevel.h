@@ -3,20 +3,25 @@
 #pragma once
 
 #include "LevelData.h"
+#include "ItemDataObject.h"
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
 #include "MenuLevel.generated.h"
-
 
 /**
  * 菜单页面中的等级部件
  */
-UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API UMenuLevel : public UUserWidget
+UCLASS(BlueprintType)
+class ESCAPE_SOLAR_SYSTEM_API UMenuLevelHelper : public UObject
 {
 	GENERATED_BODY()
 
 public:
+
+	UFUNCTION(BlueprintCallable)
+	void GetRestorationHP(TArray<UItemDataObject*>& OutItems);
+	UFUNCTION(BlueprintCallable)
+	void GetRestorationMP(TArray<UItemDataObject*>& OutItems);
+
 	UFUNCTION(BlueprintCallable)
 	void SelectLevel(const TArray<ELevel>& Prop);
 
@@ -29,14 +34,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurVal(const TArray<ELevel>& Prop);
 
-protected:
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnLevelUpgraded();
-
 private:
 	int* GetTarget(ELevel Level);
+	inline TArray<class UBackpackComponent*> GetBackpackList();
 
 private:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool CanUpgrade = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

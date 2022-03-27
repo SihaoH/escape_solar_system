@@ -3,22 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
 #include "MenuBase.generated.h"
 
 /**
  * 菜单页面中的基地（制作）部件
  */
-UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API UMenuBase : public UUserWidget
+UCLASS(BlueprintType)
+class ESCAPE_SOLAR_SYSTEM_API UMenuBaseHelper : public UObject
 {
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintPure)
+	void GetMakeableList(TArray<class UItemDataObject*>& OutItems) const;
 	UFUNCTION(BlueprintCallable)
-	void InitMakeableListView(class UListView* ListView);
-	UFUNCTION(BlueprintCallable)
-	void OnItemSelectionChanged(UObject* Item, float& MakeableMin, float& MakeableMax);
+	void OnItemSelectionChanged(UObject* SelItem, float& MakeableMin, float& MakeableMax);
 	UFUNCTION(BlueprintCallable)
 	void OnMakeCountChanged(UObject* SelItem, float Count, FText& DemandText);
 	UFUNCTION(BlueprintCallable)

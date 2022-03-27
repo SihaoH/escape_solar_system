@@ -10,12 +10,12 @@ AEarthBaseActor::AEarthBaseActor()
 {
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	ScopeTigger = CreateDefaultSubobject<USphereComponent>(TEXT("ScopeTigger"));
-	Storehouse = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
+	Backpack = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
 
 	RootComponent = StaticMesh;
 	ScopeTigger->SetupAttachment(GetRootComponent());
 	ScopeTigger->SetSphereRadius(1000.f);
-	Storehouse->MaxLoad = -1.f;
+	Backpack->MaxLoad = -1.f;
 }
 
 ASpaceship* AEarthBaseActor::FindSpaceship() const

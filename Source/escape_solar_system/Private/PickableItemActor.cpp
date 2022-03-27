@@ -19,16 +19,16 @@ APickableItemActor::APickableItemActor()
 
 void APickableItemActor::Pickup(FName& RowName, int32& Count)
 {
-	FPickableItemData& Info = UMainFunctionLibrary::GetPickableItemData(ItemRowName);
-	Deactivate(FMath::RandRange(Info.RebirthTime.Min, Info.RebirthTime.Max));
+	FItemData& ItemData = UMainFunctionLibrary::GetItemData(ItemRowName);
+	Deactivate(FMath::RandRange(ItemData.RebirthTime.Min, ItemData.RebirthTime.Max));
 	RowName = ItemRowName;
-	Count = FMath::RandRange(Info.PickCount.Min, Info.PickCount.Max);
+	Count = FMath::RandRange(ItemData.PickCount.Min, ItemData.PickCount.Max);
 }
 
 void APickableItemActor::BeginPlay()
 {
 	Super::BeginPlay();
-	ItemName = UMainFunctionLibrary::GetBasicItemData(ItemRowName).Name;
+	ItemName = UMainFunctionLibrary::GetItemData(ItemRowName).Name;
 }
 
 void APickableItemActor::Activate()

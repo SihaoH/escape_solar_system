@@ -2,69 +2,44 @@
 
 #pragma once
 
+#include "MainFunctionLibrary.h"
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
 #include "MenuBackpack.generated.h"
 
-class UBackpackView;
+class UBackpackViewHelper;
 class UBackpackComponent;
 
 /**
  * 菜单页面中的背包部件
  */
-UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API UMenuBackpack : public UUserWidget
+UCLASS(BlueprintType)
+class ESCAPE_SOLAR_SYSTEM_API UMenuBackpackHelper : public UObject
 {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void InitBpView(UBackpackView* Body, UBackpackView* Base, UBackpackView* Ship);
+	void SelectItem(UObject* Item);
 	UFUNCTION(BlueprintCallable)
-	void AcceptDrop(float Count);
+	void UseItem();
 	UFUNCTION(BlueprintCallable)
-	void DiscardItem(float Count);
+	void DropItem(int32 Count);
+	UFUNCTION(BlueprintCallable)
+	void ConsumeItem(int32 Count, EPawnType Target);
+	UFUNCTION(BlueprintCallable)
+	void DiscardItem(int32 Count);
+	UFUNCTION(BlueprintCallable)
+	void TryDropItem(UBackpackComponent* DstBp, UBackpackComponent* SrcBp, UObject* Item);
 
-protected:
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnItemSelected(float Max);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnItemDrop(float MaxAdd);
+	UFUNCTION(BlueprintPure)
+	int32 GetSelectedCount() const;
+	UFUNCTION(BlueprintPure)
+	void GetMenuStatus(bool& CanUse, bool& CanConsume);
 
 private:
-	void CheckBpView();
-	void SelectItem(class UItemDataObject* Item);
-
-	UFUNCTION()
-	void OnBpViewItemClicked(UObject* Item);
-	UFUNCTION()
-	void OnBpViewItemDrop(UBackpackComponent* DstBp, UBackpackComponent* SrcBp, FName RowName);
-
-private:
-	UBackpackView* BpView_Body = nullptr;
-	UBackpackView* BpView_Base = nullptr;
-	UBackpackView* BpView_Ship = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	ESlateVisibility NoneVisibility;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	ESlateVisibility ItemVisibility;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FSlateBrush ItemIcon;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FText ItemName;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FText ItemDesc;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FText ItemMass;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FText ItemCount;
-
-	// 准备转移物品的相关对象：目标背包、源背包、源物品
+	// 准备转移物品的相关对象：目标背包、源背包
 	class UBackpackComponent* DstBackpack = nullptr;
 	class UBackpackComponent* SrcBackpack = nullptr;
-	FName SrcItem = NAME_None;
 
 	// 当前选中的物品
 	class UItemDataObject* SelectedItem = nullptr;

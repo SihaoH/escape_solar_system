@@ -6,47 +6,38 @@
 #include "Blueprint/UserWidget.h"
 #include "BackpackView.generated.h"
 
-class UBackpackComponent;
+UENUM(BlueprintType)
+enum class EBackpackType : uint8
+{
+	Char,
+	Ship,
+	Base
+};
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnItemDropDynamic, UBackpackComponent*, DstBp, UBackpackComponent*, SrcBp, FName, RowName);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemClickedDynamic, UObject*, Item);
+class UBackpackComponent;
 
 /**
  * 菜单背包部件的背包列表视图，包括背包名称、承重信息、物品列表
  */
-UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API UBackpackView : public UUserWidget
+UCLASS(BlueprintType)
+class ESCAPE_SOLAR_SYSTEM_API UBackpackViewHelper : public UObject
 {
 	GENERATED_BODY()
 	
 public:
-	void SetBackpack(UBackpackComponent* Bp);
+	UFUNCTION(BlueprintPure)
+	UBackpackComponent* GetBackpack() const;
 
-protected:
-	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	UFUNCTION(BlueprintPure)
+	void GetListViewItems(TArray<class UItemDataObject*>& OutItems) const;
 
-protected:
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnListViewResetted(const TArray<class UItemDataObject*>& OutItems);
-
-	UFUNCTION(BlueprintCallable)
-	void InitEntryWidget(UUserWidget* Entry);
-
-	UFUNCTION(BlueprintCallable)
-	void ClickItem(UObject* Item);
-
-private:
-	UFUNCTION()
-	void OnBackpackChanged();
-
-public:
-	FOnItemDropDynamic OnItemDrop;
-	FOnItemClickedDynamic OnEntryClicked;
-	FOnItemClickedDynamic OnItemClicked;
+	UFUNCTION(BlueprintPure)
+	void GetBearingInfo(float& CurMass, float& MaxBearing) const;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FText InfoBearing;
 
-	UBackpackComponent* Backpack = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	EBackpackType Type;
 };

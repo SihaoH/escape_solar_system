@@ -4,6 +4,8 @@
 #include "MenuLevel.h"
 #include "MainCharacter.h"
 #include "Spaceship.h"
+#include "BodyComponent.h"
+#include "EngineComponent.h"
 #include "EarthBaseActor.h"
 #include "BackpackComponent.h"
 #include "MainFunctionLibrary.h"
@@ -12,7 +14,43 @@
 
 const int Max_Level = 4;
 
-void UMenuLevel::SelectLevel(const TArray<ELevel>& Prop)
+void UMenuLevelHelper::GetRestorationHP(TArray<UItemDataObject*>& OutItems)
+{
+	for (UBackpackComponent* Bp : GetBackpackList())
+	{
+		const TMultiMap<FName, int32>& ItemList = Bp->GetItemList();
+		for (const auto& Elem : ItemList)
+		{
+			if (FCString::Atoi(*Elem.Key.ToString()) > 0)
+			{
+				UItemDataObject* Obj = NewObject<UItemDataObject>(this);
+				Obj->RowName = Elem.Key;
+				Obj->Count = Elem.Value;
+				OutItems.Add(Obj);
+			}
+		}
+	}
+}
+
+void UMenuLevelHelper::GetRestorationMP(TArray<UItemDataObject*>& OutItems)
+{
+	for (UBackpackComponent* Bp : GetBackpackList())
+	{
+		const TMultiMap<FName, int32>& ItemList = Bp->GetItemList();
+		for (const auto& Elem : ItemList)
+		{
+			if (FCString::Atoi(*Elem.Key.ToString()) > 0)
+			{
+				UItemDataObject* Obj = NewObject<UItemDataObject>(this);
+				Obj->RowName = Elem.Key;
+				Obj->Count = Elem.Value;
+				OutItems.Add(Obj);
+			}
+		}
+	}
+}
+
+void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Prop)
 {
 	ELevel Level = Prop[0];
 	int Val = *GetTarget(Level);
@@ -41,7 +79,7 @@ void UMenuLevel::SelectLevel(const TArray<ELevel>& Prop)
 		DemandPoints = FText::Format(LOCTEXT("Points", "探索点数: {0}"), LevelDemand.Points);
 
 		AEarthBaseActor* EarthBase = AMainCharacter::GetInstance()->FindEarthBase();
-		UBackpackComponent* Backpack = EarthBase ? EarthBase->GetBackpack() : nullptr;
+		UBackpackComponent* Backpack = EarthBase ? EarthBase->Backpack : nullptr;
 		auto DemandInfo = UMainFunctionLibrary::GetDemandInfo(LevelDemand.Items, Backpack);
 		const int32 Mock_Points = 999;
 		CanUpgrade = DemandInfo.Key && Mock_Points>=LevelDemand.Points;
@@ -49,37 +87,39 @@ void UMenuLevel::SelectLevel(const TArray<ELevel>& Prop)
 	}
 }
 
-void UMenuLevel::UpgradeLevel(const TArray<ELevel>& Prop)
+void UMenuLevelHelper::UpgradeLevel(const TArray<ELevel>& Prop)
 {
-	check(CanUpgrade);
+	if (!CanUpgrade) return;
+
 	AMainCharacter* Char = AMainCharacter::GetInstance();
 	ELevel Level = Prop[0];
 	int* ValPtr = GetTarget(Level);
 	if (*ValPtr < Max_Level)
 	{
 		FLevelDemand LevelDemand = UMainFunctionLibrary::GetLevelDemand(Level, *ValPtr);
-		UBackpackComponent* Backpack = AMainCharacter::GetInstance()->FindEarthBase()->GetBackpack();
+		UBackpackComponent* Backpack = AMainCharacter::GetInstance()->FindEarthBase()->Backpack;
 		for (const auto& Demand : LevelDemand.Items)
 		{
 			Backpack->RemoveItem(Demand.Key, Demand.Value);
 		}
 		*ValPtr += 1;
 		Char->ResetProperties();
+		SelectLevel(Prop);
 	}
 }
 
-int32 UMenuLevel::GetMaxVal(const TArray<ELevel>& Prop)
+int32 UMenuLevelHelper::GetMaxVal(const TArray<ELevel>& Prop)
 {
 	// 暂时默认最大等级都是5
 	return 5;
 }
 
-int32 UMenuLevel::GetCurVal(const TArray<ELevel>& Prop)
+int32 UMenuLevelHelper::GetCurVal(const TArray<ELevel>& Prop)
 {
 	return *GetTarget(Prop[0]) + 1;
 }
 
-int* UMenuLevel::GetTarget(ELevel Level)
+int* UMenuLevelHelper::GetTarget(ELevel Level)
 {
 	AMainCharacter* Char = AMainCharacter::GetInstance();
 	ASpaceship* Ship = Char->FindSpaceship();
@@ -98,6 +138,22 @@ int* UMenuLevel::GetTarget(ELevel Level)
 
 	check(ValPtr);
 	return ValPtr;
+}
+
+inline TArray<class UBackpackComponent*> UMenuLevelHelper::GetBackpackList()
+{
+	TArray<UBackpackComponent*> BpList;
+	AMainCharacter* Char = AMainCharacter::GetInstance();
+	BpList.Add(Char->Backpack);
+	if (Char->FindSpaceship())
+	{
+		BpList.Add(Char->FindSpaceship()->Backpack);
+	}
+	if (Char->FindEarthBase())
+	{
+		BpList.Add(Char->FindEarthBase()->Backpack);
+	}
+	return BpList;
 }
 
 #undef LOCTEXT_NAMESPACE
