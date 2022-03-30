@@ -6,18 +6,19 @@
 #include "BodyComponent.h"
 #include "EngineComponent.h"
 
-void UPlayingWidget::UpdateDebugInfo(TArray<FText>& OutList)
+void UPlayingHelper::GetDebugInfo(TArray<FText>& OutList) const
 {
-	auto* Player = AMainCharacter::GetInstance();
-	if (!Player) return;
-	//OutList.Add(FText::Format(INVTEXT("血量: {0}/{1}"), Player->Body->CurrentHP, Player->Body->MaximumHP));
-	//OutList.Add(FText::Format(INVTEXT("重力: {0} cm/s²"), Player->GetGravityAccel()));
-	//OutList.Add(FText::Format(INVTEXT("质量: {0} kg"), Player->GetMass()));
-	//OutList.Add(FText::Format(INVTEXT("功率: {0}"), Player->Engine->Power));
-	//OutList.Add(FText::Format(INVTEXT("能量: {0}/{1}"), Player->Engine->CurrentEnergy, Player->Engine->MaximumEnergy));
-	//OutList.Add(FText::Format(INVTEXT("能耗比: {0}"), Player->Engine->EPRatio));
-	//OutList.Add(FText::Format(INVTEXT("向前: {0}"), Player->Engine->ForwardForce));
-	//OutList.Add(FText::Format(INVTEXT("向上: {0}"), Player->Engine->UpForce));
-	//OutList.Add(FText::Format(INVTEXT("耐温: {0}~{1}"), Player->Body->ShieldCold, Player->Body->ShieldHeat));
-	//OutList.Add(FText::Format(INVTEXT("温度: {0}"), Player->Body->CurrentTemp));
+	AMainCharacter* Char = AMainCharacter::GetInstance();
+	if (!Char) return;
+	OutList.Add(FText::Format(INVTEXT("血量: {0}/{1}"), Char->Body->GetCurrentHP(), Char->Body->GetMaximumHP()));
+	OutList.Add(FText::Format(INVTEXT("重力: {0} cm/s²"), Char->GetGravityAccel()));
+	OutList.Add(FText::Format(INVTEXT("质量: {0} kg"), Char->GetMass()));
+	OutList.Add(FText::Format(INVTEXT("功率: {0}"), Char->Engine->GetPower()));
+	OutList.Add(FText::Format(INVTEXT("能量: {0}/{1}"), Char->Engine->GetCurrentEnergy(), Char->Engine->GetMaximumEnergy()));
+	OutList.Add(FText::Format(INVTEXT("能耗比: {0}"), Char->Engine->GetEPRatio()));
+	OutList.Add(FText::Format(INVTEXT("能质比: {0}"), Char->Engine->GetEMRatio()));
+	OutList.Add(FText::Format(INVTEXT("向前: {0}"), Char->Engine->GetForwardForce()));
+	OutList.Add(FText::Format(INVTEXT("向上: {0}"), Char->Engine->GetUpForce()));
+	OutList.Add(FText::Format(INVTEXT("耐温: {0}~{1}"), Char->Body->GetShieldCold(), Char->Body->GetShieldHeat()));
+	OutList.Add(FText::Format(INVTEXT("温度: {0}"), Char->Body->GetCurrentTemp()));
 }

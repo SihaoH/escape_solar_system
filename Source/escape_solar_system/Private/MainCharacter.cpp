@@ -63,7 +63,6 @@ void AMainCharacter::ResetProperties()
 
 ASpaceship* AMainCharacter::FindSpaceship() const
 {
-	GetPlayerState();
 	ASpaceship* Spaceship = nullptr;
 	if (CurrentVehicle)
 	{

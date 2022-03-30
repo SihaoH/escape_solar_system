@@ -29,8 +29,8 @@ public:
 	FORCEINLINE float GetEMRatio() const { return EMRatio; }
 	FORCEINLINE float GetCurrentEnergy() const { return CurrentEnergy; }
 	FORCEINLINE float GetMaximumEnergy() const { return MaximumEnergy; }
-
-	
+	FORCEINLINE float GetForwardForce() const { return ForwardForce; }
+	FORCEINLINE float GetUpForce() const { return UpForce; }
 
 protected:
 	virtual void BeginPlay() override;
