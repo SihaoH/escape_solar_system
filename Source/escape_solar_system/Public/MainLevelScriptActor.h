@@ -14,6 +14,17 @@ class ESCAPE_SOLAR_SYSTEM_API AMainLevelScriptActor : public ALevelScriptActor
 
 public:
 	AMainLevelScriptActor(const FObjectInitializer& ObjectInitializer);
+	static AMainLevelScriptActor* GetInstance() { return s_Instance; }
+	void SetMainChar(class AMainCharacter* Char);
+
+	UFUNCTION(BlueprintPure)
+	static class AMainCharacter* GetMainChar();
+
+	UFUNCTION(BlueprintPure)
+	static class ASpaceship* GetSpaceship();
+
+	UFUNCTION(BlueprintPure)
+	static class AEarthBase* GetEarthBase();
 
 protected:
 	virtual void BeginPlay() override;
@@ -25,5 +36,7 @@ private:
 	void OnMenuOpened();
 
 private:
+	static AMainLevelScriptActor* s_Instance;
 	class APlayerController* MainController = nullptr;
+	class AMainCharacter* MainChar = nullptr;
 };

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "MainFunctionLibrary.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "UObject/ObjectMacros.h"
@@ -20,6 +21,7 @@ class ESCAPE_SOLAR_SYSTEM_API UBackpackComponent : public UActorComponent
 public:
 	UBackpackComponent();
 
+	void SetBackpack(EPawnType Type, int32 Level);
 	void AddItem(const FName& RowName, int32 Count);
 	void RemoveItem(const FName& RowName, int32 Count);
 	const TMultiMap<FName, int32>& GetItemList() const { return ItemList; }
@@ -34,7 +36,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurCount() const;
 
-	UFUNCTION(BlueprintCallable)
+	FORCEINLINE float GetMaxLoad() const { return MaxLoad; }
 	FORCEINLINE float GetMass() const { return Mass; }
 
 protected:
@@ -45,12 +47,13 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnBackpackChangedEvent OnChanged;
 
-public:
-	/** 背包承重（容量），单位kg；-1代表无限承重 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxLoad = 100.f;
-
 private:
-	TMultiMap<FName, int32> ItemList;
+	/** 背包承重（容量），单位kg；-1代表无限承重 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float MaxLoad = -1.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float Mass = 0.f;
+
+	TMultiMap<FName, int32> ItemList;
 };

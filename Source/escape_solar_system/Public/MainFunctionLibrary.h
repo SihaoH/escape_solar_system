@@ -34,7 +34,6 @@ public:
 
 private:
 	static UDataTable* DT_ItemInfo;
-
 	static UDataTable* DT_LevelDemand;
 	static UDataTable* DT_LevelValue;
 };

@@ -20,8 +20,13 @@ public:
 	ASpaceship();
 
 	void SetPilot(class AMainCharacter* Pilot);
-	void InitState();
+	void ResetProperties();
+
+	FORCEINLINE class AMainCharacter* GetPilot() const { return CurrentPilot; }
+
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMass() const { return ShipMesh->GetMass(); }
+
 	virtual float GetGravityAccel() const override;
 
 protected:
@@ -90,13 +95,20 @@ private:
 	class AMainCharacter* CurrentPilot = nullptr;
 
 private:
+	friend class UMenuLevelHelper;
 	/** 属性等级 */
-	int32 BodyLevel = 0; //包含Mass和HP
-	int32 BackpackLoad = 0; //背包承重
-	int32 BodyShieldCold = 0;
-	int32 BodyShieldHeat = 0;
-	int32 BodyShieldPress = 0;
-	int32 EngineType = 0;
-	int32 EngineLevel = 0; //包含Power、Mass、EPR、EMR
-	int32 EngineEnergy = 0;
+	int32 LevelStrength    = 0; //包含Mass和HP
+	int32 LevelBackpack    = 0;
+	int32 LevelShieldCold  = 0;
+	int32 LevelShieldHeat  = 0;
+	int32 LevelShieldPress = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int32 EngineType       = 0;
+	int32 LevelEngine0     = 0; //包含Power、Mass、EPR、EMR
+	int32 LevelEngine1     = 0;
+	int32 LevelEngine2     = 0;
+	int32 LevelEnergy0     = 0;
+	int32 LevelEnergy1     = 0;
+	int32 LevelEnergy2     = 0;
 };

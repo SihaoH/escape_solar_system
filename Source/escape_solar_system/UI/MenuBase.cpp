@@ -83,7 +83,7 @@ int32 UMenuBaseHelper::GetMaxMakeableCount(const FName& RowName) const
 
 class UBackpackComponent* UMenuBaseHelper::GetStorehouse() const
 {
-	AEarthBaseActor* EarthBase = AMainCharacter::GetInstance()->FindEarthBase();
+	AEarthBase* EarthBase = AMainLevelScriptActor::GetMainChar()->FindEarthBase();
 	return EarthBase ? EarthBase->Backpack : nullptr;
 }
 

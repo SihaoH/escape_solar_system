@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GravityMovementComponent.h"
+#include "MainLevelScriptActor.h"
 #include "MassActorInterface.h"
 #include "Controllable.h"
 #include "CoreMinimal.h"
@@ -18,17 +19,17 @@ class ESCAPE_SOLAR_SYSTEM_API AMainCharacter : public ACharacter, public IMassAc
 	GENERATED_UCLASS_BODY()
 
 public:
-	UFUNCTION(BlueprintPure)
-	static AMainCharacter* GetInstance() { return Instance; }
-
-public:
 	UFUNCTION(BlueprintCallable)
 	void SetVelocity(const FVector& Velocity);
 	void ResetProperties();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	class ASpaceship* FindSpaceship() const;
-	class AEarthBaseActor* FindEarthBase() const;
+
+	UFUNCTION(BlueprintPure)
+	class AEarthBase* FindEarthBase() const;
+
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMass() const { return Movement->Mass; }
 
 	virtual FVector GetVelocity() const override;
@@ -70,9 +71,6 @@ public:
 	class UEngineComponent* Engine = nullptr;
 
 private:
-	static AMainCharacter* Instance;
-
-private:
 	class UGravityMovementComponent* Movement = nullptr;
 	class ASpaceship* CurrentVehicle = nullptr;
 
@@ -85,11 +83,11 @@ private:
 private:
 	friend class UMenuLevelHelper;
 	/** 属性等级 */
-	int32 LevelStrength = 0; //包含Mass和HP
-	int32 LevelBackpack = 0; //背包承重
-	int32 LevelShieldCold = 0;
-	int32 LevelShieldHeat = 0;
+	int32 LevelStrength    = 0; //包含Mass和HP
+	int32 LevelBackpack    = 0; //背包承重
+	int32 LevelShieldCold  = 0;
+	int32 LevelShieldHeat  = 0;
 	int32 LevelShieldPress = 0;
-	int32 LevelEngine = 0; //包含Power、Mass、EPR、EMR
-	int32 LevelEnergy = 0;
+	int32 LevelEngine      = 0; //包含Power、Mass、EPR、EMR
+	int32 LevelEnergy      = 0;
 };

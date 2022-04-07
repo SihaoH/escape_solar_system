@@ -10,7 +10,7 @@
 UBackpackComponent* UBackpackViewHelper::GetBackpack() const
 {
 	UBackpackComponent* Bp = nullptr;
-	AMainCharacter* Char = AMainCharacter::GetInstance();
+	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
 	if (Type == EBackpackType::Char)
 	{
 		Bp = Char->Backpack;
@@ -47,5 +47,5 @@ void UBackpackViewHelper::GetBearingInfo(float& CurMass, float& MaxBearing) cons
 	UBackpackComponent* Bp = GetBackpack();
 	check(Bp);
 	CurMass = Bp->GetMass();
-	MaxBearing = Bp->MaxLoad;
+	MaxBearing = Bp->GetMaxLoad();
 }

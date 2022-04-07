@@ -50,6 +50,7 @@ void UMenuLevelHelper::GetRestorationMP(TArray<UItemDataObject*>& OutItems)
 	}
 }
 
+PRAGMA_DISABLE_OPTIMIZATION
 void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Prop)
 {
 	ELevel Level = Prop[0];
@@ -78,7 +79,7 @@ void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Prop)
 		FLevelDemand LevelDemand = UMainFunctionLibrary::GetLevelDemand(Level, Val);
 		DemandPoints = FText::Format(LOCTEXT("Points", "探索点数: {0}"), LevelDemand.Points);
 
-		AEarthBaseActor* EarthBase = AMainCharacter::GetInstance()->FindEarthBase();
+		AEarthBase* EarthBase = AMainLevelScriptActor::GetMainChar()->FindEarthBase();
 		UBackpackComponent* Backpack = EarthBase ? EarthBase->Backpack : nullptr;
 		auto DemandInfo = UMainFunctionLibrary::GetDemandInfo(LevelDemand.Items, Backpack);
 		const int32 Mock_Points = 999;
@@ -86,24 +87,27 @@ void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Prop)
 		DemandItems = DemandInfo.Value;
 	}
 }
+PRAGMA_ENABLE_OPTIMIZATION
 
 void UMenuLevelHelper::UpgradeLevel(const TArray<ELevel>& Prop)
 {
-	if (!CanUpgrade) return;
+	if (!CanUpgrade || !AMainLevelScriptActor::GetEarthBase()) return;
 
-	AMainCharacter* Char = AMainCharacter::GetInstance();
 	ELevel Level = Prop[0];
 	int* ValPtr = GetTarget(Level);
 	if (*ValPtr < Max_Level)
 	{
 		FLevelDemand LevelDemand = UMainFunctionLibrary::GetLevelDemand(Level, *ValPtr);
-		UBackpackComponent* Backpack = AMainCharacter::GetInstance()->FindEarthBase()->Backpack;
+		UBackpackComponent* Backpack = AMainLevelScriptActor::GetEarthBase()->Backpack;
 		for (const auto& Demand : LevelDemand.Items)
 		{
 			Backpack->RemoveItem(Demand.Key, Demand.Value);
 		}
 		*ValPtr += 1;
-		Char->ResetProperties();
+		AMainLevelScriptActor::GetMainChar()->ResetProperties();
+		if (AMainLevelScriptActor::GetSpaceship()) {
+			AMainLevelScriptActor::GetSpaceship()->ResetProperties();
+		}
 		SelectLevel(Prop);
 	}
 }
@@ -119,9 +123,25 @@ int32 UMenuLevelHelper::GetCurVal(const TArray<ELevel>& Prop)
 	return *GetTarget(Prop[0]) + 1;
 }
 
+void UMenuLevelHelper::Debug()
+{
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
+	Char->Body->ChangeHP(Char->Body->GetMaximumHP());
+	Char->Engine->ChangeEnergy(Char->Engine->GetMaximumEnergy());
+
+	ASpaceship* Ship = Char->FindSpaceship();
+	if (Ship)
+	{
+		Ship->Body->ChangeHP(Ship->Body->GetMaximumHP());
+		Ship->Engine->ChangeEnergy(Ship->Engine->GetMaximumEnergy());
+	}
+#endif
+}
+
 int* UMenuLevelHelper::GetTarget(ELevel Level)
 {
-	AMainCharacter* Char = AMainCharacter::GetInstance();
+	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
 	ASpaceship* Ship = Char->FindSpaceship();
 
 	int* ValPtr = nullptr;
@@ -134,6 +154,78 @@ int* UMenuLevelHelper::GetTarget(ELevel Level)
 	case ELevel::CharBackpack:
 		ValPtr = &Char->LevelBackpack;
 		break;
+	case ELevel::CharShieldCold:
+		ValPtr = &Char->LevelShieldCold;
+		break;
+	case ELevel::CharShieldHeat:
+		ValPtr = &Char->LevelShieldHeat;
+		break;
+	case ELevel::CharShieldPress:
+		ValPtr = &Char->LevelShieldPress;
+		break;
+	case ELevel::CharEnginePower:
+	case ELevel::CharEngineMass:
+	case ELevel::CharEngineEPR:
+	case ELevel::CharEngineEMR:
+		ValPtr = &Char->LevelEngine;
+		break;
+	case ELevel::CharEnergy:
+		ValPtr = &Char->LevelEnergy;
+		break;
+	case ELevel::ShipHP:
+	case ELevel::ShipMass:
+		check(Ship);
+		ValPtr = &Ship->LevelStrength;
+		break;
+	case ELevel::ShipBackpack:
+		check(Ship);
+		ValPtr = &Ship->LevelBackpack;
+		break;
+	case ELevel::ShipShieldCold:
+		check(Ship);
+		ValPtr = &Ship->LevelShieldCold;
+		break;
+	case ELevel::ShipShieldHeat:
+		check(Ship);
+		ValPtr = &Ship->LevelShieldHeat;
+		break;
+	case ELevel::ShipShieldPress:
+		check(Ship);
+		ValPtr = &Ship->LevelShieldPress;
+		break;
+	case ELevel::ShipEngine0Power:
+	case ELevel::ShipEngine0Mass:
+	case ELevel::ShipEngine0EPR:
+	case ELevel::ShipEngine0EMR:
+		check(Ship);
+		ValPtr = &Ship->LevelEngine0;
+		break;
+	case ELevel::ShipEngine1Power:
+	case ELevel::ShipEngine1Mass:
+	case ELevel::ShipEngine1EPR:
+	case ELevel::ShipEngine1EMR:
+		check(Ship);
+		ValPtr = &Ship->LevelEngine1;
+		break;
+	case ELevel::ShipEngine2Power:
+	case ELevel::ShipEngine2Mass:
+	case ELevel::ShipEngine2EPR:
+	case ELevel::ShipEngine2EMR:
+		check(Ship);
+		ValPtr = &Ship->LevelEngine2;
+		break;
+	case ELevel::ShipEnergy0:
+		check(Ship);
+		ValPtr = &Ship->LevelEnergy0;
+		break;
+	case ELevel::ShipEnergy1:
+		check(Ship);
+		ValPtr = &Ship->LevelEnergy1;
+		break;
+	case ELevel::ShipEnergy2:
+		check(Ship);
+		ValPtr = &Ship->LevelEnergy2;
+		break;
 	}
 
 	check(ValPtr);
@@ -143,7 +235,7 @@ int* UMenuLevelHelper::GetTarget(ELevel Level)
 inline TArray<class UBackpackComponent*> UMenuLevelHelper::GetBackpackList()
 {
 	TArray<UBackpackComponent*> BpList;
-	AMainCharacter* Char = AMainCharacter::GetInstance();
+	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
 	BpList.Add(Char->Backpack);
 	if (Char->FindSpaceship())
 	{

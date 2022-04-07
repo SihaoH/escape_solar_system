@@ -1,11 +1,13 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "MainLevelScriptActor.h"
+#include "MainCharacter.h"
 #include "Controllable.h"
 #include <Kismet/GameplayStatics.h>
 #include <Blueprint/UserWidget.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
+AMainLevelScriptActor* AMainLevelScriptActor::s_Instance = nullptr;
 
 AMainLevelScriptActor::AMainLevelScriptActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -13,8 +15,32 @@ AMainLevelScriptActor::AMainLevelScriptActor(const FObjectInitializer& ObjectIni
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
+{
+	check(MainChar == nullptr);
+	MainChar = Char;
+}
+
+AMainCharacter* AMainLevelScriptActor::GetMainChar()
+{
+	return s_Instance->MainChar;
+}
+
+ASpaceship* AMainLevelScriptActor::GetSpaceship()
+{
+	check(s_Instance->MainChar);
+	return s_Instance->MainChar->FindSpaceship();
+}
+
+AEarthBase* AMainLevelScriptActor::GetEarthBase()
+{
+	check(s_Instance->MainChar);
+	return s_Instance->MainChar->FindEarthBase();
+}
+
 void AMainLevelScriptActor::BeginPlay()
 {
+	s_Instance = this;
 	Super::BeginPlay();
 
 	UUserWidget* PlayingWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Playing.WB_Playing_C'")));
@@ -27,6 +53,8 @@ void AMainLevelScriptActor::BeginPlay()
 
 void AMainLevelScriptActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	s_Instance = nullptr;
+	MainChar = nullptr;
 	IControllable::ClearUp();
 }
 

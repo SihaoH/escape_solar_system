@@ -10,12 +10,12 @@
  * 地球基地类，整个场景只会存在一个，相当于“家”
  */
 UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API AEarthBaseActor : public AActor
+class ESCAPE_SOLAR_SYSTEM_API AEarthBase : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	AEarthBaseActor();
+	AEarthBase();
 
 	class ASpaceship* FindSpaceship() const;
 

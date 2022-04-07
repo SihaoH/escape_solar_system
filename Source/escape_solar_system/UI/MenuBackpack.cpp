@@ -37,7 +37,7 @@ void UMenuBackpackHelper::DropItem(int32 Count)
 
 void UMenuBackpackHelper::ConsumeItem(int32 Count, EPawnType Target)
 {
-	AMainCharacter* Char = AMainCharacter::GetInstance();
+	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
 	ASpaceship* Ship = Char->FindSpaceship();
 	UBodyComponent* Body = nullptr;
 	UEngineComponent* Engine = nullptr;

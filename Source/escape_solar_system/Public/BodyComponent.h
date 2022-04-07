@@ -18,13 +18,13 @@ class ESCAPE_SOLAR_SYSTEM_API UBodyComponent : public UActorComponent
 public:
 	UBodyComponent();
 
-	void SetupCollisionComponent(UPrimitiveComponent* PrimitiveComponent);
-	void SetupType(EPawnType T);
+	UFUNCTION()
+	void OnComponentHitted(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	void SetStrength(int32 Level);
-	void SetShieldCold(int32 Level);
-	void SetShieldHeat(int32 Level);
-	void SetShieldPress(int32 Level);
+	void SetStrength(EPawnType Type, int32 Level);
+	void SetShieldCold(EPawnType Type, int32 Level);
+	void SetShieldHeat(EPawnType Type, int32 Level);
+	void SetShieldPress(EPawnType Type, int32 Level);
 
 	void ChangeHP(float Delta);
 	FORCEINLINE float GetMass() const { return Mass; }
@@ -42,13 +42,8 @@ protected:
 private:
 	void CheckEnvironment();
 
-	UFUNCTION()
-	void OnComponentHitted(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 private:
-	EPawnType Type = EPawnType::MainChar;
 	FTimerHandle EnvTimer;
-	UPrimitiveComponent* CollisionComponent = nullptr;
 
 	/** 机体质量，强度(HP)会影响质量 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

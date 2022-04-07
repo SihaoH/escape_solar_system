@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetCurVal(const TArray<ELevel>& Prop);
 
+	UFUNCTION(BlueprintCallable, meta = (DevelopmentOnly))
+	void Debug();
+
 private:
 	int* GetTarget(ELevel Level);
 	inline TArray<class UBackpackComponent*> GetBackpackList();

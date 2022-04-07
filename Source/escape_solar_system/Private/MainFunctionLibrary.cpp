@@ -46,18 +46,7 @@ TArray<FName> UMainFunctionLibrary::GetMakeableItemList()
 
 FLevelDemand UMainFunctionLibrary::GetLevelDemand(ELevel Level, int32 Val)
 {
-	FName RowName;
-	switch (Level)
-	{
-	case ELevel::CharHP:
-	case ELevel::CharMass:
-		RowName = FName("CharStrength");
-		break;
-	default:
-		RowName = LV::RowName[Level];
-		break;
-	}
-	FLevelDemandList* DemandList = DT_LevelDemand->FindRow<FLevelDemandList>(RowName, FString());
+	FLevelDemandList* DemandList = DT_LevelDemand->FindRow<FLevelDemandList>(LV::DemandRow[Level], FString());
 	if (DemandList)
 	{
 		if (Val >= 0 && Val < DemandList->List.Num())
@@ -65,13 +54,13 @@ FLevelDemand UMainFunctionLibrary::GetLevelDemand(ELevel Level, int32 Val)
 			return DemandList->List[Val];
 		}
 	}
-	check(false);
+	//check(false);
 	return FLevelDemand();
 }
 
 float UMainFunctionLibrary::GetLevelValue(ELevel Level, int32 Val)
 {
-	FLevelValueList* ValueList = DT_LevelValue->FindRow<FLevelValueList>(LV::RowName[Level], FString());
+	FLevelValueList* ValueList = DT_LevelValue->FindRow<FLevelValueList>(LV::ValueRow[Level], FString());
 	if (ValueList)
 	{
 		if (Val >= 0 && Val < ValueList->List.Num())
@@ -79,7 +68,7 @@ float UMainFunctionLibrary::GetLevelValue(ELevel Level, int32 Val)
 			return ValueList->List[Val];
 		}
 	}
-	check(false);
+	//check(false);
 	return 0;
 }
 

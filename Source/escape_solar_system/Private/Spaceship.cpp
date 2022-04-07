@@ -32,13 +32,12 @@ ASpaceship::ASpaceship()
 	OriginComponent->SetupAttachment(ShipMesh);
 	SpringArm->SetupAttachment(OriginComponent);
 	FollowCamera->SetupAttachment(SpringArm);
-	Body->SetupCollisionComponent(ShipMesh);
 
 	ShipMesh->SetSimulatePhysics(true);
 	ShipMesh->SetEnableGravity(false);
 	ShipMesh->SetLinearDamping(0.05f);
 	ShipMesh->SetAngularDamping(0.05f);
-	ShipMesh->SetMassOverrideInKg(NAME_None, 200.f); //TODO 飞船重量是可变值，暂时先用200kg
+	ShipMesh->OnComponentHit.AddUniqueDynamic(Body, &UBodyComponent::OnComponentHitted);
 	ContactTrigger->SetBoxExtent(FVector(400.f, 400.f, 180.f), false);
 	ContactTrigger->SetEnableGravity(false);
 	ContactTrigger->SetMassOverrideInKg(NAME_None, KINDA_SMALL_NUMBER);
@@ -51,22 +50,30 @@ void ASpaceship::SetPilot(AMainCharacter* Pilot)
 	CurrentPilot = Pilot;
 }
 
-void ASpaceship::InitState()
+void ASpaceship::ResetProperties()
 {
 	//AMainPlayerState* State = GetController()->GetPlayerState<AMainPlayerState>();
-	//Body->MaximumHP = UMainFunctionLibrary::GetLevelValue("ShipStrength", BodyLevel)["HP"];
-	//Body->Mass = UMainFunctionLibrary::GetLevelValue("ShipStrength", BodyLevel)["Mass"];
-	//Body->ShieldCold = UMainFunctionLibrary::GetLevelValue("ShipShieldCold", BodyShieldCold)["ShieldCold"];
-	//Body->ShieldHeat = UMainFunctionLibrary::GetLevelValue("ShipShieldHeat", BodyShieldHeat)["ShieldHeat"];
-	//Body->ShieldPress = UMainFunctionLibrary::GetLevelValue("ShipShieldPress", BodyShieldPress)["ShieldPress"];
-	//Storehouse->MaxLoad = UMainFunctionLibrary::GetLevelValue("ShipBackpack", BackpackLoad)["MaxLoad"];
-	//
-	//auto Engine_Value = UMainFunctionLibrary::GetLevelValue(TEXT("ShipEngine") + FString::FormatAsNumber(EngineType), EngineLevel);
-	//Engine->Power = Engine_Value["Power"];
-	//Engine->Mass = Engine_Value["Mass"];
-	//Engine->EPRatio = Engine_Value["EPRatio"];
-	//Engine->EMRatio = Engine_Value["EMRatio"];
-	//Engine->MaximumEnergy = UMainFunctionLibrary::GetLevelValue(TEXT("ShipEnergy") + FString::FormatAsNumber(EngineType), EngineLevel)["Energy"];
+	Backpack->SetBackpack(EPawnType::SpaceShip, LevelBackpack);
+	Body->SetStrength(EPawnType::SpaceShip, LevelStrength);
+	Body->SetShieldCold(EPawnType::SpaceShip, LevelShieldCold);
+	Body->SetShieldHeat(EPawnType::SpaceShip, LevelShieldHeat);
+	Body->SetShieldPress(EPawnType::SpaceShip, LevelShieldPress);
+
+	switch (EngineType)
+	{
+	case 0:
+		Engine->SetEngine(EPawnType::SpaceShip, LevelEngine0, EngineType);
+		Engine->SetEnergy(EPawnType::SpaceShip, LevelEnergy0, EngineType);
+		break;
+	case 1:
+		Engine->SetEngine(EPawnType::SpaceShip, LevelEngine1, EngineType);
+		Engine->SetEnergy(EPawnType::SpaceShip, LevelEnergy1, EngineType);
+		break;
+	case 2:
+		Engine->SetEngine(EPawnType::SpaceShip, LevelEngine2, EngineType);
+		Engine->SetEnergy(EPawnType::SpaceShip, LevelEnergy2, EngineType);
+		break;
+	}
 }
 
 float ASpaceship::GetGravityAccel() const
@@ -95,7 +102,7 @@ void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitState();
+	ResetProperties();
 }
 
 void ASpaceship::Tick(float DeltaTime)

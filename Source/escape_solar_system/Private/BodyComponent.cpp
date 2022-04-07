@@ -3,40 +3,31 @@
 #include "BodyComponent.h"
 #include <Kismet/KismetSystemLibrary.h>
 
+#define IsChar(Type) (Type == EPawnType::MainChar)
+
 UBodyComponent::UBodyComponent()
 {
-	
 }
 
-void UBodyComponent::SetupCollisionComponent(UPrimitiveComponent* PrimitiveComponent)
+void UBodyComponent::SetStrength(EPawnType Type, int32 Level)
 {
-	CollisionComponent = PrimitiveComponent;
+	MaximumHP = UMainFunctionLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharHP : ELevel::ShipHP, Level);
+	Mass = UMainFunctionLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharMass : ELevel::ShipMass, Level);
 }
 
-void UBodyComponent::SetupType(EPawnType T)
+void UBodyComponent::SetShieldCold(EPawnType Type, int32 Level)
 {
-	Type = T;
+	ShieldCold = UMainFunctionLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharShieldCold : ELevel::ShipShieldCold, Level);
 }
 
-void UBodyComponent::SetStrength(int32 Level)
+void UBodyComponent::SetShieldHeat(EPawnType Type, int32 Level)
 {
-	if (Type == EPawnType::MainChar)
-	{
-		MaximumHP = UMainFunctionLibrary::GetLevelValue(ELevel::CharHP, Level);
-		Mass = UMainFunctionLibrary::GetLevelValue(ELevel::CharMass, Level);
-	}
+	ShieldHeat = UMainFunctionLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharShieldHeat : ELevel::ShipShieldHeat, Level);
 }
 
-void UBodyComponent::SetShieldCold(int32 Level)
+void UBodyComponent::SetShieldPress(EPawnType Type, int32 Level)
 {
-}
-
-void UBodyComponent::SetShieldHeat(int32 Level)
-{
-}
-
-void UBodyComponent::SetShieldPress(int32 Level)
-{
+	ShieldPress = UMainFunctionLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharShieldPress : ELevel::ShipShieldPress, Level);
 }
 
 void UBodyComponent::ChangeHP(float Delta)
@@ -57,8 +48,6 @@ void UBodyComponent::ChangeHP(float Delta)
 void UBodyComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	check(CollisionComponent);
-	CollisionComponent->OnComponentHit.AddUniqueDynamic(this, &UBodyComponent::OnComponentHitted);
 	GetWorld()->GetTimerManager().SetTimer(EnvTimer, this, &UBodyComponent::CheckEnvironment, 1.f, true, 0.f);
 }
 

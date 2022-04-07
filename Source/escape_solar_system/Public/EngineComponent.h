@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "MainFunctionLibrary.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "EngineComponent.generated.h"
@@ -17,13 +18,18 @@ class ESCAPE_SOLAR_SYSTEM_API UEngineComponent : public UActorComponent
 public:
 	UEngineComponent();
 
+	void SetEngine(EPawnType PType, int32 Level, int32 Type = 0);
+	void SetEnergy(EPawnType PType, int32 Level, int32 Type = 0);
+
 	void ChangeEnergy(float Delta);
 
 	void MoveForward(float Value);
 	void MoveUp(float Value);
 
-	FORCEINLINE float GetMass() const { return Mass + CurrentEnergy * EMRatio; }
-	FORCEINLINE float GetTotalMass() const { return Mass + CurrentEnergy * EMRatio; };
+	FORCEINLINE float GetEngineMass() const { return Mass; }
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE float GetEnergyMass() const { return CurrentEnergy * EMRatio; }
+	FORCEINLINE float GetTotalMass() const { return GetEngineMass() + GetEnergyMass(); }
 	FORCEINLINE float GetPower() const { return Power; }
 	FORCEINLINE float GetEPRatio() const { return EPRatio; }
 	FORCEINLINE float GetEMRatio() const { return EMRatio; }
@@ -31,9 +37,6 @@ public:
 	FORCEINLINE float GetMaximumEnergy() const { return MaximumEnergy; }
 	FORCEINLINE float GetForwardForce() const { return ForwardForce; }
 	FORCEINLINE float GetUpForce() const { return UpForce; }
-
-protected:
-	virtual void BeginPlay() override;
 
 private:
 	void UseEnergy(float Used);

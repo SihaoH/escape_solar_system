@@ -6,7 +6,7 @@
 #include <Components/StaticMeshComponent.h>
 #include <Components/SphereComponent.h>
 
-AEarthBaseActor::AEarthBaseActor()
+AEarthBase::AEarthBase()
 {
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	ScopeTigger = CreateDefaultSubobject<USphereComponent>(TEXT("ScopeTigger"));
@@ -15,10 +15,9 @@ AEarthBaseActor::AEarthBaseActor()
 	RootComponent = StaticMesh;
 	ScopeTigger->SetupAttachment(GetRootComponent());
 	ScopeTigger->SetSphereRadius(1000.f);
-	Backpack->MaxLoad = -1.f;
 }
 
-ASpaceship* AEarthBaseActor::FindSpaceship() const
+ASpaceship* AEarthBase::FindSpaceship() const
 {
 	TArray<AActor*> NearbyActors;
 	ScopeTigger->GetOverlappingActors(NearbyActors, ASpaceship::StaticClass());
@@ -29,7 +28,7 @@ ASpaceship* AEarthBaseActor::FindSpaceship() const
 	return nullptr;
 }
 
-void AEarthBaseActor::BeginPlay()
+void AEarthBase::BeginPlay()
 {
 	Super::BeginPlay();
 }

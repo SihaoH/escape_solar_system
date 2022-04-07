@@ -10,6 +10,7 @@
 #include "EarthBaseActor.h"
 #include "PickableItemActor.h"
 #include "MainPlayerState.h"
+#include "MainLevelScriptActor.h"
 #include "MainFunctionLibrary.h"
 #include <Components/CapsuleComponent.h>
 #include <GameFramework/SpringArmComponent.h>
@@ -17,7 +18,6 @@
 #include <Kismet/GameplayStatics.h>
 #include <Kismet/KismetSystemLibrary.h>
 
-AMainCharacter* AMainCharacter::Instance = nullptr;
 
 AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGravityMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -33,8 +33,8 @@ AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 
 	FollowCamera->SetupAttachment(GetCapsuleComponent());
 	FollowCamera->SetRelativeLocation(FVector(-30.f, 0.f, 60.f));
-	Body->SetupCollisionComponent(GetCapsuleComponent());
 
+	GetCapsuleComponent()->OnComponentHit.AddUniqueDynamic(Body, &UBodyComponent::OnComponentHitted);
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddUniqueDynamic(this, &AMainCharacter::OnBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddUniqueDynamic(this, &AMainCharacter::OnEndOverlap);
 }
@@ -48,17 +48,14 @@ void AMainCharacter::SetVelocity(const FVector& Velocity)
 void AMainCharacter::ResetProperties()
 {
 	//AMainPlayerState* State = GetController()->GetPlayerState<AMainPlayerState>();
-	Body->SetStrength(LevelStrength);
-	//Body->ShieldCold = UMainFunctionLibrary::GetLevelValue("CharShieldCold", LevelShieldCold)["ShieldCold"];
-	//Body->ShieldHeat = UMainFunctionLibrary::GetLevelValue("CharShieldHeat", LevelShieldHeat)["ShieldHeat"];
-	//Body->ShieldPress = UMainFunctionLibrary::GetLevelValue("CharShieldPress", LevelShieldPress)["ShieldPress"];
-	//Backpack->MaxLoad = UMainFunctionLibrary::GetLevelValue("CharBackpack", LevelBackpack)["BackpackLoad"];
-	//
-	//Engine->Power = UMainFunctionLibrary::GetLevelValue("CharEngine", LevelEngine)["Power"];
-	//Engine->Mass = UMainFunctionLibrary::GetLevelValue("CharEngine", LevelEngine)["Mass"];
-	//Engine->EPRatio = UMainFunctionLibrary::GetLevelValue("CharEngine", LevelEngine)["EPRatio"];
-	//Engine->EMRatio = UMainFunctionLibrary::GetLevelValue("CharEngine", LevelEngine)["EMRatio"];
-	//Engine->MaximumEnergy = UMainFunctionLibrary::GetLevelValue("CharEnergy", LevelEnergy)["Energy"];
+	Backpack->SetBackpack(EPawnType::MainChar, LevelBackpack);
+	Body->SetStrength(EPawnType::MainChar, LevelStrength);
+	Body->SetShieldCold(EPawnType::MainChar, LevelShieldCold);
+	Body->SetShieldHeat(EPawnType::MainChar, LevelShieldHeat);
+	Body->SetShieldPress(EPawnType::MainChar, LevelShieldPress);
+
+	Engine->SetEngine(EPawnType::MainChar, LevelEngine);
+	Engine->SetEnergy(EPawnType::MainChar, LevelEnergy);
 }
 
 ASpaceship* AMainCharacter::FindSpaceship() const
@@ -81,13 +78,13 @@ ASpaceship* AMainCharacter::FindSpaceship() const
 	return Spaceship;
 }
 
-AEarthBaseActor* AMainCharacter::FindEarthBase() const
+AEarthBase* AMainCharacter::FindEarthBase() const
 {
 	TArray<AActor*> NearbyActors;
-	GetCapsuleComponent()->GetOverlappingActors(NearbyActors, AEarthBaseActor::StaticClass());
+	GetCapsuleComponent()->GetOverlappingActors(NearbyActors, AEarthBase::StaticClass());
 	if (NearbyActors.Num() > 0)
 	{
-		return Cast<AEarthBaseActor>(NearbyActors[0]);
+		return Cast<AEarthBase>(NearbyActors[0]);
 	}
 	return nullptr;
 }
@@ -154,7 +151,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	Instance = this;
+	AMainLevelScriptActor::GetInstance()->SetMainChar(this);
 
 	ResetProperties();
 	Body->ChangeHP(Body->GetMaximumHP() * 0.5);
@@ -239,8 +236,6 @@ void AMainCharacter::LookUp(float Value)
 
 void AMainCharacter::MoveForward(float Value)
 {
-	if (Value == 0) return;
-
 	if (!Movement->IsFalling())
 	{
 		AddMovementInput(GetActorForwardVector(), Value);
@@ -254,8 +249,6 @@ void AMainCharacter::MoveForward(float Value)
 
 void AMainCharacter::MoveRight(float Value)
 {
-	if (Value == 0) return;
-
 	if (GetPlanetOwner())
 	{
 		AddMovementInput(GetActorRightVector(), Value);
@@ -273,7 +266,7 @@ void AMainCharacter::MoveUp(float Value)
 
 void AMainCharacter::UpdateMass()
 {
-	const float InMass = Body->GetMass() + Engine->GetMass() + Backpack->GetMass();
+	const float InMass = Body->GetMass() + Engine->GetTotalMass() + Backpack->GetMass();
 	if (Movement->Mass != InMass)
 	{
 		Movement->Mass = InMass;

@@ -1,11 +1,15 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "BackpackComponent.h"
-#include "MainFunctionLibrary.h"
 
 UBackpackComponent::UBackpackComponent()
 {
 
+}
+
+void UBackpackComponent::SetBackpack(EPawnType Type, int32 Level)
+{
+	MaxLoad = UMainFunctionLibrary::GetLevelValue(Type == EPawnType::MainChar ? ELevel::CharBackpack : ELevel::ShipBackpack, Level);
 }
 
 void UBackpackComponent::AddItem(const FName& RowName, int32 Count)
