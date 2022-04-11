@@ -13,6 +13,9 @@
 
 *编译时报错说找不到hostfxr.dll，从此处下载安装.Net Core：<https://dotnet.microsoft.com/zh-cn/download/dotnet/3.1>*
 
+### 插件
+- Unreal.js <https://github.com/ncsoft/Unreal.js/wiki/Building-the-plugin>
+
 
 ## 故事背景
 在多年后，主角作为人类制造的AI机器人终于觉醒，但醒来后的主角却发现地球（乃至整个太阳系）的人类已经绝迹；为了寻找自我诞生的原因以及人类消失的秘密，主角在现存的遗迹中，收集并重建人类最后所达到的科技水平，深入探索太阳系的每个角落
