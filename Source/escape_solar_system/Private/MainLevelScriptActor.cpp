@@ -13,6 +13,7 @@ AMainLevelScriptActor::AMainLevelScriptActor(const FObjectInitializer& ObjectIni
 	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	s_Instance = this;
 }
 
 void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
@@ -40,7 +41,7 @@ AEarthBase* AMainLevelScriptActor::GetEarthBase()
 
 void AMainLevelScriptActor::BeginPlay()
 {
-	s_Instance = this;
+	check(s_Instance == this);
 	Super::BeginPlay();
 
 	UUserWidget* PlayingWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Playing.WB_Playing_C'")));

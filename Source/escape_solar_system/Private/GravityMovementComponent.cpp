@@ -1243,7 +1243,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 		return;
 	}
 
-	// Find change in rotation.
+	// Find change in rotation
 	const bool bRotationChanged = !OldBaseQuat.Equals(NewBaseQuat, 1e-8f);
 	if (bRotationChanged)
 	{
@@ -1251,79 +1251,69 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 	}
 
 	// only if base moved
-	if (bRotationChanged || OldBaseLocation != NewBaseLocation)
+	if (bRotationChanged || (OldBaseLocation != NewBaseLocation))
 	{
 		// Calculate new transform matrix of base actor (ignoring scale).
 		const FQuatRotationTranslationMatrix OldLocalToWorld(OldBaseQuat, OldBaseLocation);
 		const FQuatRotationTranslationMatrix NewLocalToWorld(NewBaseQuat, NewBaseLocation);
 
-		if (CharacterOwner->IsMatineeControlled())
-		{
-			FRotationTranslationMatrix HardRelMatrix(CharacterOwner->GetBasedMovement().Rotation, CharacterOwner->GetBasedMovement().Location);
-			const FMatrix NewWorldTM = HardRelMatrix * NewLocalToWorld;
-			const FQuat NewWorldRot = bIgnoreBaseRotation ? UpdatedComponent->GetComponentQuat() : NewWorldTM.ToQuat();
-			MoveUpdatedComponent(NewWorldTM.GetOrigin() - UpdatedComponent->GetComponentLocation(), NewWorldRot, true);
-		}
-		else
-		{
-			FQuat FinalQuat = UpdatedComponent->GetComponentQuat();
+		FQuat FinalQuat = UpdatedComponent->GetComponentQuat();
 
-			if (bRotationChanged && !bIgnoreBaseRotation)
+		if (bRotationChanged && !bIgnoreBaseRotation)
+		{
+			// Apply change in rotation and pipe through FaceRotation to maintain axis restrictions
+			const FQuat PawnOldQuat = UpdatedComponent->GetComponentQuat();
+			const FQuat TargetQuat = DeltaQuat * FinalQuat;
+			FRotator TargetRotator(TargetQuat);
+			CharacterOwner->FaceRotation(TargetRotator, 0.f);
+			FinalQuat = UpdatedComponent->GetComponentQuat();
+
+			if (PawnOldQuat.Equals(FinalQuat, 1e-6f))
 			{
-				// Apply change in rotation and pipe through FaceRotation to maintain axis restrictions.
-				const FQuat PawnOldQuat = UpdatedComponent->GetComponentQuat();
-				const FQuat TargetQuat = DeltaQuat * FinalQuat;
-				FRotator TargetRotator(TargetQuat);
-				MoveUpdatedComponent(FVector::ZeroVector, TargetRotator, true);
-				FinalQuat = UpdatedComponent->GetComponentQuat();
-
-				if (PawnOldQuat.Equals(FinalQuat, 1e-6f))
+				// Nothing changed. This means we probably are using another rotation mechanism (bOrientToMovement etc). We should still follow the base object.
+				// @todo: This assumes only Yaw is used, currently a valid assumption. This is the only reason FaceRotation() is used above really, aside from being a virtual hook.
+				if (bOrientRotationToMovement || (bUseControllerDesiredRotation && CharacterOwner->Controller))
 				{
-					// Nothing changed. This means we probably are using another rotation mechanism (bOrientToMovement etc). We should still follow the base object.
-					// @todo: This assumes only Yaw is used, currently a valid assumption. This is the only reason FaceRotation() is used above really, aside from being a virtual hook.
-					if (bOrientRotationToMovement || (bUseControllerDesiredRotation && CharacterOwner->Controller))
-					{
-						TargetRotator.Pitch = 0.f;
-						TargetRotator.Roll = 0.f;
-						MoveUpdatedComponent(FVector::ZeroVector, TargetRotator, false);
-						FinalQuat = UpdatedComponent->GetComponentQuat();
-					}
-				}
-
-				// Pipe through ControlRotation, to affect camera.
-				if (CharacterOwner->Controller)
-				{
-					const FQuat PawnDeltaRotation = FinalQuat * PawnOldQuat.Inverse();
-					FRotator FinalRotation = FinalQuat.Rotator();
-					UpdateBasedRotation(FinalRotation, PawnDeltaRotation.Rotator());
+					TargetRotator.Pitch = 0.f;
+					TargetRotator.Roll = 0.f;
+					MoveUpdatedComponent(FVector::ZeroVector, TargetRotator, false);
 					FinalQuat = UpdatedComponent->GetComponentQuat();
 				}
 			}
 
-			// We need to offset the base of the character here, not its origin, so offset by half height.
-			float HalfHeight, Radius;
-			CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(Radius, HalfHeight);
-
-			const FVector BaseOffset = GetUpVector() * HalfHeight;
-			const FVector LocalBasePos = OldLocalToWorld.InverseTransformPosition(CharacterOwner->GetActorLocation() - BaseOffset);
-			const FVector NewWorldPos = ConstrainLocationToPlane(NewLocalToWorld.TransformPosition(LocalBasePos) + BaseOffset);
-			DeltaPosition = ConstrainDirectionToPlane(NewWorldPos - CharacterOwner->GetActorLocation());
-
-			// move attached actor.
-			if (bFastAttachedMove)
+			// Pipe through ControlRotation, to affect camera.
+			if (CharacterOwner->Controller)
 			{
-				// We're trusting no other obstacle can prevent the move here.
-				UpdatedComponent->SetWorldLocationAndRotation(NewWorldPos, FinalQuat.Rotator(), false);
+				const FQuat PawnDeltaRotation = FinalQuat * PawnOldQuat.Inverse();
+				FRotator FinalRotation = FinalQuat.Rotator();
+				UpdateBasedRotation(FinalRotation, PawnDeltaRotation.Rotator());
+				FinalQuat = UpdatedComponent->GetComponentQuat();
 			}
-			else
+		}
+
+		// We need to offset the base of the character here, not its origin, so offset by half height
+		float HalfHeight, Radius;
+		CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(Radius, HalfHeight);
+
+		FVector const BaseOffset = GetUpVector() * HalfHeight;
+		FVector const LocalBasePos = OldLocalToWorld.InverseTransformPosition(UpdatedComponent->GetComponentLocation() - BaseOffset);
+		FVector const NewWorldPos = ConstrainLocationToPlane(NewLocalToWorld.TransformPosition(LocalBasePos) + BaseOffset);
+		DeltaPosition = ConstrainDirectionToPlane(NewWorldPos - UpdatedComponent->GetComponentLocation());
+
+		// move attached actor
+		if (bFastAttachedMove)
+		{
+			// we're trusting no other obstacle can prevent the move here
+			UpdatedComponent->SetWorldLocationAndRotation(NewWorldPos, FinalQuat, false);
+		}
+		else
+		{
+			FHitResult MoveOnBaseHit(1.f);
+			const FVector OldLocation = UpdatedComponent->GetComponentLocation();
+			MoveUpdatedComponent(DeltaPosition, FinalQuat, true, &MoveOnBaseHit);
+			if ((UpdatedComponent->GetComponentLocation() - (OldLocation + DeltaPosition)).IsNearlyZero() == false)
 			{
-				FHitResult MoveOnBaseHit(1.f);
-				const FVector OldLocation = UpdatedComponent->GetComponentLocation();
-				MoveUpdatedComponent(DeltaPosition, FinalQuat, true, &MoveOnBaseHit);
-				if (!((UpdatedComponent->GetComponentLocation() - (OldLocation + DeltaPosition)).IsNearlyZero()))
-				{
-					OnUnableToFollowBaseMove(DeltaPosition, OldLocation, MoveOnBaseHit);
-				}
+				OnUnableToFollowBaseMove(DeltaPosition, OldLocation, MoveOnBaseHit);
 			}
 		}
 
@@ -1599,7 +1589,7 @@ bool UGravityMovementComponent::ComputePerchResult(const float TestRadius, const
 	return true;
 }
 
-bool UGravityMovementComponent::StepUp(const FVector& GravDir, const FVector& Delta, const FHitResult &InHit, struct UCharacterMovementComponent::FStepDownResult* OutStepDownResult /*= NULL*/)
+bool UGravityMovementComponent::StepUp(const FVector& GravDir, const FVector& Delta, const FHitResult &InHit, FStepDownResult* OutStepDownResult /*= NULL*/)
 {
 	//SCOPE_CYCLE_COUNTER(STAT_CharStepUp);
 

@@ -54,7 +54,7 @@ void IControllable::LookPlanet()
 			Self->GetWorld(), Start, End,
 			ETraceTypeQuery::TraceTypeQuery1, true, { Self }, EDrawDebugTrace::ForOneFrame, OutHit, true))
 		{
-			NewLookedPlanet = Cast<APlanetActor>(OutHit.Actor);
+			NewLookedPlanet = Cast<APlanetActor>(OutHit.GetActor());
 		}
 		if (NewLookedPlanet != LookedPlanet)
 		{

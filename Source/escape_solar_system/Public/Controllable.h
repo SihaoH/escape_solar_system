@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "Controllable.generated.h"
 
-UINTERFACE(Blueprintable, meta = (CannotImplementInterfaceInBlueprint))
+UINTERFACE(NotBlueprintable, meta = (CannotImplementInterfaceInBlueprint))
 class UControllable : public UInterface
 {
 	GENERATED_UINTERFACE_BODY()
