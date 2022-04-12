@@ -3,6 +3,10 @@ Build
 DerivedDataCache
 Intermediate
 Saved
+Content/Scripts/node_modules
+Content/Scripts/typings
+Content/Scripts/aliases.js
+Content/Scripts/package-lock.json
 .vscode
 .vs
 *.VC.db
