@@ -1,0 +1,19 @@
+{
+    "name": "escape_solar_system",
+    "version": "1.0.0",
+    "description": "Unreal.js插件指定的脚本目录",
+    "main": "index.js",
+    "author": "H2S",
+    "license": "GPL",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "babel UI/source -d UI/build"
+    },
+    "dependencies": {
+        "react-umg": "^0.2.5"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.6.4",
+        "babel-preset-react": "^6.5.0"
+    }
+}

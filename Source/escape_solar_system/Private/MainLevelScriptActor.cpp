@@ -3,6 +3,7 @@
 #include "MainLevelScriptActor.h"
 #include "MainCharacter.h"
 #include "Controllable.h"
+#include <JavascriptComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include <Blueprint/UserWidget.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
@@ -14,6 +15,8 @@ AMainLevelScriptActor::AMainLevelScriptActor(const FObjectInitializer& ObjectIni
 {
 	PrimaryActorTick.bCanEverTick = true;
 	s_Instance = this;
+	
+	//AddInstanceComponent(comp);
 }
 
 void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
@@ -44,8 +47,11 @@ void AMainLevelScriptActor::BeginPlay()
 	check(s_Instance == this);
 	Super::BeginPlay();
 
-	UUserWidget* PlayingWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Playing.WB_Playing_C'")));
-	PlayingWidget->AddToViewport();
+	UJavascriptComponent* comp = NewObject<UJavascriptComponent>(this, TEXT("MainScript"));
+	comp->ScriptSourceFile = "main.js";
+	comp->RegisterComponent();
+	//UUserWidget* PlayingWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Playing.WB_Playing_C'")));
+	//PlayingWidget->AddToViewport();
 
 	MainController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScriptActor::OnPaused);

@@ -8,13 +8,14 @@
 - UE5.0
 
 ### 构建步骤
-- 右键.uproject文件，生成vs工程文件
+- 右键`[project_name].uproject`文件，生成vs工程文件
 - 使用vs2022编译
 
-*编译时报错说找不到hostfxr.dll，从此处下载安装.Net Core：<https://dotnet.microsoft.com/zh-cn/download/dotnet/3.1>*
+*编译时报错说找不到hostfxr.dll，需要下载安装[.Net Core](https://dotnet.microsoft.com/zh-cn/download/dotnet/3.1)*
 
 ### 插件
-- Unreal.js <https://github.com/ncsoft/Unreal.js/wiki/Building-the-plugin>
+- Unreal.js，[构建过程](https://github.com/ncsoft/Unreal.js/wiki/Building-the-plugin)
+- Content/Scripts，[脚本目录说明](./Content/Scripts/README.md)
 
 
 ## 故事背景
