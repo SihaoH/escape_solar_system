@@ -1,8 +1,8 @@
-Binaries
-Build
-DerivedDataCache
-Intermediate
-Saved
+Binaries/*
+Build/*
+DerivedDataCache/*
+Intermediate/*
+Saved/*
 Content/Scripts/node_modules
 Content/Scripts/typings
 Content/Scripts/aliases.js
