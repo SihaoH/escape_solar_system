@@ -2,6 +2,7 @@
 
 #include "MainFunctionLibrary.h"
 #include "BackpackComponent.h"
+#include "MainLevelScriptActor.h"
 #define LOCTEXT_NAMESPACE "MainFunctionLibrary"
 
 UDataTable* UMainFunctionLibrary::DT_ItemInfo = nullptr;
@@ -21,6 +22,15 @@ UMainFunctionLibrary::UMainFunctionLibrary()
 	check(DT_LevelDemand);
 	DT_LevelValue = Finder_Value.Object;
 	check(DT_LevelValue);
+}
+
+void UMainFunctionLibrary::SendMessage(FText msg)
+{
+	if (AMainLevelScriptActor::GetInstance())
+	{
+		AMainLevelScriptActor::GetInstance()->MessagedDelegate.Broadcast(msg);
+	}
+	// 其他Level的委派广播（如有）
 }
 
 FItemData& UMainFunctionLibrary::GetItemData(const FName& RowName)

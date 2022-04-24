@@ -33,7 +33,7 @@ void UBackpackComponent::AddItem(const FName& RowName, int32 Count)
 	}
 
 	UpdateMass();
-	OnChanged.Broadcast();
+	ChangedDelegate.Broadcast();
 }
 
 void UBackpackComponent::RemoveItem(const FName& RowName, int32 Count)
@@ -47,7 +47,7 @@ void UBackpackComponent::RemoveItem(const FName& RowName, int32 Count)
 	}
 
 	UpdateMass();
-	OnChanged.Broadcast();
+	ChangedDelegate.Broadcast();
 }
 
 int32 UBackpackComponent::GetMaxAddNum(const FName& RowName)

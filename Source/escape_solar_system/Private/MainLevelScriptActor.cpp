@@ -15,8 +15,6 @@ AMainLevelScriptActor::AMainLevelScriptActor(const FObjectInitializer& ObjectIni
 {
 	PrimaryActorTick.bCanEverTick = true;
 	s_Instance = this;
-	
-	//AddInstanceComponent(comp);
 }
 
 void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
@@ -55,7 +53,8 @@ void AMainLevelScriptActor::BeginPlay()
 
 	MainController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScriptActor::OnPaused);
-	InputComponent->BindKey(EKeys::Tab, IE_Pressed, this, &AMainLevelScriptActor::OnMenuOpened);
+	InputComponent->BindAction("Menu", IE_Pressed, this, &AMainLevelScriptActor::OnMenuOpened);
+	InputComponent->BindAction("Enter", IE_Pressed, this, &AMainLevelScriptActor::OnEntered);
 }
 
 void AMainLevelScriptActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -75,6 +74,7 @@ void AMainLevelScriptActor::OnPaused()
 	// 弹出暂停界面
 	UUserWidget* PauseWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Pause.WB_Pause_C'")));
 	PauseWidget->AddToViewport();
+	PausedDelegate.Broadcast();
 }
 
 void AMainLevelScriptActor::OnMenuOpened()
@@ -83,4 +83,10 @@ void AMainLevelScriptActor::OnMenuOpened()
 	PauseWidget->AddToViewport();
 	MainController->bShowMouseCursor = true;
 	UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(MainController);
+	MenuOpenedDelegate.Broadcast();
+}
+
+void AMainLevelScriptActor::OnEntered()
+{
+	EnteredDelegate.Broadcast();
 }

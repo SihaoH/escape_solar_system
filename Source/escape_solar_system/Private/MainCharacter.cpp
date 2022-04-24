@@ -198,8 +198,7 @@ void AMainCharacter::PickupItem()
 		int32 AddedCount = FMath::Min(Backpack->GetMaxAddNum(RowName), PickedCount);
 		Backpack->AddItem(RowName, AddedCount);
 
-		// TODO 实际拾取的，提示
-		UKismetSystemLibrary::PrintText(GetWorld(), FText::Format(
+		UMainFunctionLibrary::SendMessage(FText::Format(
 			INVTEXT("拾取了 {0} x{1}"),
 			UMainFunctionLibrary::GetItemData(RowName).Name, 
 			AddedCount)

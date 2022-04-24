@@ -24,6 +24,18 @@ public:
 	UMainFunctionLibrary();
 
 public:
+	UFUNCTION(BlueprintPure)
+	static FORCEINLINE bool IsDev()
+	{
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+		return true;
+#endif
+		return false;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	static void SendMessage(FText msg);
+
 	static FItemData& GetItemData(const FName& RowName);
 	static TArray<FName> GetMakeableItemList();
 

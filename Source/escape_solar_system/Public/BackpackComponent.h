@@ -5,10 +5,9 @@
 #include "MainFunctionLibrary.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "UObject/ObjectMacros.h"
 #include "BackpackComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBackpackChangedEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBackpackChangedSignature);
 
 /**
  * 背包组件
@@ -45,7 +44,7 @@ protected:
 public:
 	/** 背包物品改变时发出的广播 */
 	UPROPERTY(BlueprintAssignable)
-	FOnBackpackChangedEvent OnChanged;
+	FBackpackChangedSignature ChangedDelegate;
 
 private:
 	/** 背包承重（容量），单位kg；-1代表无限承重 */

@@ -1,6 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "BodyComponent.h"
+#include "MainFunctionLibrary.h"
 #include <Kismet/KismetSystemLibrary.h>
 
 #define IsChar(Type) (Type == EPawnType::MainChar)
@@ -62,18 +63,18 @@ void UBodyComponent::CheckEnvironment()
 	if (CurrentTemp > ShieldHeat)
 	{
 		ChangeHP(-(CurrentTemp - ShieldHeat));
-		UKismetSystemLibrary::PrintText(GetWorld(), FText::Format(INVTEXT("机体过热，扣除{0}点血"), CurrentTemp - ShieldHeat));
+		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("机体过热，HP -{0}"), CurrentTemp - ShieldHeat));
 	}
 	else if (CurrentTemp < ShieldCold)
 	{
 		ChangeHP(-(ShieldCold - CurrentTemp));
-		UKismetSystemLibrary::PrintText(GetWorld(), FText::Format(INVTEXT("机体过冷，扣除{0}点血"), ShieldCold - CurrentTemp));
+		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("机体过冷，HP -{0}"), ShieldCold - CurrentTemp));
 	}
 
 	if (CurrentTemp > ShieldPress)
 	{
 		ChangeHP(-(CurrentTemp - ShieldPress));
-		UKismetSystemLibrary::PrintText(GetWorld(), FText::Format(INVTEXT("压力过大，扣除{0}点血"), CurrentTemp - ShieldPress));
+		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("压力过大，HP -{0}"), CurrentTemp - ShieldPress));
 	}
 }
 
@@ -83,7 +84,7 @@ void UBodyComponent::OnComponentHitted(UPrimitiveComponent* HitComponent, AActor
 	if (HitSpeed > 1000)
 	{
 		ChangeHP(-HitSpeed / 100);
-		UKismetSystemLibrary::PrintText(GetWorld(), FText::Format(INVTEXT("受到打击，扣除{0}点血"), HitSpeed / 100));
+		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("受到打击，HP -{0}"), HitSpeed / 100));
 	}
 }
 

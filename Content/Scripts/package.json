@@ -10,6 +10,7 @@
         "build": "babel UI/source -d UI/build"
     },
     "dependencies": {
+        "lodash": "^4.17.21",
         "react-umg": "^0.2.5"
     },
     "devDependencies": {

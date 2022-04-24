@@ -6,6 +6,10 @@
 #include "Engine/LevelScriptActor.h"
 #include "MainLevelScriptActor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPausedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMenuOpenedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnteredSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, msg);
 
 UCLASS()
 class ESCAPE_SOLAR_SYSTEM_API AMainLevelScriptActor : public ALevelScriptActor
@@ -14,7 +18,10 @@ class ESCAPE_SOLAR_SYSTEM_API AMainLevelScriptActor : public ALevelScriptActor
 
 public:
 	AMainLevelScriptActor(const FObjectInitializer& ObjectInitializer);
+
+	UFUNCTION(BlueprintPure)
 	static AMainLevelScriptActor* GetInstance() { return s_Instance; }
+
 	void SetMainChar(class AMainCharacter* Char);
 
 	UFUNCTION(BlueprintPure)
@@ -26,6 +33,19 @@ public:
 	UFUNCTION(BlueprintPure)
 	static class AEarthBase* GetEarthBase();
 
+public:
+	UPROPERTY(BlueprintAssignable)
+	FPausedSignature PausedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FMenuOpenedSignature MenuOpenedDelegate;
+	
+	UPROPERTY(BlueprintAssignable)
+	FEnteredSignature EnteredDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FMessagedSignature MessagedDelegate;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -34,6 +54,7 @@ protected:
 private:
 	void OnPaused();
 	void OnMenuOpened();
+	void OnEntered();
 
 private:
 	static AMainLevelScriptActor* s_Instance;
