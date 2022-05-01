@@ -51,10 +51,21 @@ function isDev() {
     return MainFunctionLibrary.IsDev()
 }
 
+function setInputMode(cursor) {
+    let mainController = GameplayStatics.GetPlayerController(GWorld, 0)
+    mainController.bShowMouseCursor = cursor
+    if (cursor) {
+        WidgetBlueprintLibrary.SetInputMode_UIOnlyEx(mainController)
+    } else {
+        WidgetBlueprintLibrary.SetInputMode_GameOnly(mainController)
+    }
+}
+
 module.exports = {
     ltrb: ltrb,
     rgba: rgba,
     color: color,
     num2Txt: num2Txt,
-    isDev: isDev
+    isDev: isDev,
+    setInputMode: setInputMode
 }

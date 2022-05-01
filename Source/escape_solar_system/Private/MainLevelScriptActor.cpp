@@ -51,7 +51,7 @@ void AMainLevelScriptActor::BeginPlay()
 	//UUserWidget* PlayingWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Playing.WB_Playing_C'")));
 	//PlayingWidget->AddToViewport();
 
-	MainController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	//MainController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScriptActor::OnPaused);
 	InputComponent->BindAction("Menu", IE_Pressed, this, &AMainLevelScriptActor::OnMenuOpened);
 	InputComponent->BindAction("Enter", IE_Pressed, this, &AMainLevelScriptActor::OnEntered);
@@ -79,10 +79,10 @@ void AMainLevelScriptActor::OnPaused()
 
 void AMainLevelScriptActor::OnMenuOpened()
 {
-	UUserWidget* PauseWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Menu.WB_Menu_C'")));
-	PauseWidget->AddToViewport();
-	MainController->bShowMouseCursor = true;
-	UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(MainController);
+	//UUserWidget* PauseWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Menu.WB_Menu_C'")));
+	//PauseWidget->AddToViewport();
+	//MainController->bShowMouseCursor = true;
+	//UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(MainController);
 	MenuOpenedDelegate.Broadcast();
 }
 

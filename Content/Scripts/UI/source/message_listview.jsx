@@ -81,14 +81,7 @@ class MessageListView extends React.Component {
 
         this.toggleReview = () => {
             let current = this.state.review
-            let mainController = GameplayStatics.GetPlayerController(GWorld, 0)
-            if (current) {
-                mainController.bShowMouseCursor = false
-                WidgetBlueprintLibrary.SetInputMode_GameOnly(mainController)
-            } else {
-                mainController.bShowMouseCursor = true
-                WidgetBlueprintLibrary.SetInputMode_UIOnlyEx(mainController)
-            }
+            Utils.setInputMode(!current)
 
             this.setState({review: !current})
             this.ListView.RegenerateAllEntries()
@@ -96,8 +89,6 @@ class MessageListView extends React.Component {
             this.ListView.ScrollToBottom()
             this.InputBox.SetKeyboardFocus()
         }
-
-        MainLevelScriptActor.GetInstance().EnteredDelegate.Add(()=>this.toggleReview())
     }
 
     AppendMsg(msg) {

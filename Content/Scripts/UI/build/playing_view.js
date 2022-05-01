@@ -22,6 +22,9 @@ class PlayingView extends React.Component {
         MainLevelScriptActor.GetInstance().MessagedDelegate.Add(msg => {
             this.msgListView.AppendMsg(msg);
         });
+        MainLevelScriptActor.GetInstance().EnteredDelegate.Add(() => {
+            this.msgListView.toggleReview();
+        });
     }
 
     componentDidMount() {}

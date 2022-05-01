@@ -7,8 +7,11 @@ Context.RunFile('polyfill/timers.js');
 // p.Wait()
 //require('devrequire')(__filename)
 MainLevelScriptActor.GetInstance().MenuOpenedDelegate.Add(()=> {
-    console.error("TODO: 从JS打开菜单界面")
+    let menu_view = require('UI/build/menu_view.js')()
+    if (!menu_view.IsInViewport()) {
+        menu_view.AddToViewport()
+    }
 })
 
-let widget = require('UI/build/playing_view.js');
-widget.AddToViewport();
+let playing_view = require('UI/build/playing_view.js');
+playing_view.AddToViewport();
