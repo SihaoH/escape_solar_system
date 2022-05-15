@@ -50,7 +50,7 @@ void UBackpackComponent::RemoveItem(const FName& RowName, int32 Count)
 	ChangedDelegate.Broadcast();
 }
 
-int32 UBackpackComponent::GetMaxAddNum(const FName& RowName)
+int32 UBackpackComponent::GetMaxAddNum(const FName& RowName) const
 {
 	if (MaxLoad < 0)
 	{

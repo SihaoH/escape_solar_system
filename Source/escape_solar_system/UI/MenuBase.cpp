@@ -21,51 +21,6 @@ void UMenuBaseHelper::GetMakeableList(TArray<class UItemDataObject*>& OutItems) 
 	}
 }
 
-void UMenuBaseHelper::OnItemSelectionChanged(UObject* SelItem, float& MakeableMin, float& MakeableMax)
-{
-	// 只能使用基地仓库的物品
-	UItemDataObject* Item = Cast<UItemDataObject>(SelItem);
-	if (!Item) return;
-
-	FItemData& ItemData = UMainFunctionLibrary::GetItemData(Item->RowName);
-	UBackpackComponent* Storehouse = GetStorehouse();
-	ItemIcon.ImageSize = FVector2D(64.f, 64.f);
-	ItemIcon.SetResourceObject(ItemData.Icon.LoadSynchronous());
-	ItemName = ItemData.Name;
-	ItemDesc = ItemData.Desc;
-	ItemMass = FText::Format(INVTEXT("{0} kg"), ItemData.Mass);
-	ItemCount = Storehouse ? FText::AsNumber(Storehouse->CountItem(Item->RowName)) : LOCTEXT("unknow", "？？？");
-
-	UnmakeableVisibility = Storehouse ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;
-	MakeableVisibility = Storehouse ? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
-	
-	int32 MakeableCount = GetMaxMakeableCount(Item->RowName);
-	MakeableMin = MakeableCount > 0 ? 1 : 0;
-	MakeableMax = MakeableCount;
-}
-
-void UMenuBaseHelper::OnMakeCountChanged(UObject* SelItem, float Count, FText& DemandText)
-{
-	UItemDataObject* Item = Cast<UItemDataObject>(SelItem);
-	FItemData& MakeableData = UMainFunctionLibrary::GetItemData(Item->RowName);
-	auto DemandInfo = UMainFunctionLibrary::GetDemandInfo(MakeableData.DemandList, GetStorehouse(), Count);
-	CanMake = DemandInfo.Key;
-	DemandText = DemandInfo.Value;
-}
-
-void UMenuBaseHelper::MakeItem(UObject* SelItem, float Count)
-{
-	UItemDataObject* Item = Cast<UItemDataObject>(SelItem);
-	FItemData& MakeableData = UMainFunctionLibrary::GetItemData(Item->RowName);
-	UBackpackComponent* Storehouse = GetStorehouse();
-	check(Storehouse);
-	for (const TPair<FName, int32>& Demand : MakeableData.DemandList)
-	{
-		Storehouse->RemoveItem(Demand.Key, Demand.Value * Count);
-	}
-	Storehouse->AddItem(Item->RowName, Count);
-}
-
 int32 UMenuBaseHelper::GetMaxMakeableCount(const FName& RowName) const
 {
 	FItemData& MakeableData = UMainFunctionLibrary::GetItemData(RowName);
@@ -79,6 +34,24 @@ int32 UMenuBaseHelper::GetMaxMakeableCount(const FName& RowName) const
 		return Value;
 	}
 	return 0;
+}
+
+int32 UMenuBaseHelper::GetHoldCount(const FName& RowName) const
+{
+	return GetStorehouse()->CountItem(RowName);
+}
+
+void UMenuBaseHelper::MakeItem(UObject* SelItem, float Count)
+{
+	UItemDataObject* Item = Cast<UItemDataObject>(SelItem);
+	FItemData& MakeableData = UMainFunctionLibrary::GetItemData(Item->RowName);
+	UBackpackComponent* Storehouse = GetStorehouse();
+	check(Storehouse);
+	for (const TPair<FName, int32>& Demand : MakeableData.DemandList)
+	{
+		Storehouse->RemoveItem(Demand.Key, Demand.Value * Count);
+	}
+	Storehouse->AddItem(Item->RowName, Count);
 }
 
 class UBackpackComponent* UMenuBaseHelper::GetStorehouse() const

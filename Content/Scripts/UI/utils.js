@@ -61,11 +61,16 @@ function setInputMode(cursor) {
     }
 }
 
+function debug(obj) {
+    console.error(JSON.stringify(obj))
+}
+
 module.exports = {
     ltrb: ltrb,
     rgba: rgba,
     color: color,
     num2Txt: num2Txt,
     isDev: isDev,
-    setInputMode: setInputMode
+    setInputMode: setInputMode,
+    debug: debug
 }

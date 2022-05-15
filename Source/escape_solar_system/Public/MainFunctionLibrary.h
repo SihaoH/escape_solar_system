@@ -36,6 +36,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void SendMessage(FText msg);
 
+	UFUNCTION(BlueprintCallable)
 	static FItemData& GetItemData(const FName& RowName);
 	static TArray<FName> GetMakeableItemList();
 

@@ -21,18 +21,23 @@ public:
 	UBackpackComponent();
 
 	void SetBackpack(EPawnType Type, int32 Level);
+
+	UFUNCTION(BlueprintCallable)
 	void AddItem(const FName& RowName, int32 Count);
+
+	UFUNCTION(BlueprintCallable)
 	void RemoveItem(const FName& RowName, int32 Count);
+
 	const TMultiMap<FName, int32>& GetItemList() const { return ItemList; }
 
 	/** 某物品最多可往背包加入的数量 */
-	UFUNCTION(BlueprintCallable)
-	int32 GetMaxAddNum(const FName& RowName);
+	UFUNCTION(BlueprintPure)
+	int32 GetMaxAddNum(const FName& RowName) const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	int32 CountItem(const FName& RowName) const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	int32 GetCurCount() const;
 
 	FORCEINLINE float GetMaxLoad() const { return MaxLoad; }

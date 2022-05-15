@@ -82,15 +82,14 @@ class MenuView extends React.Component {
                     }}
                 >
                     {_.map(["基地", "存储", "科技", "情报"], (v, i) => (
-                            <TabButton
-                                checked={this.state.currentIndex === i}
-                                text={v}
-                                onClicked={()=>{
-                                    this.setState({currentIndex: i})
-                                    //this.tabView.SetActiveWidgetIndex(i)
-                                }}
-                            />
-                        )
+                        <TabButton
+                            checked={this.state.currentIndex === i}
+                            text={v}
+                            onClicked={()=>{
+                                this.setState({currentIndex: i})
+                                //this.tabView.SetActiveWidgetIndex(i)
+                            }}
+                        />)
                     )}
                 </span>
                 <uWidgetSwitcher

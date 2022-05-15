@@ -111,8 +111,6 @@ class MessageListView extends React.Component {
                 ref: elem => {
                     if (elem && !this.ListView) {
                         this.ListView = elem.ueobj;
-                        // 只能在构造后给EntryWidgetClass赋值
-                        this.ListView.EntryWidgetClass = JavascriptUserObjectListEntry;
                     }
                 },
                 Slot: {
