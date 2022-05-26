@@ -61,8 +61,8 @@ function setInputMode(cursor) {
     }
 }
 
-function debug(obj) {
-    console.error(JSON.stringify(obj))
+function debug(obj, tag) {
+    console.error(tag ? `${tag}: ${JSON.stringify(obj, null, 2)}` : JSON.stringify(obj, null, 2))
 }
 
 module.exports = {

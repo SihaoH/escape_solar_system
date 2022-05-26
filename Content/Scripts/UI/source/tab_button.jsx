@@ -2,6 +2,7 @@ const React = require('react')
 const AD = require('animation-driver')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
+const {ButtonStyle} = require('../style')
 
 const textureRect = Texture2D.Load('/Game/UI/Icon/T_Rectangle64x64')
 
@@ -26,25 +27,10 @@ class TabButton extends React.Component {
                 {...this.props} 
                 WidthOverride={width}
                 HeightOverride={height}
+                Cursor={EMouseCursor.Hand}
             >
                 <uButton
-                    WidgetStyle={{
-                        Normal: {
-                            DrawAs: ESlateBrushDrawType.NoDrawType
-                        },
-                        Hovered: {
-                            ResourceObject: textureRect,
-                            DrawAs: ESlateBrushDrawType.Image,
-                            TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.1) },
-                        },
-                        Pressed: {
-                            ResourceObject: textureRect,
-                            DrawAs: ESlateBrushDrawType.Image,
-                            TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.3) },
-                        },
-                        NormalPadding: Utils.ltrb(0),
-                        PressedPadding: Utils.ltrb(0)
-                    }}
+                    WidgetStyle={ButtonStyle}
                     IsFocusable={false}
                     OnClicked={onClicked}
                 >
@@ -68,7 +54,11 @@ class TabButton extends React.Component {
                             Font={{
                                 FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
                                 TypefaceFontName: "Bold",
+                                LetterSpacing: 200,
                                 Size: 22,
+                            }}
+                            ColorAndOpacity={{
+                                ColorUseRule: ESlateColorStylingMode.UseColor_Foreground
                             }}
                             Text={text}
                         />

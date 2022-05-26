@@ -46,57 +46,83 @@ class PointBar extends React.Component {
     constructor(props) {
         super(props);
 
+        let {colorWhenAdded, colorWhenReduced, curVal, maxVal} = this.props
+        this.colorWhenAdded = colorWhenAdded || Utils.color("#0F0")
+        this.colorWhenReduced = colorWhenReduced || Utils.color("#F00")
+        this.initVal = curVal / maxVal
         this.ad = AD()
         this.adRunning = false
     }
 
     componentDidUpdate() {
         let {curVal, maxVal} = this.props
-        let diff = this.transBar.Percent - (curVal / maxVal)
-        if (!this.adRunning && Math.abs(diff) > Number.EPSILON) {
-            let cur = this.transBar.Percent
+        if (maxVal <= 0) { // 无限
+            this.uRealBar.SetPercent(1)
+            return
+        }
+
+        const EPSILON = 1.0e-8
+        let original_val = this.uTransBar.Percent
+        let target_val= curVal / maxVal
+        let diff_val = original_val - target_val
+        if (!this.adRunning && Math.abs(diff_val) > EPSILON) {
+            let change_bar = null
+            if (diff_val > EPSILON) { // 原来值比当前值多，即量减少了，要变红
+                change_bar = this.uTransBar
+                this.uRealBar.SetPercent(target_val)
+                this.uTransBar.SetFillColorAndOpacity(this.colorWhenReduced)
+            } else if (diff_val < -EPSILON) { // 量增大，变绿
+                change_bar = this.uRealBar
+                this.uTransBar.SetPercent(target_val)
+                this.uTransBar.SetFillColorAndOpacity(this.colorWhenAdded)
+            }
+            
             this.adRunning = true
-            this.ad.apply(this.transBar, 
-                { delay: 0.5, duration: 0.2, completed: () => { this.adRunning = false } }, 
-                { Percent: t => cur - t * diff }
+            this.ad.apply(change_bar, 
+                { delay: 0.5, duration: 0.2, completed: () => { this.adRunning = false; this.forceUpdate() } }, 
+                { Percent: t => original_val - t * diff_val }
             )
         }
     }
 
     render() {
-        let {curVal, maxVal, fillColor} = this.props
+        let {curVal, maxVal, fillColor, fontStyle} = this.props
         curVal = curVal || 0
         maxVal = maxVal || 1
-        fillColor = fillColor || Utils.color('#fff')
+        fillColor = fillColor || Utils.color('#FFF')
         return (
             <uCanvasPanel {...this.props}>
                 <uProgressBar
                     ref={elem=>{
-                        if (elem && !this.transBar) {
-                            this.transBar = elem.ueobj
+                        if (elem && !this.uTransBar) {
+                            this.uTransBar = elem.ueobj
                         }
                     }}
                     Slot={barLayout}
                     WidgetStyle={transStyle}
-                    FillColorAndOpacity={Utils.color('#f00')}
-                    Percent={1}
+                    Percent={this.initVal}
                 />
                 <uProgressBar
+                    ref={elem=>{
+                        if (elem && !this.uRealBar) {
+                            this.uRealBar = elem.ueobj
+                        }
+                    }}
                     Slot={barLayout}
                     WidgetStyle={fillStyle}
                     FillColorAndOpacity={fillColor}
-                    Percent={curVal / maxVal}
+                    Percent={this.initVal}
                 />
                 <text
                     Slot={{
                         LayoutData: { 
                             Anchors: EAnchors.Center, 
-                            Alignment: { X: 0.5, Y: 0.5  } 
+                            Alignment: { X: 0.5, Y: 0.502  } 
                         },
                         bAutoSize: true
                     }}
-                    Font={font}
-                    Text={`${Utils.num2Txt(curVal)} / ${Utils.num2Txt(maxVal)}`}
+                    Font={fontStyle || font}
+                    Text={`${Utils.num2Txt(curVal)} / ${maxVal > -1 ? Utils.num2Txt(maxVal) : "∞"}`}
                 />
             </uCanvasPanel>
         )

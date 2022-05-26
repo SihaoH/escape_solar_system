@@ -7,7 +7,7 @@
 #include "Components/ActorComponent.h"
 #include "BodyComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHpChangedSignature, float, Delta, FText, Reason);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHpChangedSignature, float, Delta);
 
 /**
  * 机体组件，包含强度（血量）、护盾、质量等信息
@@ -38,15 +38,15 @@ public:
 	FORCEINLINE float GetCurrentTemp() const { return CurrentTemp; }
 	FORCEINLINE float GetCurrentPress() const { return CurrentPress; }
 
-public:
-	UPROPERTY(BlueprintAssignable)
-	FHpChangedSignature HpChangedDelegate;
-
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	void CheckEnvironment();
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FHpChangedSignature HpChangedDelegate;
 
 private:
 	FTimerHandle EnvTimer;

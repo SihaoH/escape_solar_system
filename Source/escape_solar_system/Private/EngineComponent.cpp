@@ -76,6 +76,7 @@ void UEngineComponent::ChangeEnergy(float Delta)
 	{
 		CurrentEnergy = 0;
 	}
+	EnergyChangedDelegate.Broadcast(Delta);
 }
 
 void UEngineComponent::MoveForward(float Value)

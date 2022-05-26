@@ -84,10 +84,10 @@ class MessageListView extends React.Component {
             Utils.setInputMode(!current);
 
             this.setState({ review: !current });
-            this.ListView.RegenerateAllEntries();
-            this.ListView.SetScrollbarVisibility(current ? ESlateVisibility.Collapsed : ESlateVisibility.Visible);
-            this.ListView.ScrollToBottom();
-            this.InputBox.SetKeyboardFocus();
+            this.uListView.RegenerateAllEntries();
+            this.uListView.SetScrollbarVisibility(current ? ESlateVisibility.Collapsed : ESlateVisibility.Visible);
+            this.uListView.ScrollToBottom();
+            this.uInputBox.SetKeyboardFocus();
         };
     }
 
@@ -96,10 +96,10 @@ class MessageListView extends React.Component {
         obj.msg = msg;
         this.precious.push(obj);
 
-        this.ListView.SetItems(this.precious);
+        this.uListView.SetItems(this.precious);
         if (!this.state.review) {
-            this.ListView.SetScrollbarVisibility(ESlateVisibility.Collapsed);
-            this.ListView.ScrollToBottom();
+            this.uListView.SetScrollbarVisibility(ESlateVisibility.Collapsed);
+            this.uListView.ScrollToBottom();
         }
     }
 
@@ -109,8 +109,8 @@ class MessageListView extends React.Component {
             this.props,
             React.createElement('uJavascriptListView', {
                 ref: elem => {
-                    if (elem && !this.ListView) {
-                        this.ListView = elem.ueobj;
+                    if (elem && !this.uListView) {
+                        this.uListView = elem.ueobj;
                     }
                 },
                 Slot: {
@@ -137,7 +137,7 @@ class MessageListView extends React.Component {
                 React.createElement('uEditableTextBox', {
                     ref: elem => {
                         if (elem) {
-                            this.InputBox = elem.ueobj;
+                            this.uInputBox = elem.ueobj;
                         }
                     },
                     WidgetStyle: {
@@ -151,12 +151,12 @@ class MessageListView extends React.Component {
                         }
                     },
                     OnTextCommitted: (text, method) => {
-                        this.InputBox.SetText("");
+                        this.uInputBox.SetText("");
                         if (this.state.review && method !== ETextCommit.OnEnter) {
                             this.toggleReview();
                         } else {
                             lastEnter = true;
-                            this.InputBox.SetKeyboardFocus();
+                            this.uInputBox.SetKeyboardFocus();
                             if (text) {
                                 MainFunctionLibrary.SendMessage(text);
                             }

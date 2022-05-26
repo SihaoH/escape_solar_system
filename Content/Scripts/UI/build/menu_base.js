@@ -1,3 +1,5 @@
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 const _ = require('lodash');
 const Events = require('events');
 const AD = require('animation-driver');
@@ -6,34 +8,11 @@ const React = require('react');
 const ReactUMG = require('react-umg');
 const Utils = require('../utils');
 const EAnchors = require('../anchors');
+const TaggedCard = require('tagged_card');
+const ItemToolTip = require('item_tooltip');
+const { SpinBoxProps } = require('../style');
 
 let event = null;
-
-class MyCard extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    render() {
-        let { title } = this.props;
-        title = title || "Title";
-        return React.createElement(
-            'div',
-            this.props,
-            React.createElement('uTextBlock', {
-                Slot: {
-                    Padding: Utils.ltrb(0, 10)
-                },
-                Font: {
-                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
-                    TypefaceFontName: "Bold",
-                    Size: 18
-                },
-                Text: title
-            }),
-            this.props.children
-        );
-    }
-}
 
 class MakeableEntry extends JavascriptWidget {
     properties() {
@@ -50,30 +29,42 @@ class MakeableEntry extends JavascriptWidget {
         event.emit("MouseClick", this.index);
     }
 }
-let MakeableEntry_C = UClass(global, MakeableEntry);
-ReactUMG.Register("uMakeableEntry", MakeableEntry_C);
+ReactUMG.Register("uMakeableEntry", UClass(global, MakeableEntry));
 
-class MenuBase extends React.Component {
+class Menu extends React.Component {
     constructor(props) {
         super(props);
-
-        this.inBase = !!MainLevelScriptActor.GetEarthBase();
-        this.helper = new MenuBaseHelper();
         this.state = {
             status: this.getStatus(),
             hoveredIndex: -1,
             selectedIndex: -1,
             makeCount: 1
         };
+
+        this.updateCountBtn = () => {
+            if (this.uCountBox && this.state.selectedIndex > -1) {
+                const sel_item = this.uMakeableList.GetItemAt(this.state.selectedIndex);
+                const max_make = this.helper.GetMaxMakeableCount(sel_item.RowName);
+                this.uCountBox.SetMaxValue(max_make || 1);
+                this.uCountBox.SetMaxSliderValue(max_make || 1);
+                this.uCountBox.SetValue(1);
+            }
+        };
+        this.helper = new MenuBaseHelper();
+        this.earthBase = MainLevelScriptActor.GetEarthBase();
+        if (this.earthBase) {
+            this.earthBase.Backpack.ChangedDelegate.Add(() => {
+                this.forceUpdate();
+                this.updateCountBtn();
+            });
+        }
+
         setInterval(() => {
             let status = this.getStatus();
             if (JSON.stringify(this.state.status) !== JSON.stringify(status)) {
                 this.setState({ status: status });
             }
         }, 500);
-
-        //let bp = MainLevelScriptActor.GetEarthBase().Backpack
-        //bp.AddItem("0000", 100)
     }
 
     getStatus() {
@@ -90,38 +81,43 @@ class MenuBase extends React.Component {
         event = new Events.EventEmitter();
         event.on("MouseEnter", idx => {
             if (this.state.hoveredIndex !== idx) {
-                this.makeableList.RegenerateAllEntries();
+                this.uMakeableList.RegenerateAllEntries();
                 this.setState({ hoveredIndex: idx });
             }
         });
         event.on("MouseLeave", idx => {
             if (this.state.hoveredIndex !== -1) {
-                this.makeableList.RegenerateAllEntries();
+                this.uMakeableList.RegenerateAllEntries();
                 this.setState({ hoveredIndex: -1 });
             }
         });
         event.on("MouseClick", idx => {
             if (this.state.selectedIndex !== idx) {
-                this.makeableList.RegenerateAllEntries();
+                this.uMakeableList.RegenerateAllEntries();
                 this.setState({ selectedIndex: idx, makeCount: 1 });
+                this.updateCountBtn();
             }
         });
     }
 
     componentWillUnmount() {
         event = null;
+        if (this.earthBase) {
+            this.earthBase.Backpack.ChangedDelegate = null;
+        }
     }
 
     render() {
-        const show_demand = this.inBase && this.state.selectedIndex > -1;
-        const sel_item = this.state.selectedIndex > -1 ? this.makeableList.GetItemAt(this.state.selectedIndex) : { RowName: "1000" };
+        const show_demand = this.earthBase && this.state.selectedIndex > -1;
+        const sel_item = this.state.selectedIndex > -1 ? this.uMakeableList.GetItemAt(this.state.selectedIndex) : { RowName: "1000" };
         const sel_data = MainFunctionLibrary.GetItemData(sel_item.RowName);
         const max_make = this.helper.GetMaxMakeableCount(sel_item.RowName);
+        const btn_color = Utils.color(max_make > 0 ? "#FFF" : "#F55");
         return React.createElement(
             'uCanvasPanel',
             null,
-            this.inBase && React.createElement(
-                MyCard,
+            this.earthBase && React.createElement(
+                TaggedCard,
                 {
                     Slot: {
                         LayoutData: {
@@ -228,12 +224,13 @@ class MenuBase extends React.Component {
                         React.createElement(
                             'uSizeBox',
                             {
-                                WidthOverride: 100
+                                WidthOverride: 120,
+                                HeightOverride: 50
                             },
-                            React.createElement('uSpinBox', {
+                            React.createElement('uSpinBox', _extends({
                                 ref: elem => {
-                                    if (elem) {
-                                        this.countBox = elem.ueobj;
+                                    if (elem && !this.uCountBox) {
+                                        this.uCountBox = elem.ueobj;
                                     }
                                 },
                                 Slot: {
@@ -241,18 +238,13 @@ class MenuBase extends React.Component {
                                         SizeRule: ESlateSizeRule.Fill,
                                         Value: 0.5
                                     }
-                                },
-                                MinValue: 1,
-                                MaxValue: max_make > 0 ? max_make : 1,
-                                MinFractionalDigits: 0,
-                                MaxFractionalDigits: 0,
-                                Delta: 1,
-                                ClearKeyboardFocusOnCommit: true,
-                                bAlwaysUsesDeltaSnap: true,
+                                }
+                            }, SpinBoxProps, {
+                                MaxValue: 1,
                                 OnValueChanged: InValue => {
                                     this.setState({ makeCount: InValue });
                                 }
-                            })
+                            }))
                         )
                     ),
                     React.createElement(
@@ -273,10 +265,11 @@ class MenuBase extends React.Component {
                         }),
                         React.createElement('uImage', {
                             Slot: {
+                                Padding: Utils.ltrb(10, 0, 0, 0),
                                 Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 },
                                 VerticalAlignment: EVerticalAlignment.VAlign_Center
                             },
-                            Brush: { ImageSize: { X: 32, Y: 2 } },
+                            Brush: { ImageSize: { X: 32, Y: 1 } },
                             ColorAndOpacity: Utils.color("#888")
                         })
                     ),
@@ -379,17 +372,17 @@ class MenuBase extends React.Component {
                                 WidgetStyle: {
                                     Normal: {
                                         DrawAs: ESlateBrushDrawType.Border,
-                                        TintColor: { SpecifiedColor: Utils.color("#FFF") },
+                                        TintColor: { SpecifiedColor: btn_color },
                                         Margin: Utils.ltrb(1)
                                     },
                                     Hovered: {
                                         DrawAs: ESlateBrushDrawType.Border,
-                                        TintColor: { SpecifiedColor: Utils.color("#FFF") },
+                                        TintColor: { SpecifiedColor: btn_color },
                                         Margin: Utils.ltrb(1)
                                     },
                                     Pressed: {
                                         DrawAs: ESlateBrushDrawType.Border,
-                                        TintColor: { SpecifiedColor: Utils.color("#FFF") },
+                                        TintColor: { SpecifiedColor: btn_color },
                                         Margin: Utils.ltrb(1)
                                     },
                                     NormalPadding: Utils.ltrb(0),
@@ -400,24 +393,21 @@ class MenuBase extends React.Component {
                                     this.makedAnime = AD();
                                     let completed = () => {
                                         if (this.makedAnime) {
-                                            const cur = this.countBox.GetValue();
+                                            const cur = this.uCountBox.GetValue();
                                             this.helper.MakeItem(sel_item, cur);
-                                            const max = this.helper.GetMaxMakeableCount(sel_item.RowName);
-                                            if (cur > max) {
-                                                this.countBox.SetValue(max > 0 ? max : 1);
-                                            }
-                                            this.btnBg.SetRenderScale({ X: 0, Y: 1.0 });
+                                            this.updateCountBtn();
+                                            this.uBtnBg.SetRenderScale({ X: 0, Y: 1.0 });
                                             this.setState({ makeCount: 1 });
                                         }
                                     };
-                                    this.makedAnime.apply(this.btnBg, { duration: 0.5, completed: completed }, { RenderScale: t => {
+                                    this.makedAnime.apply(this.uBtnBg, { duration: 0.5, completed: completed }, { RenderScale: t => {
                                             return { X: t, Y: 1.0 };
                                         } });
                                 },
                                 OnReleased: () => {
                                     this.makedAnime.destroy();
                                     this.makedAnime = null;
-                                    this.btnBg.SetRenderScale({ X: 0, Y: 1.0 });
+                                    this.uBtnBg.SetRenderScale({ X: 0, Y: 1.0 });
                                 }
                             },
                             React.createElement(
@@ -432,7 +422,7 @@ class MenuBase extends React.Component {
                                 React.createElement('uImage', {
                                     ref: elem => {
                                         if (elem) {
-                                            this.btnBg = elem.ueobj;
+                                            this.uBtnBg = elem.ueobj;
                                         }
                                     },
                                     Slot: {
@@ -456,7 +446,7 @@ class MenuBase extends React.Component {
                                         TypefaceFontName: "Bold",
                                         Size: 18
                                     },
-                                    ColorAndOpacity: { SpecifiedColor: Utils.color(max_make > 0 ? "#55F" : "#F55") },
+                                    ColorAndOpacity: { SpecifiedColor: btn_color },
                                     Text: max_make ? "制作" : "资源不足"
                                 })
                             )
@@ -467,22 +457,22 @@ class MenuBase extends React.Component {
                     {
                         Background: {
                             DrawAs: ESlateBrushDrawType.Border,
-                            TintColor: { SpecifiedColor: this.inBase ? Utils.color("#8F8") : Utils.color("#F88") },
+                            TintColor: { SpecifiedColor: this.earthBase ? Utils.color("#8F8") : Utils.color("#F88") },
                             Margin: Utils.ltrb(0, 1, 0, 1)
                         },
-                        ContentColorAndOpacity: this.inBase ? Utils.color("#5F5") : Utils.color("#F55")
+                        ContentColorAndOpacity: this.earthBase ? Utils.color("#5F5") : Utils.color("#F55")
                     },
                     React.createElement('text', {
                         Font: {
                             FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
                             Size: 18
                         },
-                        Text: this.inBase ? "已连接基地" : "未连接基地"
+                        Text: this.earthBase ? "已连接基地" : "未连接基地"
                     })
                 )
             ),
-            this.inBase && React.createElement(
-                MyCard,
+            this.earthBase && React.createElement(
+                TaggedCard,
                 {
                     Slot: {
                         LayoutData: {
@@ -495,9 +485,10 @@ class MenuBase extends React.Component {
                 },
                 React.createElement('uJavascriptListView', {
                     ref: elem => {
-                        if (elem && !this.makeableList) {
-                            this.makeableList = elem.ueobj;
-                            this.makeableList.SetItems(this.helper.GetMakeableList().OutItems);
+                        if (elem && !this.uMakeableList) {
+                            this.uMakeableList = elem.ueobj;
+                            this.uMakeableList.SetItems(this.helper.GetMakeableList().OutItems);
+                            process.nextTick(_ => this.uMakeableList.SetScrollbarVisibility(ESlateVisibility.Visible));
                         }
                     },
                     Slot: {
@@ -505,10 +496,10 @@ class MenuBase extends React.Component {
                     },
                     SelectionMode: ESelectionMode.Single,
                     OnGenerateRow: (item, view) => {
-                        let index = view.GetIndexForItem(item);
-                        let item_data = MainFunctionLibrary.GetItemData(item.RowName);
-                        let is_hovered = this.state.hoveredIndex === index;
-                        let is_selected = this.state.selectedIndex === index;
+                        const index = view.GetIndexForItem(item);
+                        const item_data = MainFunctionLibrary.GetItemData(item.RowName);
+                        const is_hovered = this.state.hoveredIndex === index;
+                        const is_selected = this.state.selectedIndex === index;
                         return ReactUMG.wrap(React.createElement(
                             'uSizeBox',
                             {
@@ -516,85 +507,7 @@ class MenuBase extends React.Component {
                                     Padding: Utils.ltrb(0, 2)
                                 },
                                 HeightOverride: 64,
-                                ToolTipWidgetDelegate: () => {
-                                    return ReactUMG.wrap(React.createElement(
-                                        'uBorder',
-                                        {
-                                            Slot: { Padding: Utils.ltrb(0) },
-                                            Padding: Utils.ltrb(20),
-                                            Background: {
-                                                TintColor: { SpecifiedColor: Utils.rgba(1, 1, 1, 0.3) }
-                                            }
-                                        },
-                                        React.createElement(
-                                            'div',
-                                            null,
-                                            React.createElement(
-                                                'span',
-                                                null,
-                                                React.createElement('uImage', {
-                                                    Slot: {
-                                                        Padding: Utils.ltrb(0)
-                                                    },
-                                                    Brush: {
-                                                        // Icon变成了string类型
-                                                        ResourceObject: Texture2D.Load(item_data.Icon),
-                                                        ImageSize: { X: 64, Y: 64 }
-                                                    }
-                                                }),
-                                                React.createElement(
-                                                    'div',
-                                                    null,
-                                                    React.createElement('text', {
-                                                        Slot: {
-                                                            Padding: Utils.ltrb(20, 0)
-                                                        },
-                                                        Font: {
-                                                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
-                                                            TypefaceFontName: "Bold",
-                                                            Size: 16
-                                                        },
-                                                        ColorAndOpacity: {
-                                                            SpecifiedColor: Utils.color("#111")
-                                                        },
-                                                        Text: item_data.Name
-                                                    }),
-                                                    React.createElement('text', {
-                                                        Slot: {
-                                                            Padding: Utils.ltrb(20, 5)
-                                                        },
-                                                        Font: {
-                                                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
-                                                            TypefaceFontName: "Bold",
-                                                            Size: 12
-                                                        },
-                                                        ColorAndOpacity: {
-                                                            SpecifiedColor: Utils.color("#333")
-                                                        },
-                                                        Text: `${Math.round(item_data.Mass * 100) / 100}kg`
-                                                    })
-                                                )
-                                            ),
-                                            React.createElement('uImage', {
-                                                Slot: { Padding: Utils.ltrb(0, 10) },
-                                                Brush: { ImageSize: { X: 32, Y: 2 } },
-                                                ColorAndOpacity: Utils.rgba(0, 0, 0, 0.1)
-                                            }),
-                                            React.createElement('text', {
-                                                Font: {
-                                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
-                                                    TypefaceFontName: "Bold",
-                                                    Size: 14
-                                                },
-                                                WrapTextAt: 300,
-                                                ColorAndOpacity: {
-                                                    SpecifiedColor: Utils.color("#222")
-                                                },
-                                                Text: item_data.Desc
-                                            })
-                                        )
-                                    ));
-                                }
+                                ToolTipWidgetDelegate: () => ReactUMG.wrap(React.createElement(ItemToolTip, { itemData: item_data }))
                             },
                             React.createElement(
                                 'uMakeableEntry',
@@ -608,7 +521,7 @@ class MenuBase extends React.Component {
                                             Slot: {
                                                 LayoutData: {
                                                     Anchors: EAnchors.FillAll,
-                                                    Offsets: Utils.ltrb(0, 0, 0, 0)
+                                                    Offsets: Utils.ltrb(0)
                                                 }
                                             }
                                         },
@@ -619,7 +532,7 @@ class MenuBase extends React.Component {
                                                     HorizontalAlignment: EHorizontalAlignment.HAlign_Left
                                                 },
                                                 Background: {
-                                                    TintColor: { SpecifiedColor: Utils.rgba(1, 1, 1, is_hovered ? 0.6 : 0.5) }
+                                                    TintColor: { SpecifiedColor: is_hovered ? Utils.rgba(0.7, 0.7, 0.7, 0.4) : Utils.rgba(0.4, 0.4, 0.4, 0.4) }
                                                 }
                                             },
                                             React.createElement('uImage', {
@@ -642,7 +555,7 @@ class MenuBase extends React.Component {
                                                     VerticalAlignment: EVerticalAlignment.VAlign_Fill
                                                 },
                                                 Background: {
-                                                    TintColor: { SpecifiedColor: Utils.rgba(1, 1, 1, is_hovered ? 0.5 : 0.3) }
+                                                    TintColor: { SpecifiedColor: is_hovered ? Utils.rgba(0.8, 0.8, 0.8, 0.4) : Utils.rgba(0.5, 0.5, 0.5, 0.4) }
                                                 },
                                                 VerticalAlignment: EVerticalAlignment.VAlign_Center
                                             },
@@ -681,4 +594,4 @@ class MenuBase extends React.Component {
     }
 }
 
-module.exports = MenuBase;
+module.exports = Menu;

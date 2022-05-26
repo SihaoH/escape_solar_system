@@ -9,8 +9,26 @@
 #include "BackpackComponent.h"
 #include "BodyComponent.h"
 #include "EngineComponent.h"
+#define LOCTEXT_NAMESPACE "MenuBackpack"
 
+void UMenuBackpackHelper::GetListViewItems(UBackpackComponent* InBp, TArray<class UItemDataObject*>& OutItems) const
+{
+	if (InBp) {
+		const auto& ItemList = InBp->GetItemList();
+		for (const auto& Elem : ItemList)
+		{
+			UItemDataObject* Obj = NewObject<UItemDataObject>(const_cast<UMenuBackpackHelper*>(this));
+			Obj->RowName = Elem.Key;
+			Obj->Count = Elem.Value;
+			Obj->Owner = InBp;
+			OutItems.Add(Obj);
+		}
+	}
+}
 
+/* 后续所有关于物品的操作，都依赖于这个已选中的成员变量
+ * 即：操作前必须选中物品
+*/
 void UMenuBackpackHelper::SelectItem(UObject* Item)
 {
 	SelectedItem = Cast<UItemDataObject>(Item);
@@ -41,7 +59,7 @@ void UMenuBackpackHelper::ConsumeItem(int32 Count, EPawnType Target)
 	ASpaceship* Ship = Char->FindSpaceship();
 	UBodyComponent* Body = nullptr;
 	UEngineComponent* Engine = nullptr;
-	// TODO Target参数要换成枚举
+
 	if (Target == EPawnType::MainChar)
 	{
 		Body = Char->Body;
@@ -57,7 +75,7 @@ void UMenuBackpackHelper::ConsumeItem(int32 Count, EPawnType Target)
 	check(Engine);
 	check(SelectedItem);
 	int32 RowName = FCString::Atoi(*(SelectedItem->RowName.ToString()));
-	float Value = UMainFunctionLibrary::GetItemData(SelectedItem->RowName).ReplenishedValue;
+	float Value = UMainFunctionLibrary::GetItemData(SelectedItem->RowName).ReplenishedValue * Count;
 	if (RowName >= 3000 && RowName < 4000)
 	{
 		Body->ChangeHP(Value);
@@ -80,10 +98,10 @@ void UMenuBackpackHelper::DiscardItem(int32 Count)
 	SelectedItem = nullptr;
 }
 
-void UMenuBackpackHelper::TryDropItem(UBackpackComponent* DstBp, UBackpackComponent* SrcBp, UObject* Item)
+void UMenuBackpackHelper::TryDropItem(UBackpackComponent* DstBp, UBackpackComponent* SrcBp, bool& NeedHint, int32& MaxAdd, FText& Reason)
 {
-	SelectItem(Item);
-	int32 MaxAdd = FMath::Min(SrcBp->CountItem(SelectedItem->RowName), DstBp->GetMaxAddNum(SelectedItem->RowName));
+	check(SelectedItem);
+	MaxAdd = FMath::Min(SrcBp->CountItem(SelectedItem->RowName), DstBp->GetMaxAddNum(SelectedItem->RowName));
 	if (MaxAdd > 0)
 	{
 		DstBackpack = DstBp;
@@ -92,45 +110,46 @@ void UMenuBackpackHelper::TryDropItem(UBackpackComponent* DstBp, UBackpackCompon
 		FItemData& ItemData = UMainFunctionLibrary::GetItemData(SelectedItem->RowName);
 		if (!ItemData.CanStack || SelectedItem->Count <= 1)
 		{
-			//DropItem(1);
-			// TODO 单个物品直接放入，界面不要弹数量对话框
+			// 单个物品直接放入
+			DropItem(1);
+			NeedHint = false;
 		}
 		else
 		{
-			
+			NeedHint = true;
 		}
-		
-		//UUserWidget* WB_Dlg_ItemNum = Cast<UUserWidget>(GetWidgetFromName(TEXT("WB_Dialog_ItemNumber")));
-		//USpinBox* SpinBox = Cast<USpinBox>(Cast<UUserWidget>(WB_Dlg_ItemNum->GetWidgetFromName(TEXT("WB_NumberEditor")))->GetWidgetFromName(TEXT("SpinBox_Number")));
-		//SpinBox->SetMinValue(1);
-		//SpinBox->SetMaxValue(MaxAdd);
-		//SpinBox->SetValue(MaxAdd);
-		//WB_Dlg_ItemNum->SetVisibility(ESlateVisibility::Visible);
 	}
 	else
 	{
-		// TODO 不能放入，需要其他方式的提示
+		Reason = LOCTEXT("Reason", "无法放入");
+		NeedHint = false;
 	}
 }
 
-int32 UMenuBackpackHelper::GetSelectedCount() const
+void UMenuBackpackHelper::GetMenuDisplay(TMap<EItemOptions, FText>& OutList)
 {
-	return SelectedItem ? SelectedItem->Count : 0;
+	OutList.Add(EItemOptions::Use, LOCTEXT("Use", "使用"));
+	OutList.Add(EItemOptions::ConsumeToChar, LOCTEXT("ToChar", "为躯体补充"));
+	OutList.Add(EItemOptions::ConsumeToShip, LOCTEXT("ToShip", "为星舰补充"));
+	OutList.Add(EItemOptions::Discard, LOCTEXT("Discard", "丢弃"));
 }
 
-void UMenuBackpackHelper::GetMenuStatus(bool& CanUse, bool& CanConsume)
+void UMenuBackpackHelper::GetMenuOptions(TArray<EItemOptions>& OutList)
 {
-	CanUse = false;
-	CanConsume = false;
-	check(SelectedItem);
-
 	int32 RowName = FCString::Atoi(*(SelectedItem->RowName.ToString()));
 	if (RowName > 9000)
 	{
-		CanUse = true;
+		OutList.Add(EItemOptions::Use);
 	}
 	else if (RowName >= 3000 && RowName < 5000)
 	{
-		CanConsume = true;
+		OutList.Add(EItemOptions::ConsumeToChar);
+		if (AMainLevelScriptActor::GetSpaceship())
+		{
+			OutList.Add(EItemOptions::ConsumeToShip);
+		}
 	}
+	OutList.Add(EItemOptions::Discard);
 }
+
+#undef LOCTEXT_NAMESPACE

@@ -1,0 +1,86 @@
+const React = require('react')
+const Utils = require('../utils')
+
+class ItemToolTip extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        const {itemData} = this.props
+        return (
+            <uBorder
+                {...this.props}
+                Slot={{ Padding: Utils.ltrb(0) }}
+                Padding={Utils.ltrb(20)}
+                Background={{
+                    TintColor: { SpecifiedColor: Utils.rgba(1, 1, 1, 0.6) }
+                }}
+            >
+                <div>
+                    <span>
+                        <uImage
+                            Slot={{
+                                Padding: Utils.ltrb(0)
+                            }}
+                            Brush={{
+                                // Icon变成了string类型
+                                ResourceObject: Texture2D.Load(itemData.Icon),
+                                ImageSize: {X: 64, Y: 64}
+                            }}
+                        />
+                        <div>
+                            <text
+                                Slot={{
+                                    Padding: Utils.ltrb(20, 0),
+                                }}
+                                Font={{
+                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    TypefaceFontName: "Bold",
+                                    Size: 16,
+                                }}
+                                ColorAndOpacity={{
+                                    SpecifiedColor: Utils.color("#111")
+                                }}
+                                Text={itemData.Name} 
+                            />
+                            <text
+                                Slot={{
+                                    Padding: Utils.ltrb(20, 5),
+                                }}
+                                Font={{
+                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    TypefaceFontName: "Bold",
+                                    Size: 12,
+                                }}
+                                ColorAndOpacity={{
+                                    SpecifiedColor: Utils.color("#333")
+                                }}
+                                Text={`${Math.round(itemData.Mass*100)/100}kg`} 
+                            />
+                        </div>
+                    </span>
+                    <uImage
+                        Slot={{ Padding: Utils.ltrb(0, 10) }}
+                        Brush={{ ImageSize: {X: 32, Y: 2} }}
+                        ColorAndOpacity={Utils.rgba(0, 0, 0, 0.1)}
+                    />
+                    <text
+                        Font={{
+                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                            TypefaceFontName: "Bold",
+                            Size: 14,
+                        }}
+                        WrapTextAt={300}
+                        ColorAndOpacity={{
+                            SpecifiedColor: Utils.color("#222")
+                        }}
+                        Text={itemData.Desc} 
+                    />
+                </div>
+            </uBorder>
+        )
+    }
+}
+
+module.exports = ItemToolTip

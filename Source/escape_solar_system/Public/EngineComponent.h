@@ -7,6 +7,8 @@
 #include "Components/ActorComponent.h"
 #include "EngineComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnergyChangedSignature, float, Delta);
+
 /**
  * 发动机组件，推动机体运动
  */
@@ -40,6 +42,10 @@ public:
 
 private:
 	void UseEnergy(float Used);
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FEnergyChangedSignature EnergyChangedDelegate;
 
 private:
 	/** 引擎本身的质量kg */

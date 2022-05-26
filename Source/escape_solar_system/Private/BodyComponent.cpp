@@ -44,6 +44,7 @@ void UBodyComponent::ChangeHP(float Delta)
 		// TODO 死亡
 		UKismetSystemLibrary::PrintText(GetWorld(), INVTEXT("你死了！"));
 	}
+	HpChangedDelegate.Broadcast(Delta);
 }
 
 void UBodyComponent::BeginPlay()
