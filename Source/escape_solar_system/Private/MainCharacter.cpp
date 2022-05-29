@@ -209,6 +209,16 @@ void AMainCharacter::PickupItem()
 void AMainCharacter::Turn(float Value)
 {
 	if (Value == 0) return;
+	
+	if (!GetPlanetOwner())
+	{
+		// 要把摄像头的角度回正，不然躯体转向会导致视角异常
+		auto Angle = FollowCamera->GetRelativeRotation().Pitch;
+		if (FMath::Abs(Angle) > 1)
+		{
+			FollowCamera->AddRelativeRotation(FRotator(-FMath::Sign(Angle) * 0.1, 0, 0));
+		}
+	}
 
 	AddActorLocalRotation(FRotator(0, Value, 0));
 }
@@ -229,7 +239,15 @@ void AMainCharacter::LookUp(float Value)
 	}
 	else
 	{
-		AddActorLocalRotation(FRotator(Value, 0, 0));
+		auto Angle = FollowCamera->GetRelativeRotation().Pitch;
+		if (FMath::Abs(Angle) > 1)
+		{
+			FollowCamera->AddRelativeRotation(FRotator(-FMath::Sign(Angle) * 0.1, 0, 0));
+		}
+		else
+		{
+			AddActorLocalRotation(FRotator(Value, 0, 0));
+		}
 	}
 }
 
