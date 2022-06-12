@@ -96,12 +96,13 @@ TPair<bool, FText> UMainFunctionLibrary::GetDemandInfo(const TMap<FName, int32>&
 		Arguments.Add(HoldCount >= NeedCount ? TEXT("Default") : TEXT("Warning"));
 		Arguments.Add(FString::FromInt(NeedCount));
 		Arguments.Add(Backpack ? FString::FromInt(HoldCount) : LOCTEXT("unknow", "？？？").ToString());
-		DemandStr += FString::Format(TEXT("{0}  <{1}>x{2}</>  (<img id=\"Storehouse\"/> x{3})\n"), Arguments);
+		DemandStr += FString::Format(TEXT("{0}  <{1}>×{2}</>  (<img id=\"Storehouse\"/> ×{3})\n"), Arguments);
 		if (HoldCount < NeedCount)
 		{
 			Enough = false;
 		}
 	}
+	DemandStr.RemoveFromEnd(TEXT("\n"));
 	return TPair<bool, FText>(Enough, FText::FromString(DemandStr));
 }
 

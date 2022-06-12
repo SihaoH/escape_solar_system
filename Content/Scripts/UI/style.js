@@ -1,6 +1,7 @@
 const Utils = require("utils")
 
 const T_Rect = Texture2D.Load("/Game/UI/Icon/T_Rectangle64x64")
+const F_Sans = Font.Load('/Game/UI/Font/SourceHanSansSC')
 
 const ButtonStyle = {
     Normal: {
@@ -59,6 +60,7 @@ const SpinBoxProps = {
 }
 
 module.exports = {
+    F_Sans: F_Sans,
     T_Rect: T_Rect,
     ButtonStyle: ButtonStyle,
     SpinBoxProps: SpinBoxProps

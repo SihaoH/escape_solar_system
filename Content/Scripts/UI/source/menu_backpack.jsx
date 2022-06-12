@@ -11,7 +11,6 @@ const ContextMenu = require('context_menu')
 const NumberDialog = require('number_dialog')
 const TaggedCard = require('tagged_card')
 const ItemToolTip = require('item_tooltip')
-const utils = require('../utils')
 
 const ETitle = {
     Char: "躯体",
