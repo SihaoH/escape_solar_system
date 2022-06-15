@@ -106,9 +106,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	int32 EngineType       = 0;
 	int32 LevelEngine0     = 0; //包含Power、Mass、EPR、EMR
-	int32 LevelEngine1     = 0;
-	int32 LevelEngine2     = 0;
+	int32 LevelEngine1     = -1;
+	int32 LevelEngine2     = -1;
 	int32 LevelEnergy0     = 0;
-	int32 LevelEnergy1     = 0;
-	int32 LevelEnergy2     = 0;
+	int32 LevelEnergy1     = -1;
+	int32 LevelEnergy2     = -1;
 };

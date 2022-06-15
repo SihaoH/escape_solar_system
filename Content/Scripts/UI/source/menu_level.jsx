@@ -20,6 +20,14 @@ function level_btn(n, d, p) {
     return {name: n, desc: d, props: p}
 }
 
+function engine_btn(n, d, p, ship_engine) {
+    return {...level_btn(n, d, p), shipEngine: ship_engine}
+}
+
+function energy_btn(n, d, p, ship_energy) {
+    return {...level_btn(n, d, p), shipEnergy: ship_energy}
+}
+
 class SplitLine extends React.Component {
     constructor(props) {
         super(props)
@@ -64,6 +72,13 @@ class LevelButton extends React.Component {
         const curLv = helper.GetCurVal(btnVal.props)
         const maxLv = helper.GetMaxVal(btnVal.props)
         const inBase = !!MainLevelScriptActor.GetEarthBase()
+        let isEnabled = true
+        if (btnVal.shipEngine !== undefined) {
+            isEnabled = MainLevelScriptActor.GetSpaceship().EngineType <= btnVal.shipEngine
+        } else if (btnVal.shipEnergy !== undefined) {
+            isEnabled = MainLevelScriptActor.GetSpaceship().EngineType === btnVal.shipEnergy
+        }
+        if (this.btn) this.btn.SetIsEnabled(isEnabled)
         return (
             <uSizeBox
                 {...this.props}
@@ -229,9 +244,10 @@ class LevelButton extends React.Component {
                         if (upgradeAnime) {
                             helper.UpgradeLevel(btnVal.props)
                             this.uBtnBg.SetRenderTranslation({X: 0, Y: 80})
-                            this.forceUpdate()
                             this.btn.SetVisibility(ESlateVisibility.Visible)
                             upgradeAnime = null
+
+                            this.props.parent.forceUpdate()
                         }
                     }
                     upgradeAnime.apply(this.uBtnBg, 
@@ -345,7 +361,7 @@ class InfoCard extends React.Component {
                                         FontObject: F_Sans,
                                         Size: 12,
                                     }}
-                                    Text={`${c_val.val} ${c_val.unit}`}
+                                    Text={typeof(c_val.val) === "string" ? c_val.val : `${Utils.num2Txt(c_val.val, 2)} ${c_val.unit}`}
                                 />
                             </span>)
                     )] : 
@@ -373,7 +389,7 @@ class InfoCard extends React.Component {
                                 FontObject: F_Sans,
                                 Size: 16,
                             }}
-                            Text={`${val.val} ${val.unit}`}
+                            Text={typeof(val.val) === "string" ? val.val : `${Utils.num2Txt(val.val, 2)} ${val.unit}`}
                         />
                     </span>
                 }
@@ -416,6 +432,7 @@ class LevelView extends React.Component {
                             Slot={{
                                 Padding: Utils.ltrb(20, 0, 0, 0)
                             }}
+                            parent={this}
                             btnVal={b_val}
                         />
                     ))}
@@ -479,17 +496,17 @@ class MenuLevel extends React.Component {
             {
                 tag: "引擎",
                 btn: [
-                    level_btn("化学引擎", "化学引擎", [ELevel.ShipEngine0Power, ELevel.ShipEngine0Mass, ELevel.ShipEngine0EPR, ELevel.ShipEngine0EMR]),
-                    level_btn("核裂变引擎", "采用核裂变产生的能量作为推力，是较为成熟的核动力引擎方案", [ELevel.ShipEngine1Power, ELevel.ShipEngine1Mass, ELevel.ShipEngine1EPR, ELevel.ShipEngine1EMR]),
-                    level_btn("核聚变引擎", "内置了小型化的托卡马克设备，使用可控核聚变作为动力，少量的聚变燃料即可转换为极大的动能", [ELevel.ShipEngine2Power, ELevel.ShipEngine2Mass, ELevel.ShipEngine2EPR, ELevel.ShipEngine2EMR]),
+                    engine_btn("化学引擎", "化学引擎", [ELevel.ShipEngine0Power, ELevel.ShipEngine0Mass, ELevel.ShipEngine0EPR, ELevel.ShipEngine0EMR], 0),
+                    engine_btn("核裂变引擎", "采用核裂变产生的能量作为推力，是较为成熟的核动力引擎方案", [ELevel.ShipEngine1Power, ELevel.ShipEngine1Mass, ELevel.ShipEngine1EPR, ELevel.ShipEngine1EMR], 1),
+                    engine_btn("核聚变引擎", "内置了小型化的托卡马克设备，使用可控核聚变作为动力，少量的聚变燃料即可转换为极大的动能", [ELevel.ShipEngine2Power, ELevel.ShipEngine2Mass, ELevel.ShipEngine2EPR, ELevel.ShipEngine2EMR], 2),
                 ]
             },
             {
                 tag: "燃料仓",
                 btn: [
-                    level_btn("化学燃料仓", "化学燃料", [ELevel.ShipEnergy0]),
-                    level_btn("核裂变燃料仓", "高纯度铀", [ELevel.ShipEnergy1]),
-                    level_btn("核聚变燃料仓", "氦-3", [ELevel.ShipEnergy2]),
+                    energy_btn("化学燃料仓", "化学燃料", [ELevel.ShipEnergy0], 0),
+                    energy_btn("核裂变燃料仓", "高纯度铀", [ELevel.ShipEnergy1], 1),
+                    energy_btn("核聚变燃料仓", "氦-3", [ELevel.ShipEnergy2], 2),
                 ]
             },
         ]
@@ -500,7 +517,7 @@ class MenuLevel extends React.Component {
 
         setInterval(() => {
             this.updateInfo()
-        }, 200)
+        }, 300)
     }
 
     componentWillUnmount() {

@@ -56,11 +56,12 @@ class PointBar extends React.Component {
 
     componentDidUpdate() {
         let {curVal, maxVal} = this.props
-        if (maxVal <= 0) { // 无限
+        if (maxVal < 0) { // 无限
             this.uRealBar.SetPercent(1)
             return
         }
 
+        maxVal = maxVal || 1 // 避免除以0的问题
         const EPSILON = 1.0e-8
         let original_val = this.uTransBar.Percent
         let target_val= curVal / maxVal
@@ -86,9 +87,10 @@ class PointBar extends React.Component {
     }
 
     render() {
-        let {curVal, maxVal, fillColor, fontStyle} = this.props
+        let {curVal, maxVal, fractionDigits, fillColor, fontStyle} = this.props
         curVal = curVal || 0
-        maxVal = maxVal || 1
+        maxVal = maxVal || 0
+        fractionDigits = fractionDigits || 0
         fillColor = fillColor || Utils.color('#FFF')
         return (
             <uCanvasPanel {...this.props}>
@@ -122,7 +124,7 @@ class PointBar extends React.Component {
                         bAutoSize: true
                     }}
                     Font={fontStyle || font}
-                    Text={`${Utils.num2Txt(curVal)} / ${maxVal > -1 ? Utils.num2Txt(maxVal) : "∞"}`}
+                    Text={`${Utils.num2Txt(curVal, fractionDigits)} / ${maxVal > -1 ? Utils.num2Txt(maxVal, fractionDigits) : "∞"}`}
                 />
             </uCanvasPanel>
         )

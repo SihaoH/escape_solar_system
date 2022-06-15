@@ -53,19 +53,23 @@ void UMenuLevelHelper::GetRestorationMP(TArray<UItemDataObject*>& OutItems)
 PRAGMA_DISABLE_OPTIMIZATION
 void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Prop)
 {
-	ELevel Level = Prop[0];
-	int Val = *GetTarget(Level);
-	FString InfoStr;
-	for (const auto& elemt : Prop) {
-		InfoStr += LV::DispName[elemt].ToString() + TEXT(": ");
-		InfoStr += FString::FormatAsNumber(UMainFunctionLibrary::GetLevelValue(elemt, Val)) + TEXT("\n");
-	}
-	InfoStr.RemoveFromEnd(TEXT("\n"));
-	CurLevelInfo = FText::FromString(InfoStr);
-
+	CurLevelInfo = FText();
 	NextLevelInfo = FText();
 	DemandPoints = FText();
 	DemandItems = FText();
+
+	ELevel Level = Prop[0];
+	int Val = *GetTarget(Level);
+	FString InfoStr;
+	if (Val >= 0)
+	{
+		for (const auto& elemt : Prop) {
+			InfoStr += LV::DispName[elemt].ToString() + TEXT(": ");
+			InfoStr += FString::FormatAsNumber(UMainFunctionLibrary::GetLevelValue(elemt, Val)) + TEXT("\n");
+		}
+		InfoStr.RemoveFromEnd(TEXT("\n"));
+		CurLevelInfo = FText::FromString(InfoStr);
+	}
 	if (Val < Max_Level)
 	{
 		InfoStr = FString();
@@ -76,7 +80,7 @@ void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Prop)
 		InfoStr.RemoveFromEnd(TEXT("\n"));
 		NextLevelInfo = FText::FromString(InfoStr);
 
-		FLevelDemand LevelDemand = UMainFunctionLibrary::GetLevelDemand(Level, Val);
+		FLevelDemand LevelDemand = UMainFunctionLibrary::GetLevelDemand(Level, Val+1);
 		DemandPoints = FText::Format(LOCTEXT("Points", "探索点数: {0}"), LevelDemand.Points);
 
 		AEarthBase* EarthBase = AMainLevelScriptActor::GetMainChar()->FindEarthBase();
@@ -85,6 +89,10 @@ void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Prop)
 		const int32 Mock_Points = 999;
 		CanUpgrade = DemandInfo.Key && Mock_Points>=LevelDemand.Points;
 		DemandItems = DemandInfo.Value;
+	}
+	else
+	{
+		CanUpgrade = false;
 	}
 }
 PRAGMA_ENABLE_OPTIMIZATION

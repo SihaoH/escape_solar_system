@@ -37,13 +37,14 @@ function color(str) {
     return { R: 1, G: 1, B: 1, A: 1}
 }
 
-function num2Txt(num) {
+function num2Txt(num, x = 0) {
     if (num > 10000000) {
-        return (num / 1000000).toFixed(0) + " M"
+        return Math.round((num / 1000000) * 100) / 100 + " M"
     } else if (num > 10000) {
-        return (num / 1000).toFixed(0) + " K"
+        return Math.round((num / 1000) * 100) / 100 + " K"
     } else {
-        return num.toFixed(0)
+        let multiple = Math.pow(10, x)
+        return Math.round(num * multiple) / multiple + ""
     }
 }
 

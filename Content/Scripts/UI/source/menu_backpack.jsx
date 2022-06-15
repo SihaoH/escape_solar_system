@@ -270,6 +270,7 @@ class BackpackView extends React.Component {
                         colorWhenReduced={Utils.color("#0F0")}
                         curVal={this.props.bp.Mass}
                         maxVal={this.props.bp.MaxLoad}
+                        fractionDigits={1}
                     />
                 </uSizeBox>
                 <uJavascriptListView

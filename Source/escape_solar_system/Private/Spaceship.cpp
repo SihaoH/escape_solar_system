@@ -59,6 +59,19 @@ void ASpaceship::ResetProperties()
 	Body->SetShieldHeat(EPawnType::SpaceShip, LevelShieldHeat);
 	Body->SetShieldPress(EPawnType::SpaceShip, LevelShieldPress);
 
+	if (LevelEngine2 >= 0)
+	{
+		EngineType = 2;
+	}
+	else if (LevelEngine1 >= 0)
+	{
+		EngineType = 1;
+	}
+	else
+	{
+		EngineType = 0;
+	}
+
 	switch (EngineType)
 	{
 	case 0:
