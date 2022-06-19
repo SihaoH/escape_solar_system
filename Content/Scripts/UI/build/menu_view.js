@@ -2,8 +2,9 @@ const _ = require('lodash');
 const uclass = require('uclass')();
 const React = require('react');
 const ReactUMG = require('react-umg');
-const Utils = require('../utils');
+const Utils = require('../Utils');
 const EAnchors = require('../anchors');
+const { F_Sans } = require('../style');
 
 const TabButton = require('./tab_button');
 const MenuBase = require('./menu_base');
@@ -43,14 +44,22 @@ ReactUMG.Register('uMyOverlayer', MyOverlayer_C);
 class MenuView extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { currentIndex: 0 };
+        this.state = {
+            currentIndex: 0,
+            explorePoints: MainPlayerState.Instance().GetExplorePoints()
+        };
+        let self = this;
+        this.updatePoints = () => {
+            self.setState({ explorePoints: MainPlayerState.Instance().GetExplorePoints() });
+        };
+        MainPlayerState.Instance().ExplorePointsChangedDelegate.Add(this.updatePoints);
 
         Utils.setInputMode(true);
     }
 
-    componentDidMount() {}
-
-    componentWillUnmount() {}
+    componentWillUnmount() {
+        MainPlayerState.Instance().ExplorePointsChangedDelegate.Remove(this.updatePoints);
+    }
 
     render() {
         return React.createElement(
@@ -81,7 +90,7 @@ class MenuView extends React.Component {
                         Slot: {
                             LayoutData: {
                                 Anchors: EAnchors.FillTop,
-                                Offsets: Utils.ltrb(50, 50, 0, 80)
+                                Offsets: Utils.ltrb(50, 50, 50, 80)
                             }
                         }
                     },
@@ -90,9 +99,37 @@ class MenuView extends React.Component {
                         text: v,
                         onClicked: () => {
                             this.setState({ currentIndex: i });
-                            //this.tabView.SetActiveWidgetIndex(i)
                         }
-                    }))
+                    })),
+                    React.createElement('uSpacer', { Slot: { Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 } } }),
+                    React.createElement(
+                        'span',
+                        null,
+                        React.createElement('uImage', {
+                            Slot: {
+                                VerticalAlignment: EVerticalAlignment.VAlign_Center
+                            },
+                            Brush: {
+                                ResourceObject: Texture2D.Load("/Game/UI/Icon/T_Points64x64"),
+                                ImageSize: { X: 48, Y: 48 }
+                            }
+                        }),
+                        React.createElement('uTextBlock', {
+                            Slot: {
+                                Padding: Utils.ltrb(10, 0, 0, 0),
+                                VerticalAlignment: EVerticalAlignment.VAlign_Center
+                            },
+                            Font: {
+                                FontObject: F_Sans,
+                                TypefaceFontName: "Bold",
+                                Size: 20
+                            },
+                            ColorAndOpacity: {
+                                SpecifiedColor: Utils.color("#D49D35")
+                            },
+                            Text: this.state.explorePoints
+                        })
+                    )
                 ),
                 React.createElement(
                     'uWidgetSwitcher',

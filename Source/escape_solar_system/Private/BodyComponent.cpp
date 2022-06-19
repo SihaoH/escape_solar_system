@@ -31,7 +31,7 @@ void UBodyComponent::SetShieldPress(EPawnType Type, int32 Level)
 	ShieldPress = UMainFunctionLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharShieldPress : ELevel::ShipShieldPress, Level);
 }
 
-void UBodyComponent::ChangeHP(float Delta)
+void UBodyComponent::ChangeHP(int32 Delta)
 {
 	CurrentHP += Delta;
 	if (CurrentHP > MaximumHP)
@@ -61,21 +61,25 @@ void UBodyComponent::CheckEnvironment()
 	// TODO 外界压力影响区域
 	CurrentPress = 0;
 
+	int32 Delta = 0;
 	if (CurrentTemp > ShieldHeat)
 	{
-		ChangeHP(-(CurrentTemp - ShieldHeat));
-		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("机体过热，HP -{0}"), CurrentTemp - ShieldHeat));
+		Delta = -(CurrentTemp - ShieldHeat);
+		ChangeHP(Delta);
+		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("机体过热，HP {0}"), Delta));
 	}
 	else if (CurrentTemp < ShieldCold)
 	{
-		ChangeHP(-(ShieldCold - CurrentTemp));
-		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("机体过冷，HP -{0}"), ShieldCold - CurrentTemp));
+		Delta = -(ShieldCold - CurrentTemp);
+		ChangeHP(Delta);
+		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("机体过冷，HP {0}"), Delta));
 	}
 
 	if (CurrentTemp > ShieldPress)
 	{
+		Delta = -(CurrentTemp - ShieldPress);
 		ChangeHP(-(CurrentTemp - ShieldPress));
-		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("压力过大，HP -{0}"), CurrentTemp - ShieldPress));
+		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("压力过大，HP {0}"), Delta));
 	}
 }
 
@@ -84,8 +88,9 @@ void UBodyComponent::OnComponentHitted(UPrimitiveComponent* HitComponent, AActor
 	const float HitSpeed = (HitComponent->GetComponentVelocity() - OtherActor->GetVelocity()).Size();
 	if (HitSpeed > 1000)
 	{
-		ChangeHP(-HitSpeed / 100);
-		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("受到打击，HP -{0}"), HitSpeed / 100));
+		int32 Delta = -HitSpeed / 100;
+		ChangeHP(Delta);
+		UMainFunctionLibrary::SendMessage(FText::Format(INVTEXT("受到打击，HP {0}"), Delta));
 	}
 }
 

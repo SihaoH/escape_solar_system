@@ -9,7 +9,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPausedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMenuOpenedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnteredSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, msg);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, Msg);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FExplorePointsSignature, FText, Msg);
 
 UCLASS()
 class ESCAPE_SOLAR_SYSTEM_API AMainLevelScriptActor : public ALevelScriptActor
@@ -20,7 +21,7 @@ public:
 	AMainLevelScriptActor(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintPure)
-	static AMainLevelScriptActor* GetInstance() { return s_Instance; }
+	static AMainLevelScriptActor* Instance() { return s_Instance; }
 
 	void SetMainChar(class AMainCharacter* Char);
 
@@ -45,6 +46,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMessagedSignature MessagedDelegate;
+	
+	UPROPERTY(BlueprintAssignable)
+	FExplorePointsSignature ExplorePointsDelegate;
 
 protected:
 	virtual void BeginPlay() override;

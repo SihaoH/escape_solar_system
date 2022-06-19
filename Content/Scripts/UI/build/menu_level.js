@@ -18,16 +18,16 @@ function info_row(k, v, u = "") {
     return { key: k, val: v, unit: u };
 }
 
-function level_btn(n, d, p) {
-    return { name: n, desc: d, props: p };
+function level_btn(p) {
+    return { name: helper.GetLevelName(p), desc: helper.GetLevelDesc(p), props: p };
 }
 
-function engine_btn(n, d, p, ship_engine) {
-    return _extends({}, level_btn(n, d, p), { shipEngine: ship_engine });
+function engine_btn(p, ship_engine) {
+    return _extends({}, level_btn(p), { shipEngine: ship_engine });
 }
 
-function energy_btn(n, d, p, ship_energy) {
-    return _extends({}, level_btn(n, d, p), { shipEnergy: ship_energy });
+function energy_btn(p, ship_energy) {
+    return _extends({}, level_btn(p), { shipEnergy: ship_energy });
 }
 
 class SplitLine extends React.Component {
@@ -41,7 +41,7 @@ class SplitLine extends React.Component {
             _extends({}, this.props, {
                 Slot: { Padding: Utils.ltrb(0, 5) }
             }),
-            React.createElement('text', {
+            React.createElement('uTextBlock', {
                 Font: {
                     FontObject: F_Sans,
                     TypefaceFontName: "Bold",
@@ -70,16 +70,14 @@ class LevelButton extends React.Component {
 
     render() {
         const { btnVal } = this.props;
-        const curLv = helper.GetCurVal(btnVal.props);
-        const maxLv = helper.GetMaxVal(btnVal.props);
-        const inBase = !!MainLevelScriptActor.GetEarthBase();
         let isEnabled = true;
+        const in_base = !!MainLevelScriptActor.GetEarthBase();
         if (btnVal.shipEngine !== undefined) {
             isEnabled = MainLevelScriptActor.GetSpaceship().EngineType <= btnVal.shipEngine;
         } else if (btnVal.shipEnergy !== undefined) {
             isEnabled = MainLevelScriptActor.GetSpaceship().EngineType === btnVal.shipEnergy;
         }
-        if (this.btn) this.btn.SetIsEnabled(isEnabled);
+        this.btn && this.btn.SetIsEnabled(isEnabled);
         return React.createElement(
             'uSizeBox',
             _extends({}, this.props, {
@@ -97,6 +95,9 @@ class LevelButton extends React.Component {
                             // 所以这里限制只在最开始赋值一次
                             this.btn.ToolTipWidgetDelegate = () => {
                                 helper.SelectLevel(btnVal.props);
+                                const cur_lv = helper.GetCurVal(btnVal.props);
+                                const max_lv = helper.GetMaxVal(btnVal.props);
+                                const in_base = !!MainLevelScriptActor.GetEarthBase();
                                 return ReactUMG.wrap(React.createElement(
                                     'uBorder',
                                     {
@@ -109,7 +110,7 @@ class LevelButton extends React.Component {
                                     React.createElement(
                                         'div',
                                         null,
-                                        React.createElement('text', {
+                                        React.createElement('uTextBlock', {
                                             Font: {
                                                 FontObject: F_Sans,
                                                 TypefaceFontName: "Bold",
@@ -120,7 +121,7 @@ class LevelButton extends React.Component {
                                             },
                                             Text: btnVal.name
                                         }),
-                                        React.createElement('text', {
+                                        React.createElement('uTextBlock', {
                                             Font: {
                                                 FontObject: F_Sans,
                                                 TypefaceFontName: "Bold",
@@ -129,14 +130,14 @@ class LevelButton extends React.Component {
                                             ColorAndOpacity: {
                                                 SpecifiedColor: Utils.color("#333")
                                             },
-                                            Text: `Lv.${curLv}`
+                                            Text: `Lv.${cur_lv}`
                                         }),
                                         React.createElement('uImage', {
                                             Slot: { Padding: Utils.ltrb(0, 5) },
                                             Brush: { ImageSize: { X: 32, Y: 2 } },
                                             ColorAndOpacity: Utils.rgba(0, 0, 0, 0.1)
                                         }),
-                                        React.createElement('text', {
+                                        React.createElement('uTextBlock', {
                                             Font: {
                                                 FontObject: F_Sans,
                                                 TypefaceFontName: "Bold",
@@ -149,7 +150,7 @@ class LevelButton extends React.Component {
                                             Text: btnVal.desc
                                         }),
                                         React.createElement(SplitLine, { Text: "当前" }),
-                                        React.createElement('text', {
+                                        React.createElement('uTextBlock', {
                                             Font: {
                                                 FontObject: F_Sans,
                                                 TypefaceFontName: "Bold",
@@ -161,11 +162,11 @@ class LevelButton extends React.Component {
                                             },
                                             Text: helper.CurLevelInfo
                                         }),
-                                        curLv < maxLv && React.createElement(
+                                        cur_lv < max_lv && React.createElement(
                                             'div',
                                             null,
                                             React.createElement(SplitLine, { Text: "下一级" }),
-                                            React.createElement('text', {
+                                            React.createElement('uTextBlock', {
                                                 Font: {
                                                     FontObject: F_Sans,
                                                     TypefaceFontName: "Bold",
@@ -178,7 +179,7 @@ class LevelButton extends React.Component {
                                                 Text: helper.NextLevelInfo
                                             }),
                                             React.createElement(SplitLine, { Text: "升级所需" }),
-                                            React.createElement('text', {
+                                            React.createElement('uTextBlock', {
                                                 Font: {
                                                     FontObject: F_Sans,
                                                     TypefaceFontName: "Bold",
@@ -204,7 +205,7 @@ class LevelButton extends React.Component {
                                                 Text: helper.DemandItems
                                             })
                                         ),
-                                        React.createElement('text', {
+                                        React.createElement('uTextBlock', {
                                             Slot: { Padding: Utils.ltrb(0, 5, 0, 0) },
                                             Font: {
                                                 FontObject: F_Sans,
@@ -212,9 +213,9 @@ class LevelButton extends React.Component {
                                             },
                                             WrapTextAt: 300,
                                             ColorAndOpacity: {
-                                                SpecifiedColor: Utils.color(inBase && helper.CanUpgrade ? "#5F5" : "#F55")
+                                                SpecifiedColor: Utils.color(in_base && helper.CanUpgrade ? "#5F5" : "#F55")
                                             },
-                                            Text: inBase ? helper.CanUpgrade ? "长按升级" : "无法升级" : "需在基地升级"
+                                            Text: in_base ? helper.CanUpgrade ? "长按升级" : "无法升级" : "需在基地升级"
                                         })
                                     )
                                 ));
@@ -242,11 +243,13 @@ class LevelButton extends React.Component {
                     },
                     IsFocusable: false,
                     OnPressed: () => {
-                        if (!inBase || !helper.CanUpgrade) return;
+                        if (!in_base || !helper.CanUpgrade) return;
 
                         upgradeAnime = AD();
                         this.btn.SetVisibility(ESlateVisibility.HitTestInvisible);
-                        let completed = () => {
+                        upgradeAnime.apply(this.uBtnBg, { duration: 0.5 }, { RenderTranslation: t => {
+                                return { X: 0, Y: (1 - t) * 80 };
+                            } }).then(_ => {
                             if (upgradeAnime) {
                                 helper.UpgradeLevel(btnVal.props);
                                 this.uBtnBg.SetRenderTranslation({ X: 0, Y: 80 });
@@ -255,10 +258,7 @@ class LevelButton extends React.Component {
 
                                 this.props.parent.forceUpdate();
                             }
-                        };
-                        upgradeAnime.apply(this.uBtnBg, { duration: 0.5, completed: completed }, { RenderTranslation: t => {
-                                return { X: 0, Y: (1 - t) * 80 };
-                            } });
+                        });
                     },
                     OnReleased: () => {
                         if (upgradeAnime) {
@@ -454,29 +454,29 @@ class MenuLevel extends React.Component {
         helper = new MenuLevelHelper();
         this.charLevel = [{
             tag: "机身",
-            btn: [level_btn("机身强度", "机身强度可以提升血量，但同时也会增加机体的质量", [ELevel.CharHP, ELevel.CharMass]), level_btn("装载", "升级可以提升背包的载重，注意：背包的物品会叠加到总体质量上", [ELevel.CharBackpack])]
+            btn: [level_btn([ELevel.CharHP, ELevel.CharMass]), level_btn([ELevel.CharBackpack])]
         }, {
             tag: "护盾",
-            btn: [level_btn("冷防护", "冷防护", [ELevel.CharShieldCold]), level_btn("热防护", "热防护", [ELevel.CharShieldHeat]), level_btn("压力防护", "压力防护", [ELevel.CharShieldPress])]
+            btn: [level_btn([ELevel.CharShieldCold]), level_btn([ELevel.CharShieldHeat]), level_btn([ELevel.CharShieldPress])]
         }, {
             tag: "引擎",
-            btn: [level_btn("普通引擎", "采用常规化学燃料推进的引擎", [ELevel.CharEnginePower, ELevel.CharEngineMass, ELevel.CharEngineEPR, ELevel.CharEngineEMR])]
+            btn: [level_btn([ELevel.CharEnginePower, ELevel.CharEngineMass, ELevel.CharEngineEPR, ELevel.CharEngineEMR])]
         }, {
             tag: "燃料仓",
-            btn: [level_btn("化学燃料仓", "就是化学燃料仓", [ELevel.CharEnergy])]
+            btn: [level_btn([ELevel.CharEnergy])]
         }];
         this.shipLevel = [{
             tag: "机身",
-            btn: [level_btn("机身强度", "机身强度可以提升血量，但同时也会增加机体的质量", [ELevel.ShipHP, ELevel.ShipMass]), level_btn("装载", "升级可以提升背包的载重，注意：背包的物品会叠加到总体质量上", [ELevel.ShipBackpack])]
+            btn: [level_btn([ELevel.ShipHP, ELevel.ShipMass]), level_btn([ELevel.ShipBackpack])]
         }, {
             tag: "护盾",
-            btn: [level_btn("冷防护", "冷防护", [ELevel.ShipShieldCold]), level_btn("热防护", "热防护", [ELevel.ShipShieldHeat]), level_btn("压力防护", "压力防护", [ELevel.ShipShieldPress])]
+            btn: [level_btn([ELevel.ShipShieldCold]), level_btn([ELevel.ShipShieldHeat]), level_btn([ELevel.ShipShieldPress])]
         }, {
             tag: "引擎",
-            btn: [engine_btn("化学引擎", "化学引擎", [ELevel.ShipEngine0Power, ELevel.ShipEngine0Mass, ELevel.ShipEngine0EPR, ELevel.ShipEngine0EMR], 0), engine_btn("核裂变引擎", "采用核裂变产生的能量作为推力，是较为成熟的核动力引擎方案", [ELevel.ShipEngine1Power, ELevel.ShipEngine1Mass, ELevel.ShipEngine1EPR, ELevel.ShipEngine1EMR], 1), engine_btn("核聚变引擎", "内置了小型化的托卡马克设备，使用可控核聚变作为动力，少量的聚变燃料即可转换为极大的动能", [ELevel.ShipEngine2Power, ELevel.ShipEngine2Mass, ELevel.ShipEngine2EPR, ELevel.ShipEngine2EMR], 2)]
+            btn: [engine_btn([ELevel.ShipEngine0Power, ELevel.ShipEngine0Mass, ELevel.ShipEngine0EPR, ELevel.ShipEngine0EMR], 0), engine_btn([ELevel.ShipEngine1Power, ELevel.ShipEngine1Mass, ELevel.ShipEngine1EPR, ELevel.ShipEngine1EMR], 1), engine_btn([ELevel.ShipEngine2Power, ELevel.ShipEngine2Mass, ELevel.ShipEngine2EPR, ELevel.ShipEngine2EMR], 2)]
         }, {
             tag: "燃料仓",
-            btn: [energy_btn("化学燃料仓", "化学燃料", [ELevel.ShipEnergy0], 0), energy_btn("核裂变燃料仓", "高纯度铀", [ELevel.ShipEnergy1], 1), energy_btn("核聚变燃料仓", "氦-3", [ELevel.ShipEnergy2], 2)]
+            btn: [energy_btn([ELevel.ShipEnergy0], 0), energy_btn([ELevel.ShipEnergy1], 1), energy_btn([ELevel.ShipEnergy2], 2)]
         }];
         this.state = {
             charInfo: [],
@@ -498,11 +498,11 @@ class MenuLevel extends React.Component {
         const char = MainLevelScriptActor.GetMainChar();
         const ship = MainLevelScriptActor.GetSpaceship();
         this.setState({
-            charInfo: [info_row("HP", `${char.Body.CurrentHP}/${char.Body.MaximumHP}`), info_row("质量", char.GetMass(), "kg"), [info_row("躯体", char.Body.Mass, "kg"), info_row("背包", char.Backpack.Mass, "kg"), info_row("引擎", char.Engine.Mass, "kg"), info_row("燃料", char.Engine.GetEnergyMass(), "kg")], info_row("引擎类型", "化学动力"), info_row("引擎推力", char.Engine.Power, "N"), info_row("燃料能量", `${char.Engine.CurrentEnergy}/${char.Engine.MaximumEnergy}`), info_row("耐冷", char.Body.ShieldCold, "℃"), info_row("耐热", char.Body.ShieldHeat, "℃"), info_row("耐压", char.Body.ShieldPress, "kPa")]
+            charInfo: [info_row("HP", `${Utils.num2Txt(char.Body.CurrentHP)}/${char.Body.MaximumHP}`), info_row("质量", char.GetMass(), "kg"), [info_row("躯体", char.Body.Mass, "kg"), info_row("背包", char.Backpack.Mass, "kg"), info_row("引擎", char.Engine.Mass, "kg"), info_row("燃料", char.Engine.GetEnergyMass(), "kg")], info_row("引擎类型", "化学动力"), info_row("引擎推力", char.Engine.Power, "N"), info_row("燃料能量", `${Utils.num2Txt(char.Engine.CurrentEnergy)}/${char.Engine.MaximumEnergy}`), info_row("耐冷", char.Body.ShieldCold, "℃"), info_row("耐热", char.Body.ShieldHeat, "℃"), info_row("耐压", char.Body.ShieldPress, "kPa")]
         });
         if (ship) {
             this.setState({
-                shipInfo: [info_row("HP", `${ship.Body.CurrentHP}/${ship.Body.MaximumHP}`), info_row("质量", ship.GetMass(), "kg"), [info_row("躯体", ship.Body.Mass, "kg"), info_row("背包", ship.Backpack.Mass, "kg"), info_row("引擎", ship.Engine.Mass, "kg"), info_row("燃料", ship.Engine.GetEnergyMass(), "kg")], info_row("引擎类型", ["化学动力", "核裂变动力", "核聚变动力"][ship.EngineType]), info_row("引擎推力", ship.Engine.Power, "N"), info_row("燃料能量", `${ship.Engine.CurrentEnergy}/${ship.Engine.MaximumEnergy}`), info_row("耐冷", ship.Body.ShieldCold, "℃"), info_row("耐热", ship.Body.ShieldHeat, "℃"), info_row("耐压", ship.Body.ShieldPress, "kPa")]
+                shipInfo: [info_row("HP", `${Utils.num2Txt(ship.Body.CurrentHP)}/${ship.Body.MaximumHP}`), info_row("质量", ship.GetMass(), "kg"), [info_row("躯体", ship.Body.Mass, "kg"), info_row("背包", ship.Backpack.Mass, "kg"), info_row("引擎", ship.Engine.Mass, "kg"), info_row("燃料", ship.Engine.GetEnergyMass(), "kg")], info_row("引擎类型", ["化学动力", "核裂变动力", "核聚变动力"][ship.EngineType]), info_row("引擎推力", ship.Engine.Power, "N"), info_row("燃料能量", `${ship.Engine.CurrentEnergy}/${ship.Engine.MaximumEnergy}`), info_row("耐冷", ship.Body.ShieldCold, "℃"), info_row("耐热", ship.Body.ShieldHeat, "℃"), info_row("耐压", ship.Body.ShieldPress, "kPa")]
             });
         }
     }

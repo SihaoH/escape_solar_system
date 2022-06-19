@@ -16,23 +16,21 @@ class ESCAPE_SOLAR_SYSTEM_API UMenuLevelHelper : public UObject
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable)
+	void SelectLevel(const TArray<ELevel>& Props);
 
 	UFUNCTION(BlueprintCallable)
-	void GetRestorationHP(TArray<UItemDataObject*>& OutItems);
-	UFUNCTION(BlueprintCallable)
-	void GetRestorationMP(TArray<UItemDataObject*>& OutItems);
+	void UpgradeLevel(const TArray<ELevel>& Props);
 
-	UFUNCTION(BlueprintCallable)
-	void SelectLevel(const TArray<ELevel>& Prop);
+	UFUNCTION(BlueprintPure)
+	FText GetLevelName(const TArray<ELevel>& Props);
+	UFUNCTION(BlueprintPure)
+	FText GetLevelDesc(const TArray<ELevel>& Props);
+	UFUNCTION(BlueprintPure)
+	int32 GetMaxVal(const TArray<ELevel>& Props);
+	UFUNCTION(BlueprintPure)
+	int32 GetCurVal(const TArray<ELevel>& Props);
 
-	UFUNCTION(BlueprintCallable)
-	void UpgradeLevel(const TArray<ELevel>& Prop);
-
-	UFUNCTION(BlueprintCallable)
-	int32 GetMaxVal(const TArray<ELevel>& Prop);
-
-	UFUNCTION(BlueprintCallable)
-	int32 GetCurVal(const TArray<ELevel>& Prop);
 
 	UFUNCTION(BlueprintCallable, meta = (DevelopmentOnly))
 	void Debug();

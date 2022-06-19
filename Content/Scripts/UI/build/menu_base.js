@@ -391,7 +391,9 @@ class Menu extends React.Component {
                                 IsFocusable: false,
                                 OnPressed: () => {
                                     this.makedAnime = AD();
-                                    let completed = () => {
+                                    this.makedAnime.apply(this.uBtnBg, { duration: 0.5 }, { RenderScale: t => {
+                                            return { X: t, Y: 1.0 };
+                                        } }).then(_ => {
                                         if (this.makedAnime) {
                                             const cur = this.uCountBox.GetValue();
                                             this.helper.MakeItem(sel_item, cur);
@@ -399,10 +401,7 @@ class Menu extends React.Component {
                                             this.uBtnBg.SetRenderScale({ X: 0, Y: 1.0 });
                                             this.setState({ makeCount: 1 });
                                         }
-                                    };
-                                    this.makedAnime.apply(this.uBtnBg, { duration: 0.5, completed: completed }, { RenderScale: t => {
-                                            return { X: t, Y: 1.0 };
-                                        } });
+                                    });
                                 },
                                 OnReleased: () => {
                                     this.makedAnime.destroy();

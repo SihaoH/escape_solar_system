@@ -1,9 +1,10 @@
 const _ = require('lodash')
-const uclass = require('uclass')()
+const UClass = require('uclass')()
 const React = require('react')
 const ReactUMG = require('react-umg')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
+const {F_Sans} = require('../style')
 
 const Helper = new PlayingHelper()
 const PointBar = require('./point_bar')
@@ -20,10 +21,10 @@ class PlayingView extends React.Component {
         }
 
         this.interval = setInterval(() => this.tick(), 200)
-        MainLevelScriptActor.GetInstance().MessagedDelegate.Add((msg) => {
+        MainLevelScriptActor.Instance().MessagedDelegate.Add((msg) => {
             this.msgListView.AppendMsg(msg)
         })
-        MainLevelScriptActor.GetInstance().EnteredDelegate.Add(() => {
+        MainLevelScriptActor.Instance().EnteredDelegate.Add(() => {
             this.msgListView.toggleReview()
         })
     }
@@ -66,7 +67,7 @@ class PlayingView extends React.Component {
                 <div Slot={{ Position: {X: 50, Y: 300} }}>
                     {_.map(this.state.debugInfo, str => (
                         <text
-                            Font={ {FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'), Size: 14} }
+                            Font={ {FontObject: F_Sans, Size: 14} }
                             Text={str}
                         />
                     ))}

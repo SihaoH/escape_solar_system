@@ -151,7 +151,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	AMainLevelScriptActor::GetInstance()->SetMainChar(this);
+	AMainLevelScriptActor::Instance()->SetMainChar(this);
 
 	ResetProperties();
 	Body->ChangeHP(Body->GetMaximumHP() * 0.5);

@@ -26,11 +26,14 @@ UMainFunctionLibrary::UMainFunctionLibrary()
 
 void UMainFunctionLibrary::SendMessage(FText msg)
 {
-	if (AMainLevelScriptActor::GetInstance())
+	if (AMainLevelScriptActor::Instance())
 	{
-		AMainLevelScriptActor::GetInstance()->MessagedDelegate.Broadcast(msg);
+		AMainLevelScriptActor::Instance()->MessagedDelegate.Broadcast(msg);
 	}
 	// 其他Level的委派广播（如有）
+
+	// DEBUG
+	AMainLevelScriptActor::Instance()->ExplorePointsDelegate.Broadcast(msg);
 }
 
 FItemData& UMainFunctionLibrary::GetItemData(const FName& RowName)
