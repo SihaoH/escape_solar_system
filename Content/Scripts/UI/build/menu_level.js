@@ -508,7 +508,9 @@ class MenuLevel extends React.Component {
     }
 
     render() {
-        const hasShip = !!MainLevelScriptActor.GetSpaceship();
+        const char = MainLevelScriptActor.GetMainChar();
+        const base = MainLevelScriptActor.GetEarthBase();
+        const has_ship = base && base.FindSpaceship() || char.FindSpaceship();
         return React.createElement(
             'uCanvasPanel',
             null,
@@ -534,11 +536,11 @@ class MenuLevel extends React.Component {
                     },
                     levelList: this.charLevel
                 }),
-                hasShip && React.createElement(InfoCard, {
+                has_ship && React.createElement(InfoCard, {
                     title: "飞船",
                     info: this.state.shipInfo
                 }),
-                hasShip && React.createElement(LevelView, {
+                has_ship && React.createElement(LevelView, {
                     Slot: {
                         Padding: Utils.ltrb(20, 70, 0, 0)
                     },

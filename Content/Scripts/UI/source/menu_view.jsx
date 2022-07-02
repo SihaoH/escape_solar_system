@@ -55,6 +55,10 @@ class MenuView extends React.Component {
         }
         MainPlayerState.Instance().ExplorePointsChangedDelegate.Add(this.updatePoints)
 
+        let list = ["存储", "科技", "情报"]
+        this.inBase = !!MainLevelScriptActor.GetEarthBase()
+        this.menuList = this.inBase ? ["基地", ...list] : list
+
         Utils.setInputMode(true)
     }
 
@@ -88,7 +92,7 @@ class MenuView extends React.Component {
                         }
                     }}
                 >
-                    {_.map(["基地", "存储", "科技", "情报"], (v, i) => (
+                    {_.map(this.menuList, (v, i) => (
                         <TabButton
                             checked={this.state.currentIndex === i}
                             text={v}
@@ -139,7 +143,7 @@ class MenuView extends React.Component {
                     }}
                     ActiveWidgetIndex={this.state.currentIndex}
                 >
-                    <MenuBase />
+                    {this.inBase && <MenuBase />}
                     <MenuBackpack />
                     <MenuLevel />
                     <MenuInfo />

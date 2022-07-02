@@ -54,6 +54,9 @@ class MenuView extends React.Component {
         };
         MainPlayerState.Instance().ExplorePointsChangedDelegate.Add(this.updatePoints);
 
+        let list = ["存储", "科技", "情报"];
+        this.menuList = MainLevelScriptActor.GetEarthBase() ? ["基地", ...list] : list;
+
         Utils.setInputMode(true);
     }
 
@@ -94,7 +97,7 @@ class MenuView extends React.Component {
                             }
                         }
                     },
-                    _.map(["基地", "存储", "科技", "情报"], (v, i) => React.createElement(TabButton, {
+                    _.map(this.menuList, (v, i) => React.createElement(TabButton, {
                         checked: this.state.currentIndex === i,
                         text: v,
                         onClicked: () => {
@@ -147,7 +150,7 @@ class MenuView extends React.Component {
                         },
                         ActiveWidgetIndex: this.state.currentIndex
                     },
-                    React.createElement(MenuBase, null),
+                    MainLevelScriptActor.GetEarthBase() && React.createElement(MenuBase, null),
                     React.createElement(MenuBackpack, null),
                     React.createElement(MenuLevel, null),
                     React.createElement(MenuInfo, null)

@@ -15,6 +15,8 @@ class ESCAPE_SOLAR_SYSTEM_API UMenuBaseHelper : public UObject
 
 public:
 	UFUNCTION(BlueprintPure)
+	float GetShipDistance() const;
+	UFUNCTION(BlueprintPure)
 	void GetMakeableList(TArray<class UItemDataObject*>& OutItems) const;
 	UFUNCTION(BlueprintPure)
 	int32 GetMaxMakeableCount(const FName& RowName) const;

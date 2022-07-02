@@ -24,6 +24,7 @@ public:
 	static AMainLevelScriptActor* Instance() { return s_Instance; }
 
 	void SetMainChar(class AMainCharacter* Char);
+	void SetSpaceship(class ASpaceship* Ship);
 
 	UFUNCTION(BlueprintPure)
 	static class AMainCharacter* GetMainChar();
@@ -64,4 +65,5 @@ private:
 	static AMainLevelScriptActor* s_Instance;
 	class APlayerController* MainController = nullptr;
 	class AMainCharacter* MainChar = nullptr;
+	class ASpaceship* Spaceship = nullptr;
 };

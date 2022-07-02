@@ -262,11 +262,11 @@ int32 UMenuLevelHelper::GetCurVal(const TArray<ELevel>& Props)
 void UMenuLevelHelper::Debug()
 {
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
+	auto Char = AMainLevelScriptActor::GetMainChar();
 	Char->Body->ChangeHP(Char->Body->GetMaximumHP());
 	Char->Engine->ChangeEnergy(Char->Engine->GetMaximumEnergy());
 
-	ASpaceship* Ship = Char->FindSpaceship();
+	auto Ship = AMainLevelScriptActor::GetSpaceship();
 	if (Ship)
 	{
 		Ship->Body->ChangeHP(Ship->Body->GetMaximumHP());
@@ -277,8 +277,8 @@ void UMenuLevelHelper::Debug()
 
 int* UMenuLevelHelper::GetTarget(ELevel Level)
 {
-	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
-	ASpaceship* Ship = Char->FindSpaceship();
+	auto Char = AMainLevelScriptActor::GetMainChar();
+	auto Ship = AMainLevelScriptActor::GetSpaceship();
 
 	int* ValPtr = nullptr;
 	switch (Level)

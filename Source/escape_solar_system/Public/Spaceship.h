@@ -24,6 +24,9 @@ public:
 
 	FORCEINLINE class AMainCharacter* GetPilot() const { return CurrentPilot; }
 
+	UFUNCTION(BlueprintCallable)
+	void Destroy();
+
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMass() const { return ShipMesh->GetMass(); }
 

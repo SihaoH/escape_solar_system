@@ -1,6 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "EarthBaseActor.h"
+#include "MainLevelScriptActor.h"
 #include "BackpackComponent.h"
 #include "Spaceship.h"
 #include <Components/StaticMeshComponent.h>
@@ -15,6 +16,15 @@ AEarthBase::AEarthBase()
 	RootComponent = StaticMesh;
 	ScopeTigger->SetupAttachment(GetRootComponent());
 	ScopeTigger->SetSphereRadius(1000.f);
+
+	// FClassFinder只能在构造函数中调用
+	BP_SpaceshipClass = ConstructorHelpers::FClassFinder<ASpaceship>(TEXT("Blueprint'/Game/MainBP/Blueprints/BP_Spaceship.BP_Spaceship_C'")).Class;
+}
+
+void AEarthBase::CreateSpaceship()
+{
+	check(!AMainLevelScriptActor::GetSpaceship());
+	GetWorld()->SpawnActor<ASpaceship>(BP_SpaceshipClass, GetActorLocation(), GetActorRotation());
 }
 
 ASpaceship* AEarthBase::FindSpaceship() const

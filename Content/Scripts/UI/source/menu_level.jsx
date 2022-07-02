@@ -570,7 +570,9 @@ class MenuLevel extends React.Component {
     }
 
     render() {
-        const hasShip = !!MainLevelScriptActor.GetSpaceship()
+        const char = MainLevelScriptActor.GetMainChar()
+        const base = MainLevelScriptActor.GetEarthBase()
+        const has_ship = (base && base.FindSpaceship()) || char.FindSpaceship()
         return (
             <uCanvasPanel>
                 <span
@@ -594,12 +596,12 @@ class MenuLevel extends React.Component {
                         levelList={this.charLevel}
                     />
 
-                    {hasShip &&  
+                    {has_ship &&  
                     <InfoCard
                         title={"飞船"}
                         info={this.state.shipInfo}
                     />}
-                    {hasShip &&
+                    {has_ship &&
                     <LevelView
                         Slot={{
                             Padding: Utils.ltrb(20, 70, 0, 0)

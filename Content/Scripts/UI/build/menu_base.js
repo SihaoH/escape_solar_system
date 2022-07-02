@@ -10,7 +10,7 @@ const Utils = require('../utils');
 const EAnchors = require('../anchors');
 const TaggedCard = require('tagged_card');
 const ItemToolTip = require('item_tooltip');
-const { SpinBoxProps } = require('../style');
+const { F_Sans, ButtonStyle, SpinBoxProps } = require('../style');
 
 let event = null;
 
@@ -34,8 +34,12 @@ ReactUMG.Register("uMakeableEntry", UClass(global, MakeableEntry));
 class Menu extends React.Component {
     constructor(props) {
         super(props);
+
+        this.helper = new MenuBaseHelper();
+
         this.state = {
             status: this.getStatus(),
+            shipDist: this.helper.GetShipDistance(),
             hoveredIndex: -1,
             selectedIndex: -1,
             makeCount: 1
@@ -50,7 +54,7 @@ class Menu extends React.Component {
                 this.uCountBox.SetValue(1);
             }
         };
-        this.helper = new MenuBaseHelper();
+
         this.earthBase = MainLevelScriptActor.GetEarthBase();
         if (this.earthBase) {
             this.earthBase.Backpack.ChangedDelegate.Add(() => {
@@ -60,10 +64,13 @@ class Menu extends React.Component {
         }
 
         setInterval(() => {
+            if (this.makedAnime || this.destroyAnime) return;
+
             let status = this.getStatus();
             if (JSON.stringify(this.state.status) !== JSON.stringify(status)) {
                 this.setState({ status: status });
             }
+            this.setState({ shipDist: this.helper.GetShipDistance() });
         }, 500);
     }
 
@@ -136,7 +143,7 @@ class Menu extends React.Component {
                             HorizontalAlignment: EHorizontalAlignment.HAlign_Left
                         },
                         Font: {
-                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                            FontObject: F_Sans,
                             Size: 16
                         },
                         Text: k
@@ -147,7 +154,7 @@ class Menu extends React.Component {
                             Size: { SizeRule: ESlateSizeRule.Fill }
                         },
                         Font: {
-                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                            FontObject: F_Sans,
                             Size: 16
                         },
                         Text: v
@@ -156,7 +163,130 @@ class Menu extends React.Component {
                     Slot: { Padding: Utils.ltrb(0, 5) },
                     Brush: { ImageSize: { X: 32, Y: 2 } },
                     ColorAndOpacity: Utils.rgba(1, 1, 1, 0.5)
-                })])
+                })]),
+                this.state.shipDist !== -1 && React.createElement(
+                    'span',
+                    null,
+                    React.createElement('uTextBlock', {
+                        Slot: {
+                            Padding: Utils.ltrb(0, 0, 10, 0),
+                            VerticalAlignment: EVerticalAlignment.VAlign_Center
+                        },
+                        Font: {
+                            FontObject: F_Sans,
+                            Size: 16
+                        },
+                        Text: "飞船"
+                    }),
+                    this.state.shipDist > 10 && React.createElement(
+                        'uSizeBox',
+                        {
+                            WidthOverride: 160,
+                            HeightOverride: 50
+                        },
+                        React.createElement(
+                            'uButton',
+                            {
+                                WidgetStyle: {
+                                    Normal: {
+                                        DrawAs: ESlateBrushDrawType.Image,
+                                        TintColor: { SpecifiedColor: Utils.color("#FFF") }
+                                    },
+                                    Hovered: {
+                                        DrawAs: ESlateBrushDrawType.Image,
+                                        TintColor: { SpecifiedColor: Utils.color("#EEE") }
+                                    },
+                                    Pressed: {
+                                        DrawAs: ESlateBrushDrawType.Image,
+                                        TintColor: { SpecifiedColor: Utils.color("#CCC") }
+                                    },
+                                    NormalForeground: { SpecifiedColor: Utils.color("#333") },
+                                    HoveredForeground: { SpecifiedColor: Utils.color("#F55") },
+                                    PressedForeground: { SpecifiedColor: Utils.color("#333") },
+                                    NormalPadding: Utils.ltrb(0),
+                                    PressedPadding: Utils.ltrb(0)
+                                },
+                                IsFocusable: false,
+                                OnPressed: () => {
+                                    this.destroyAnime = AD();
+                                    this.destroyAnime.apply(this.uBtnBg, { duration: 2 }, { RenderTranslation: t => {
+                                            return { X: (t - 1) * 160, Y: 0 };
+                                        } }).then(() => {
+                                        if (this.destroyAnime) {
+                                            this.uBtnBg.SetRenderTranslation({ X: -160, Y: 0 });
+                                            this.destroyAnime = null;
+
+                                            MainLevelScriptActor.GetSpaceship().Destroy();
+                                            this.setState({ shipDist: this.helper.GetShipDistance() });
+                                        }
+                                    });
+                                },
+                                OnReleased: () => {
+                                    if (this.destroyAnime) {
+                                        this.destroyAnime.destroy();
+                                        this.destroyAnime = null;
+                                    }
+                                    this.uBtnBg.SetRenderTranslation({ X: -160, Y: 0 });
+                                }
+                            },
+                            React.createElement(
+                                'uCanvasPanel',
+                                {
+                                    Slot: {
+                                        Padding: Utils.ltrb(0),
+                                        HorizontalAlignment: EHorizontalAlignment.HAlign_Fill,
+                                        VerticalAlignment: EVerticalAlignment.VAlign_Fill
+                                    },
+                                    Clipping: EWidgetClipping.ClipToBounds
+                                },
+                                React.createElement('uImage', {
+                                    ref: elem => {
+                                        if (elem) {
+                                            this.uBtnBg = elem.ueobj;
+                                        }
+                                    },
+                                    Slot: {
+                                        LayoutData: {
+                                            Anchors: EAnchors.FillAll,
+                                            Offsets: Utils.ltrb(0)
+                                        }
+                                    },
+                                    ColorAndOpacity: Utils.color("#F55"),
+                                    RenderTransform: { Translation: { X: -160, Y: 0 } }
+                                }),
+                                React.createElement('uTextBlock', {
+                                    Slot: {
+                                        LayoutData: {
+                                            Anchors: EAnchors.Center,
+                                            Alignment: { X: 0.5, Y: 0.5 }
+                                        },
+                                        bAutoSize: true
+                                    },
+                                    Font: {
+                                        FontObject: F_Sans,
+                                        TypefaceFontName: "Bold",
+                                        Size: 16
+                                    },
+                                    ColorAndOpacity: {
+                                        ColorUseRule: ESlateColorStylingMode.UseColor_Foreground
+                                    },
+                                    Text: "自毁指令"
+                                })
+                            )
+                        )
+                    ),
+                    React.createElement('uSpacer', { Slot: { Size: { SizeRule: ESlateSizeRule.Fill } } }),
+                    React.createElement('uTextBlock', {
+                        Slot: {
+                            VerticalAlignment: EVerticalAlignment.VAlign_Center
+                        },
+                        Font: {
+                            FontObject: F_Sans,
+                            Size: 16
+                        },
+                        Text: `${Utils.num2Txt(this.state.shipDist)}m`
+                    })
+                )
             ),
             React.createElement(
                 'uBorder',
@@ -191,7 +321,7 @@ class Menu extends React.Component {
                                 VerticalAlignment: EVerticalAlignment.VAlign_Center
                             },
                             Font: {
-                                FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                FontObject: F_Sans,
                                 TypefaceFontName: "Bold",
                                 Size: 18
                             },
@@ -215,7 +345,7 @@ class Menu extends React.Component {
                                 VerticalAlignment: EVerticalAlignment.VAlign_Center
                             },
                             Font: {
-                                FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                FontObject: F_Sans,
                                 Size: 18
                             },
                             ColorAndOpacity: { SpecifiedColor: Utils.color("#CCF") },
@@ -256,7 +386,7 @@ class Menu extends React.Component {
                         },
                         React.createElement('text', {
                             Font: {
-                                FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                FontObject: F_Sans,
                                 TypefaceFontName: "Bold",
                                 Size: 14
                             },
@@ -301,7 +431,7 @@ class Menu extends React.Component {
                                     VerticalAlignment: EVerticalAlignment.VAlign_Center
                                 },
                                 Font: {
-                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    FontObject: F_Sans,
                                     Size: 16
                                 },
                                 ColorAndOpacity: {
@@ -331,7 +461,7 @@ class Menu extends React.Component {
                                         VerticalAlignment: EVerticalAlignment.VAlign_Center
                                     },
                                     Font: {
-                                        FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                        FontObject: F_Sans,
                                         Size: 16
                                     },
                                     ColorAndOpacity: { SpecifiedColor: hold_count >= need_count ? Utils.color("#5F5") : Utils.color("#F55") },
@@ -345,7 +475,7 @@ class Menu extends React.Component {
                                     VerticalAlignment: EVerticalAlignment.VAlign_Center
                                 },
                                 Font: {
-                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    FontObject: F_Sans,
                                     Size: 16
                                 },
                                 ColorAndOpacity: {
@@ -441,7 +571,7 @@ class Menu extends React.Component {
                                         bAutoSize: true
                                     },
                                     Font: {
-                                        FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                        FontObject: F_Sans,
                                         TypefaceFontName: "Bold",
                                         Size: 18
                                     },
@@ -463,7 +593,7 @@ class Menu extends React.Component {
                     },
                     React.createElement('text', {
                         Font: {
-                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                            FontObject: F_Sans,
                             Size: 18
                         },
                         Text: this.earthBase ? "已连接基地" : "未连接基地"
@@ -563,7 +693,7 @@ class Menu extends React.Component {
                                                     Padding: Utils.ltrb(20, 0)
                                                 },
                                                 Font: {
-                                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                                    FontObject: F_Sans,
                                                     TypefaceFontName: "Bold",
                                                     Size: 14
                                                 },

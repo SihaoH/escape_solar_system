@@ -2,7 +2,7 @@ const React = require('react')
 const AD = require('animation-driver')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
-const {ButtonStyle} = require('../style')
+const {F_Sans, ButtonStyle} = require('../style')
 
 const textureRect = Texture2D.Load('/Game/UI/Icon/T_Rectangle64x64')
 
@@ -52,7 +52,7 @@ class TabButton extends React.Component {
                     >
                         <uTextBlock
                             Font={{
-                                FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                FontObject: F_Sans,
                                 TypefaceFontName: "Bold",
                                 LetterSpacing: 200,
                                 Size: 22,

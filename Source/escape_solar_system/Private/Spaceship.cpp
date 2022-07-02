@@ -89,6 +89,12 @@ void ASpaceship::ResetProperties()
 	}
 }
 
+void ASpaceship::Destroy()
+{
+	Super::Destroy();
+	AMainLevelScriptActor::Instance()->SetSpaceship(nullptr);
+}
+
 float ASpaceship::GetGravityAccel() const
 {
 	return GravityAccel;
@@ -114,6 +120,7 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
+	AMainLevelScriptActor::Instance()->SetSpaceship(this);
 
 	ResetProperties();
 }

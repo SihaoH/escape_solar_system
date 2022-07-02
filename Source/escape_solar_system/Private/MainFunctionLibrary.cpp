@@ -24,16 +24,13 @@ UMainFunctionLibrary::UMainFunctionLibrary()
 	check(DT_LevelValue);
 }
 
-void UMainFunctionLibrary::SendMessage(FText msg)
+void UMainFunctionLibrary::SendMessage(FText Msg)
 {
 	if (AMainLevelScriptActor::Instance())
 	{
-		AMainLevelScriptActor::Instance()->MessagedDelegate.Broadcast(msg);
+		AMainLevelScriptActor::Instance()->MessagedDelegate.Broadcast(Msg);
 	}
 	// 其他Level的委派广播（如有）
-
-	// DEBUG
-	AMainLevelScriptActor::Instance()->ExplorePointsDelegate.Broadcast(msg);
 }
 
 FItemData& UMainFunctionLibrary::GetItemData(const FName& RowName)

@@ -23,6 +23,16 @@ void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
 	MainChar = Char;
 }
 
+void AMainLevelScriptActor::SetSpaceship(ASpaceship* Ship)
+{
+	if (Ship != nullptr && Spaceship != nullptr)
+	{
+		// 只能存在一架飞船
+		check(false);
+	}
+	Spaceship = Ship;
+}
+
 AMainCharacter* AMainLevelScriptActor::GetMainChar()
 {
 	return s_Instance->MainChar;
@@ -30,8 +40,7 @@ AMainCharacter* AMainLevelScriptActor::GetMainChar()
 
 ASpaceship* AMainLevelScriptActor::GetSpaceship()
 {
-	check(s_Instance->MainChar);
-	return s_Instance->MainChar->FindSpaceship();
+	return s_Instance->Spaceship;
 }
 
 AEarthBase* AMainLevelScriptActor::GetEarthBase()

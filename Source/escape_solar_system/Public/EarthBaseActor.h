@@ -17,6 +17,9 @@ class ESCAPE_SOLAR_SYSTEM_API AEarthBase : public AActor
 public:
 	AEarthBase();
 
+	void CreateSpaceship();
+
+	UFUNCTION(BlueprintPure)
 	class ASpaceship* FindSpaceship() const;
 
 public:
@@ -27,11 +30,11 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	TSubclassOf<ASpaceship> BP_SpaceshipClass;
+
 	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* StaticMesh = nullptr;
 
 	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* ScopeTigger = nullptr;
-
-
 };

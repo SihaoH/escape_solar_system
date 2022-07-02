@@ -34,7 +34,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	static void SendMessage(FText msg);
+	static void SendMessage(FText Msg);
 
 	UFUNCTION(BlueprintCallable)
 	static FItemData& GetItemData(const FName& RowName);

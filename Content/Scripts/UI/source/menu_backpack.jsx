@@ -20,13 +20,14 @@ const ETitle = {
 let MenuDisplay = null
 
 const BpGetter = title => {
+    const base = MainLevelScriptActor.GetEarthBase()
     switch (title) {
     case ETitle.Char:
         return MainLevelScriptActor.GetMainChar().Backpack
     case ETitle.Base:
-        return MainLevelScriptActor.GetEarthBase() && MainLevelScriptActor.GetEarthBase().Backpack
+        return base && base.Backpack
     case ETitle.Ship:
-        return MainLevelScriptActor.GetSpaceship() && MainLevelScriptActor.GetSpaceship().Backpack
+        return base && base.FindSpaceship() && base.FindSpaceship().Backpack
     }
 }
 
@@ -345,7 +346,7 @@ class Menu extends React.Component {
         this.shipBp = BpGetter(ETitle.Ship)
 
         this.char = MainLevelScriptActor.GetMainChar()
-        this.ship = MainLevelScriptActor.GetSpaceship()
+        this.ship = MainLevelScriptActor.GetEarthBase() && MainLevelScriptActor.GetEarthBase().FindSpaceship()
         this.char.Body.HpChangedDelegate = Delta => this.setState({ charHP: {cur: this.char.Body.CurrentHP, max: this.char.Body.MaximumHP} })
         this.char.Engine.EnergyChangedDelegate = Delta => this.setState({ charHP: {cur: this.char.Engine.CurrentEnergy, max: this.char.Engine.MaximumEnergy} })
         if (this.ship) {
