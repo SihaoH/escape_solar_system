@@ -270,7 +270,7 @@ class LevelButton extends React.Component {
                         HorizontalAlignment: EHorizontalAlignment.HAlign_Fill,
                         VerticalAlignment: EVerticalAlignment.VAlign_Fill
                     }}
-                    Clipping={EWidgetClipping.ClipToBounds}
+                    Clipping={ EWidgetClipping.ClipToBounds }
                 >
                     <uImage
                         ref={elem => {
@@ -284,7 +284,7 @@ class LevelButton extends React.Component {
                                 Offsets: Utils.ltrb(0)
                             }
                         }}
-                        RenderTransform={{Translation: {X: 0, Y: 80}}}
+                        RenderTransform={{ Translation: {X: 0, Y: 80} }}
                     />
                     <uImage
                         Slot={{

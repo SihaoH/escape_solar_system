@@ -17,12 +17,13 @@
 #include <Camera/CameraComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include <Kismet/KismetSystemLibrary.h>
+#define LOCTEXT_NAMESPACE "MainCharacter"
 
 
 AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGravityMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
-	// 若为true，走到球体下方时，会走不动
+	// 必须设为false，否则走到球体底部时会走不动
 	bUseControllerRotationYaw = false;
 
 	Movement = Cast<UGravityMovementComponent>(GetCharacterMovement());
@@ -89,6 +90,17 @@ AEarthBase* AMainCharacter::FindEarthBase() const
 	return nullptr;
 }
 
+APickableItemActor* AMainCharacter::FindPickableItem() const
+{
+	TArray<AActor*> NearbyActors;
+	GetCapsuleComponent()->GetOverlappingActors(NearbyActors, APickableItemActor::StaticClass());
+	if (NearbyActors.Num() > 0)
+	{
+		return Cast<APickableItemActor>(NearbyActors[0]);
+	}
+	return nullptr;
+}
+
 FVector AMainCharacter::GetVelocity() const
 {
 	FVector Velocity = FVector::ZeroVector;
@@ -137,8 +149,6 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Lock", IE_Pressed, this, &IControllable::LockPlanet);
-	PlayerInputComponent->BindAction("Drive", IE_Pressed, this, &AMainCharacter::DriveShip);
-	PlayerInputComponent->BindAction("Pickup", IE_Pressed, this, &AMainCharacter::PickupItem);
 
 	PlayerInputComponent->BindAxis("Turn", this, &AMainCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &AMainCharacter::LookUp);
@@ -151,7 +161,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	AMainLevelScriptActor::Instance()->SetMainChar(this);
+	AMainLevelScriptActor::SetMainChar(this);
 
 	ResetProperties();
 	Body->ChangeHP(Body->GetMaximumHP() * 0.5);
@@ -190,6 +200,7 @@ void AMainCharacter::DriveShip()
 
 void AMainCharacter::PickupItem()
 {
+	auto PickableItem = FindPickableItem();
 	if (PickableItem)
 	{
 		FName RowName;
@@ -292,18 +303,38 @@ void AMainCharacter::UpdateMass()
 
 void AMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	APickableItemActor* ItemActor = Cast<APickableItemActor>(OtherActor);
-	if (ItemActor)
+	if (OtherActor->IsA<APickableItemActor>())
 	{
-		PickableItem = ItemActor;
+		auto ItemRowName = Cast<APickableItemActor>(OtherActor)->ItemRowName;
+		AMainLevelScriptActor::AddActionPrompt("Pickup", UMainFunctionLibrary::GetItemData(ItemRowName).Name, 2)
+			.AddUniqueDynamic(this, &AMainCharacter::PickupItem);
+	}
+	else if (OtherActor->IsA<ASpaceship>())
+	{
+		AMainLevelScriptActor::AddActionPrompt("Drive", LOCTEXT("Drive", "登上飞船"))
+			.AddUniqueDynamic(this, &AMainCharacter::DriveShip);
+	}
+	else if (OtherActor->IsA<AEarthBase>())
+	{
+		// _Menu和Menu是一样的按键，但_Menu是特意为了提示用的，实际还是Menu起作用
+		AMainLevelScriptActor::AddActionPrompt("_Menu", LOCTEXT("Menu", "连接基地"));
 	}
 }
 
 void AMainCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	APickableItemActor* ItemActor = Cast<APickableItemActor>(OtherActor);
-	if (ItemActor == PickableItem)
+	if (OtherActor->IsA<APickableItemActor>())
 	{
-		PickableItem = nullptr;
+		AMainLevelScriptActor::RemoveActionPrompt("Pickup");
+	}
+	else if (OtherActor->IsA<ASpaceship>())
+	{
+		AMainLevelScriptActor::RemoveActionPrompt("Drive");
+	}
+	else if (OtherActor->IsA<AEarthBase>())
+	{
+		AMainLevelScriptActor::RemoveActionPrompt("_Menu");
 	}
 }
+
+#undef LOCTEXT_NAMESPACE

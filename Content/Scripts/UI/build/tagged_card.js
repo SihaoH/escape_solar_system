@@ -1,5 +1,6 @@
 const React = require('react');
 const Utils = require('../utils');
+const { F_Sans } = require('../style');
 
 class TaggedCard extends React.Component {
     constructor(props) {
@@ -16,7 +17,7 @@ class TaggedCard extends React.Component {
                     Padding: Utils.ltrb(0, 10)
                 },
                 Font: {
-                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                    FontObject: F_Sans,
                     TypefaceFontName: "Bold",
                     Size: 20
                 },

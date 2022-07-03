@@ -92,7 +92,7 @@ void ASpaceship::ResetProperties()
 void ASpaceship::Destroy()
 {
 	Super::Destroy();
-	AMainLevelScriptActor::Instance()->SetSpaceship(nullptr);
+	AMainLevelScriptActor::SetSpaceship(nullptr);
 }
 
 float ASpaceship::GetGravityAccel() const
@@ -120,7 +120,7 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
-	AMainLevelScriptActor::Instance()->SetSpaceship(this);
+	AMainLevelScriptActor::SetSpaceship(this);
 
 	ResetProperties();
 }
@@ -134,7 +134,6 @@ void ASpaceship::Tick(float DeltaTime)
 	PerformAdjust(DeltaTime);
 	PerformFOV(DeltaTime);
 	UpdateMass();
-	//GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, TEXT("CurPower:") + FString::SanitizeFloat(Total/Power * 100) + "%");
 }
 
 void ASpaceship::Controlled()
@@ -225,7 +224,7 @@ void ASpaceship::PerformTurn(float DeltaTime)
 }
 
 /**
- * 调增飞行姿态，即飞船在世界坐标系中的旋转角度
+ * 调整飞行姿态，即飞船在世界坐标系中的旋转角度
  * 实现和UGravityMovementComponent::UpdateComponentRotation类似
 */
 void ASpaceship::PerformAdjust(float DeltaTime)

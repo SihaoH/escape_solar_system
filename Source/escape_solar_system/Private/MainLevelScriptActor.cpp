@@ -5,6 +5,7 @@
 #include "Controllable.h"
 #include <JavascriptComponent.h>
 #include <Kismet/GameplayStatics.h>
+#include <GameFramework/InputSettings.h>
 #include <Blueprint/UserWidget.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
@@ -19,18 +20,18 @@ AMainLevelScriptActor::AMainLevelScriptActor(const FObjectInitializer& ObjectIni
 
 void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
 {
-	check(MainChar == nullptr);
-	MainChar = Char;
+	check(s_Instance->MainChar == nullptr);
+	s_Instance->MainChar = Char;
 }
 
 void AMainLevelScriptActor::SetSpaceship(ASpaceship* Ship)
 {
-	if (Ship != nullptr && Spaceship != nullptr)
+	if (Ship != nullptr && s_Instance->Spaceship != nullptr)
 	{
 		// 只能存在一架飞船
 		check(false);
 	}
-	Spaceship = Ship;
+	s_Instance->Spaceship = Ship;
 }
 
 AMainCharacter* AMainLevelScriptActor::GetMainChar()
@@ -49,18 +50,42 @@ AEarthBase* AMainLevelScriptActor::GetEarthBase()
 	return s_Instance->MainChar->FindEarthBase();
 }
 
+FActionDoneSignature& AMainLevelScriptActor::AddActionPrompt(FName Action, FText Tag, float Interval)
+{
+	s_Instance->SetActionPrompt({ Action, Tag, Interval });
+	s_Instance->ActionStack.Add({ Action, Tag, Interval });
+
+	return s_Instance->ActionStack.Last().ActionDoneDelegate;
+}
+
+void AMainLevelScriptActor::RemoveActionPrompt(FName Action)
+{
+	for (int Index = s_Instance->ActionStack.Num()-1; Index >= 0; Index--)
+	{
+		if (s_Instance->ActionStack[Index].Name == Action)
+		{
+			s_Instance->ActionRemovedDelegate.Broadcast();
+			s_Instance->InputComponent->RemoveActionBinding(Action, IE_Pressed);
+			s_Instance->InputComponent->RemoveActionBinding(Action, IE_Released);
+			s_Instance->ActionStack.RemoveAt(Index);
+			if (s_Instance->ActionStack.Num() > 0)
+			{
+				s_Instance->SetActionPrompt(s_Instance->ActionStack.Last());
+			}
+			break;
+		}
+	}
+}
+
 void AMainLevelScriptActor::BeginPlay()
 {
 	check(s_Instance == this);
 	Super::BeginPlay();
 
-	UJavascriptComponent* comp = NewObject<UJavascriptComponent>(this, TEXT("MainScript"));
-	comp->ScriptSourceFile = "main.js";
-	comp->RegisterComponent();
-	//UUserWidget* PlayingWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Playing.WB_Playing_C'")));
-	//PlayingWidget->AddToViewport();
+	UJavascriptComponent* Comp = NewObject<UJavascriptComponent>(this, TEXT("MainScript"));
+	Comp->ScriptSourceFile = "main.js";
+	Comp->RegisterComponent();
 
-	//MainController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScriptActor::OnPaused);
 	InputComponent->BindAction("Menu", IE_Pressed, this, &AMainLevelScriptActor::OnMenuOpened);
 	InputComponent->BindAction("Enter", IE_Pressed, this, &AMainLevelScriptActor::OnEntered);
@@ -76,6 +101,29 @@ void AMainLevelScriptActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AMainLevelScriptActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AMainLevelScriptActor::SetActionPrompt(const ActionInfo& Info)
+{
+	if (ActionStack.Num() > 0 && Info.Name != ActionStack.Last().Name)
+	{
+		FName LastAction = ActionStack.Last().Name;
+		InputComponent->RemoveActionBinding(LastAction, IE_Pressed);
+		InputComponent->RemoveActionBinding(LastAction, IE_Released);
+	}
+	InputComponent->BindAction(Info.Name, IE_Pressed, this, &AMainLevelScriptActor::OnActionPressed);
+	InputComponent->BindAction(Info.Name, IE_Released, this, &AMainLevelScriptActor::OnActionReleased);
+
+	auto InputSettings = UInputSettings::GetInputSettings();
+	TArray<FInputActionKeyMapping> Mappings;
+	InputSettings->GetActionMappingByName(Info.Name, Mappings);
+	FKey Key;
+	for (const auto& KeyMap : Mappings)
+	{
+		Key = KeyMap.Key;
+		break;
+	}
+	ActionAddedDelegate.Broadcast(Key, Info.Tag, Info.Interval);
 }
 
 void AMainLevelScriptActor::OnPaused()
@@ -98,4 +146,21 @@ void AMainLevelScriptActor::OnMenuOpened()
 void AMainLevelScriptActor::OnEntered()
 {
 	EnteredDelegate.Broadcast();
+}
+
+void AMainLevelScriptActor::OnActionPressed()
+{
+	ActionPressedDelegate.Broadcast();
+}
+
+void AMainLevelScriptActor::OnActionReleased()
+{
+	ActionReleasedDelegate.Broadcast();
+}
+
+void AMainLevelScriptActor::ActionDone()
+{
+	const ActionInfo& Info = s_Instance->ActionStack.Last();
+	Info.ActionDoneDelegate.Broadcast();
+	RemoveActionPrompt(Info.Name);
 }

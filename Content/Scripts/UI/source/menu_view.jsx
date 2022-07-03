@@ -55,7 +55,7 @@ class MenuView extends React.Component {
         }
         MainPlayerState.Instance().ExplorePointsChangedDelegate.Add(this.updatePoints)
 
-        let list = ["存储", "科技", "情报"]
+        let list = ["存储", "科技", "见闻"]
         this.inBase = !!MainLevelScriptActor.GetEarthBase()
         this.menuList = this.inBase ? ["基地", ...list] : list
 

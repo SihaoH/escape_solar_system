@@ -1,5 +1,6 @@
 const React = require('react')
 const Utils = require('../utils')
+const {F_Sans} = require('../style')
 
 class ItemToolTip extends React.Component {
     constructor(props) {
@@ -35,7 +36,7 @@ class ItemToolTip extends React.Component {
                                     Padding: Utils.ltrb(20, 0),
                                 }}
                                 Font={{
-                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    FontObject: F_Sans,
                                     TypefaceFontName: "Bold",
                                     Size: 16,
                                 }}
@@ -49,7 +50,7 @@ class ItemToolTip extends React.Component {
                                     Padding: Utils.ltrb(20, 5),
                                 }}
                                 Font={{
-                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    FontObject: F_Sans,
                                     TypefaceFontName: "Bold",
                                     Size: 12,
                                 }}
@@ -67,7 +68,7 @@ class ItemToolTip extends React.Component {
                     />
                     <text
                         Font={{
-                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                            FontObject: F_Sans,
                             TypefaceFontName: "Bold",
                             Size: 14,
                         }}

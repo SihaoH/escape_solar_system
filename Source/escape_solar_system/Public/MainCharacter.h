@@ -24,10 +24,16 @@ public:
 	void ResetProperties();
 
 	UFUNCTION(BlueprintPure)
+	bool IsDriving() const { return !!CurrentVehicle; }
+
+	UFUNCTION(BlueprintPure)
 	class ASpaceship* FindSpaceship() const;
 
 	UFUNCTION(BlueprintPure)
 	class AEarthBase* FindEarthBase() const;
+
+	UFUNCTION(BlueprintPure)
+	class APickableItemActor* FindPickableItem() const;
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMass() const { return Movement->Mass; }
@@ -44,7 +50,10 @@ protected:
 	virtual void Thrusting(FVector Force) override;
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
 
+	UFUNCTION()
 	void DriveShip();
+
+	UFUNCTION()
 	void PickupItem();
 	void Turn(float Value);
 	void LookUp(float Value);
@@ -73,9 +82,6 @@ public:
 private:
 	class UGravityMovementComponent* Movement = nullptr;
 	class ASpaceship* CurrentVehicle = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class APickableItemActor* PickableItem = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera = nullptr;
