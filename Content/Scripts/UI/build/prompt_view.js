@@ -6,8 +6,6 @@ const Utils = require('../utils');
 const EAnchors = require('../anchors');
 const { F_Sans } = require('../style');
 
-const banner_width = 2030;
-
 class PromptView extends React.Component {
     constructor(props) {
         super(props);
@@ -17,6 +15,8 @@ class PromptView extends React.Component {
 
         MainLevelScriptActor.Instance().ExplorePointsDelegate.Add(Msg => {
             this.setState({ bannerText: Msg });
+
+            const banner_width = this.uBanner.GetCachedGeometry().GetLocalSize().X;
             this.fadeAnime = AD();
             this.fadeAnime.apply(this.uBanner, { duration: 0.3 }, { RenderTranslation: t => {
                     return { X: (1 - t) * banner_width, Y: 0 };
@@ -24,7 +24,9 @@ class PromptView extends React.Component {
                 this.fadeAnime = AD();
                 this.fadeAnime.apply(this.uBanner, { delay: 3, duration: 0.3 }, { RenderTranslation: t => {
                         return { X: -t * banner_width, Y: 0 };
-                    } });
+                    } }).then(_ => {
+                    this.uBanner.SetRenderTranslation({ X: 9999, Y: 0 });
+                });
             });
         });
     }

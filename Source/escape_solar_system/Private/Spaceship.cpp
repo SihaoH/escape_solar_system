@@ -93,6 +93,15 @@ void ASpaceship::Destroy()
 {
 	Super::Destroy();
 	AMainLevelScriptActor::SetSpaceship(nullptr);
+	UMainFunctionLibrary::SendMessage(INVTEXT("飞船已销毁"));
+
+	if (CurrentPilot)
+	{
+		// 如果主角在飞船上，也得死（把血扣光）
+		auto Char = CurrentPilot;
+		UnDrive();
+		Char->Body->ChangeHP(-CurrentPilot->Body->GetCurrentHP());
+	}
 }
 
 float ASpaceship::GetGravityAccel() const
@@ -123,6 +132,8 @@ void ASpaceship::BeginPlay()
 	AMainLevelScriptActor::SetSpaceship(this);
 
 	ResetProperties();
+	Body->ChangeHP(Body->GetMaximumHP());
+	Engine->ChangeEnergy(Engine->GetMaximumEnergy());
 }
 
 void ASpaceship::Tick(float DeltaTime)

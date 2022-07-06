@@ -16,16 +16,21 @@ function info_row(k, v, u = "") {
     return {key: k, val: v, unit: u}
 }
 
-function level_btn(p) {
-    return {name: helper.GetLevelName(p), desc: helper.GetLevelDesc(p), props: p}
+function level_btn(p, is_ship = false) {
+    return {name: helper.GetLevelName(p), desc: helper.GetLevelDesc(p), props: p, isShip: is_ship}
 }
 
 function engine_btn(p, ship_engine) {
-    return {...level_btn(p), shipEngine: ship_engine}
+    return {...level_btn(p, true), shipEngine: ship_engine}
 }
 
 function energy_btn(p, ship_energy) {
-    return {...level_btn(p), shipEnergy: ship_energy}
+    return {...level_btn(p, true), shipEnergy: ship_energy}
+}
+
+function checkBase(btn_val) {
+    const base = MainLevelScriptActor.GetEarthBase()
+    return btn_val.isShip ? (base.FindMainChar() && base.FindSpaceship()) : base.FindMainChar()
 }
 
 class SplitLine extends React.Component {
@@ -70,13 +75,13 @@ class LevelButton extends React.Component {
     render() {
         const {btnVal} = this.props
         let isEnabled = true
-        const in_base = !!MainLevelScriptActor.GetEarthBase()
+        const in_base = checkBase(btnVal)
         if (btnVal.shipEngine !== undefined) {
             isEnabled = MainLevelScriptActor.GetSpaceship().EngineType <= btnVal.shipEngine
         } else if (btnVal.shipEnergy !== undefined) {
             isEnabled = MainLevelScriptActor.GetSpaceship().EngineType === btnVal.shipEnergy
         }
-        this.btn && this.btn.SetIsEnabled(isEnabled)
+        if (this.btn) this.btn.SetIsEnabled(isEnabled)
         return (
             <uSizeBox
                 {...this.props}
@@ -94,7 +99,7 @@ class LevelButton extends React.Component {
                             helper.SelectLevel(btnVal.props)
                             const cur_lv = helper.GetCurVal(btnVal.props)
                             const max_lv = helper.GetMaxVal(btnVal.props)
-                            const in_base = !!MainLevelScriptActor.GetEarthBase()
+                            const in_base = checkBase(btnVal)
                             return ReactUMG.wrap(
                             <uBorder
                                 Slot={{ Padding: Utils.ltrb(0) }}
@@ -481,16 +486,16 @@ class MenuLevel extends React.Component {
             {
                 tag: "机身",
                 btn: [
-                    level_btn([ELevel.ShipHP, ELevel.ShipMass]),
-                    level_btn([ELevel.ShipBackpack]),
+                    level_btn([ELevel.ShipHP, ELevel.ShipMass], true),
+                    level_btn([ELevel.ShipBackpack], true),
                 ]
             },
             {
                 tag: "护盾",
                 btn: [
-                    level_btn([ELevel.ShipShieldCold]),
-                    level_btn([ELevel.ShipShieldHeat]),
-                    level_btn([ELevel.ShipShieldPress]),
+                    level_btn([ELevel.ShipShieldCold], true),
+                    level_btn([ELevel.ShipShieldHeat], true),
+                    level_btn([ELevel.ShipShieldPress], true),
                 ]
             },
             {
@@ -515,12 +520,13 @@ class MenuLevel extends React.Component {
             shipInfo: [],
         }
 
-        setInterval(() => {
+        this.timer = setInterval(() => {
             this.updateInfo()
         }, 300)
     }
 
     componentWillUnmount() {
+        clearInterval(this.timer)
         helper = null
     }
 
@@ -529,24 +535,26 @@ class MenuLevel extends React.Component {
 
         const char = MainLevelScriptActor.GetMainChar()
         const ship = MainLevelScriptActor.GetSpaceship()
-        this.setState({
-            charInfo: [
-                info_row("HP", `${Utils.num2Txt(char.Body.CurrentHP)}/${char.Body.MaximumHP}`),
-                info_row("质量", char.GetMass(), "kg"),
-                [
-                    info_row("躯体", char.Body.Mass, "kg"),
-                    info_row("背包", char.Backpack.Mass, "kg"),
-                    info_row("引擎", char.Engine.Mass, "kg"),
-                    info_row("燃料", char.Engine.GetEnergyMass(), "kg"),
-                ],
-                info_row("引擎类型", "化学动力"),
-                info_row("引擎推力", char.Engine.Power, "N"),
-                info_row("燃料能量", `${Utils.num2Txt(char.Engine.CurrentEnergy)}/${char.Engine.MaximumEnergy}`),
-                info_row("耐冷", char.Body.ShieldCold, "℃"),
-                info_row("耐热", char.Body.ShieldHeat, "℃"),
-                info_row("耐压", char.Body.ShieldPress, "kPa"),
-            ]
-        })
+        if (char) {
+            this.setState({
+                charInfo: [
+                    info_row("HP", `${Utils.num2Txt(char.Body.CurrentHP)}/${char.Body.MaximumHP}`),
+                    info_row("质量", char.GetMass(), "kg"),
+                    [
+                        info_row("躯体", char.Body.Mass, "kg"),
+                        info_row("背包", char.Backpack.Mass, "kg"),
+                        info_row("引擎", char.Engine.Mass, "kg"),
+                        info_row("燃料", char.Engine.GetEnergyMass(), "kg"),
+                    ],
+                    info_row("引擎类型", "化学动力"),
+                    info_row("引擎推力", char.Engine.Power, "N"),
+                    info_row("燃料能量", `${Utils.num2Txt(char.Engine.CurrentEnergy)}/${char.Engine.MaximumEnergy}`),
+                    info_row("耐冷", char.Body.ShieldCold, "℃"),
+                    info_row("耐热", char.Body.ShieldHeat, "℃"),
+                    info_row("耐压", char.Body.ShieldPress, "kPa"),
+                ]
+            })
+        }
         if (ship) {
             this.setState({
                 shipInfo: [
@@ -570,9 +578,7 @@ class MenuLevel extends React.Component {
     }
 
     render() {
-        const char = MainLevelScriptActor.GetMainChar()
-        const base = MainLevelScriptActor.GetEarthBase()
-        const has_ship = (base && base.FindSpaceship()) || char.FindSpaceship()
+        const has_ship = !!MainLevelScriptActor.GetSpaceship()
         return (
             <uCanvasPanel>
                 <span

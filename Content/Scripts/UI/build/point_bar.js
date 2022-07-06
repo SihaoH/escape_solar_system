@@ -118,7 +118,7 @@ class PointBar extends React.Component {
                 FillColorAndOpacity: fillColor,
                 Percent: this.initVal
             }),
-            React.createElement('text', {
+            React.createElement('uTextBlock', {
                 Slot: {
                     LayoutData: {
                         Anchors: EAnchors.Center,

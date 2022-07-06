@@ -41,8 +41,6 @@ void UBodyComponent::ChangeHP(int32 Delta)
 	else if (CurrentHP <= 0)
 	{
 		CurrentHP = 0;
-		// TODO 死亡
-		UKismetSystemLibrary::PrintText(GetWorld(), INVTEXT("你死了！"));
 	}
 	HpChangedDelegate.Broadcast(Delta);
 }

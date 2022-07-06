@@ -26,14 +26,18 @@ class MyOverlayer extends JavascriptWidget {
 
         this.close = () => {
             ThisWidget.RemoveFromViewport();
-            Utils.setInputMode(false);
-            ThisWidget = null;
         };
     }
     OnKeyDown(MyGeometry, InKeyEvent) {
-        if (InKeyEvent.GetKey().KeyName === "Escape") {
+        const cur_key = InKeyEvent.GetKey().KeyName;
+        const menu_key = InputSettings.GetInputSettings().GetActionMappingByName("Menu").OutMappings[0].Key.KeyName;
+        if (cur_key === menu_key || cur_key === "Escape") {
             this.close();
             return EventReply.Handled();
+        }
+
+        if (cur_key === "F10") {
+            MainLevelScriptActor.GetMainChar().Body.ChangeHP(-9999);
         }
         return EventReply.Unhandled();
     }
@@ -55,14 +59,20 @@ class MenuView extends React.Component {
         MainPlayerState.Instance().ExplorePointsChangedDelegate.Add(this.updatePoints);
 
         let list = ["存储", "科技", "见闻"];
-        this.inBase = !!MainLevelScriptActor.GetEarthBase();
+        this.inBase = !!MainLevelScriptActor.GetEarthBase().FindMainChar();
         this.menuList = this.inBase ? ["基地", ...list] : list;
+    }
 
+    componentDidMount() {
         Utils.setInputMode(true);
     }
 
     componentWillUnmount() {
-        MainPlayerState.Instance().ExplorePointsChangedDelegate.Remove(this.updatePoints);
+        if (MainPlayerState.Instance()) {
+            MainPlayerState.Instance().ExplorePointsChangedDelegate.Remove(this.updatePoints);
+        }
+        Utils.setInputMode(false);
+        ThisWidget = null;
     }
 
     render() {

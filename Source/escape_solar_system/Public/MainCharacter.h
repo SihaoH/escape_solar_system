@@ -23,6 +23,9 @@ public:
 	void SetVelocity(const FVector& Velocity);
 	void ResetProperties();
 
+	UFUNCTION(BlueprintCallable)
+	void Destroy();
+
 	UFUNCTION(BlueprintPure)
 	bool IsDriving() const { return !!CurrentVehicle; }
 
@@ -65,6 +68,8 @@ protected:
 	void UpdateMass();
 
 	UFUNCTION()
+	void OnHpChanged(float Delta);
+	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
@@ -80,6 +85,7 @@ public:
 	class UEngineComponent* Engine = nullptr;
 
 private:
+	static class ACameraActor* DeathCamera;
 	class UGravityMovementComponent* Movement = nullptr;
 	class ASpaceship* CurrentVehicle = nullptr;
 

@@ -75,7 +75,7 @@ class Dialog extends React.Component {
                                                 ImageSize: {X: 32, Y: 32}
                                             }}
                                         />
-                                        <text
+                                        <uTextBlock
                                             Slot={{
                                                 Padding: Utils.ltrb(10, 0),
                                                 HorizontalAlignment: EHorizontalAlignment.HAlign_Center

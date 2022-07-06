@@ -92,7 +92,7 @@ class Dialog extends React.Component {
                                                 ImageSize: { X: 32, Y: 32 }
                                             }
                                         }),
-                                        React.createElement('text', {
+                                        React.createElement('uTextBlock', {
                                             Slot: {
                                                 Padding: Utils.ltrb(10, 0),
                                                 HorizontalAlignment: EHorizontalAlignment.HAlign_Center

@@ -46,7 +46,7 @@ class MyEntry extends React.Component {
                 }}
                 HeightOverride={60}
             >
-                <text
+                <uTextBlock
                     Slot={{
                         VerticalAlignment: EVerticalAlignment.VAlign_Center
                     }}

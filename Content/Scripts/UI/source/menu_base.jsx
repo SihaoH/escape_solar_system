@@ -54,14 +54,12 @@ class Menu extends React.Component {
         }
         
         this.earthBase = MainLevelScriptActor.GetEarthBase()
-        if (this.earthBase) {
-            this.earthBase.Backpack.ChangedDelegate.Add(() => {
-                this.forceUpdate()
-                this.updateCountBtn()
-            })
-        }
+        this.earthBase.Backpack.ChangedDelegate.Add(() => {
+            this.forceUpdate()
+            this.updateCountBtn()
+        })
 
-        setInterval(() => {
+        this.timer = setInterval(() => {
             if (this.makedAnime || this.destroyAnime) return
 
             let status = this.getStatus()
@@ -109,21 +107,19 @@ class Menu extends React.Component {
     }
 
     componentWillUnmount() {
+        clearInterval(this.timer)
         event = null
-        if (this.earthBase) {
-            this.earthBase.Backpack.ChangedDelegate = null
-        }
+        this.earthBase.Backpack.ChangedDelegate = null
     }
 
     render() {
-        const show_demand = this.earthBase && this.state.selectedIndex > -1
+        const show_demand = this.state.selectedIndex > -1
         const sel_item = this.state.selectedIndex > -1 ? this.uMakeableList.GetItemAt(this.state.selectedIndex) : {RowName: "1000"}
         const sel_data = MainFunctionLibrary.GetItemData(sel_item.RowName)
         const max_make = this.helper.GetMaxMakeableCount(sel_item.RowName)
         const btn_color = Utils.color(max_make > 0 ? "#FFF" : "#F55")
         return (
             <uCanvasPanel>
-                {this.earthBase &&
                 <TaggedCard
                     Slot={{
                         LayoutData: {
@@ -286,7 +282,7 @@ class Menu extends React.Component {
                             Text={`${Utils.num2Txt(this.state.shipDist)}m`}
                         />
                     </span>}
-                </TaggedCard>}
+                </TaggedCard>
 
                 <uBorder
                     Slot={{
@@ -311,7 +307,7 @@ class Menu extends React.Component {
                         }}
                     >
                         <span>
-                            <text
+                            <uTextBlock
                                 Slot={{
                                     VerticalAlignment: EVerticalAlignment.VAlign_Center
                                 }}
@@ -333,7 +329,7 @@ class Menu extends React.Component {
                                     ImageSize: {X: 32, Y: 32}
                                 }}
                             />
-                            <text
+                            <uTextBlock
                                 Slot={{
                                     Padding: Utils.ltrb(10, 0),
                                     Size: { SizeRule: ESlateSizeRule.Fill },
@@ -375,7 +371,7 @@ class Menu extends React.Component {
                                 Padding: Utils.ltrb(0, 10)
                             }}
                         >
-                            <text
+                            <uTextBlock
                                 Font={{
                                     FontObject: F_Sans,
                                     TypefaceFontName: "Bold",
@@ -414,7 +410,7 @@ class Menu extends React.Component {
                                         ImageSize: {X: 32, Y: 32}
                                     }}
                                 />
-                                <text
+                                <uTextBlock
                                     Slot={{
                                         Padding: Utils.ltrb(5, 0),
                                         Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 },
@@ -444,7 +440,7 @@ class Menu extends React.Component {
                                             ImageSize: {X: 32, Y: 32}
                                         }}
                                     />
-                                    <text
+                                    <uTextBlock
                                         Slot={{
                                             VerticalAlignment: EVerticalAlignment.VAlign_Center
                                         }}
@@ -456,7 +452,7 @@ class Menu extends React.Component {
                                         Text={` ${hold_count}`}    
                                     />
                                 </span>
-                                <text
+                                <uTextBlock
                                     Slot={{
                                         Size: { SizeRule: ESlateSizeRule.Fill, Value: 0.2 },
                                         HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
@@ -569,23 +565,22 @@ class Menu extends React.Component {
                     <uBorder
                         Background={{
                             DrawAs: ESlateBrushDrawType.Border,
-                            TintColor: { SpecifiedColor: this.earthBase ? Utils.color("#8F8") : Utils.color("#F88") },
+                            TintColor: { SpecifiedColor: Utils.color("#8F8") },
                             Margin: Utils.ltrb(0, 1, 0, 1)
                         }}
-                        ContentColorAndOpacity={ this.earthBase ? Utils.color("#5F5") : Utils.color("#F55") }
+                        ContentColorAndOpacity={ Utils.color("#5F5") }
                     >
-                        <text
+                        <uTextBlock
                             Font={{
                                 FontObject: F_Sans,
                                 Size: 18,
                             }}
-                            Text={ this.earthBase ? "已连接基地" : "未连接基地" }
+                            Text={ "已连接基地" }
                         />
                     </uBorder>
                 }
                 </uBorder>
 
-                {this.earthBase &&
                 <TaggedCard
                     Slot={{
                         LayoutData: {
@@ -661,7 +656,7 @@ class Menu extends React.Component {
                                             }}
                                             VerticalAlignment={EVerticalAlignment.VAlign_Center}
                                         >
-                                            <text
+                                            <uTextBlock
                                                 Slot={{
                                                     Padding: Utils.ltrb(20, 0),
                                                 }}
@@ -692,7 +687,7 @@ class Menu extends React.Component {
                             )
                         }}
                     />
-                </TaggedCard>}
+                </TaggedCard>
             </uCanvasPanel>
         )
     }

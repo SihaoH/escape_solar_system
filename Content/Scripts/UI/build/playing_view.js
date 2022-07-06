@@ -24,17 +24,23 @@ class PlayingView extends React.Component {
             debugInfo: []
         };
 
-        this.interval = setInterval(() => {
+        this.timer = setInterval(() => {
             if (this.actionAnime) return;
 
-            let player = MainLevelScriptActor.GetMainChar();
-            let ship = MainLevelScriptActor.GetSpaceship();
-            if (ship && ship.CurrentPilot) {
-                player = ship;
+            let char = MainLevelScriptActor.GetMainChar();
+            if (!char) {
+                this.setState({
+                    HP: { cur: 0 }
+                });
+                return;
+            }
+
+            if (char.IsDriving()) {
+                char = MainLevelScriptActor.GetSpaceship();
             }
             this.setState({
-                HP: { cur: player.Body.CurrentHP, max: player.Body.MaximumHP },
-                MP: { cur: player.Engine.CurrentEnergy, max: player.Engine.MaximumEnergy }
+                HP: { cur: char.Body.CurrentHP, max: char.Body.MaximumHP },
+                MP: { cur: char.Engine.CurrentEnergy, max: char.Engine.MaximumEnergy }
             });
 
             if (Utils.isDev()) {
@@ -86,8 +92,12 @@ class PlayingView extends React.Component {
 
     componentDidMount() {}
 
+    componentWillUnmount() {
+        clearInterval(this.timer);
+    }
+
     render() {
-        const on_ship = MainLevelScriptActor.GetMainChar().IsDriving();
+        const on_ship = MainLevelScriptActor.GetMainChar() && MainLevelScriptActor.GetMainChar().IsDriving();
         return React.createElement(
             'uCanvasPanel',
             null,
@@ -268,7 +278,7 @@ class PlayingView extends React.Component {
                                     Size: 14
                                 },
                                 ColorAndOpacity: { SpecifiedColor: Utils.color("#FFF") },
-                                Text: this.state.actionPrompt.key.KeyName
+                                Text: this.state.actionPrompt.key.Key_GetDisplayName().replace("键", "")
                             })
                         )
                     ),

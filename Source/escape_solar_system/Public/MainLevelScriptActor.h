@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPausedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMenuOpenedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathOpenedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnteredSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, Msg);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FExplorePointsSignature, FText, Msg);
@@ -36,10 +37,11 @@ public:
 	AMainLevelScriptActor(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintPure)
-	static AMainLevelScriptActor* Instance() { return s_Instance; }
+	static AMainLevelScriptActor* Instance() { return ThisInstance; }
 
 	static void SetMainChar(class AMainCharacter* Char);
 	static void SetSpaceship(class ASpaceship* Ship);
+	static void SetEarthBase(class AEarthBase* Base);
 
 	UFUNCTION(BlueprintPure)
 	static class AMainCharacter* GetMainChar();
@@ -59,6 +61,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMenuOpenedSignature MenuOpenedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FDeathOpenedSignature DeathOpenedDelegate;
 	
 	UPROPERTY(BlueprintAssignable)
 	FEnteredSignature EnteredDelegate;
@@ -98,9 +103,10 @@ private:
 	static void ActionDone();
 
 private:
-	static AMainLevelScriptActor* s_Instance;
+	static AMainLevelScriptActor* ThisInstance;
 	TArray<ActionInfo> ActionStack;
 	class APlayerController* MainController = nullptr;
 	class AMainCharacter* MainChar = nullptr;
 	class ASpaceship* Spaceship = nullptr;
+	class AEarthBase* EarthBase = nullptr;
 };

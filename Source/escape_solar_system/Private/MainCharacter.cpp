@@ -14,11 +14,14 @@
 #include "MainFunctionLibrary.h"
 #include <Components/CapsuleComponent.h>
 #include <GameFramework/SpringArmComponent.h>
+#include <Camera/CameraActor.h>
 #include <Camera/CameraComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include <Kismet/KismetSystemLibrary.h>
 #define LOCTEXT_NAMESPACE "MainCharacter"
 
+
+ACameraActor* AMainCharacter::DeathCamera = nullptr;
 
 AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGravityMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -35,6 +38,7 @@ AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 	FollowCamera->SetupAttachment(GetCapsuleComponent());
 	FollowCamera->SetRelativeLocation(FVector(-30.f, 0.f, 60.f));
 
+	Body->HpChangedDelegate.AddDynamic(this, &AMainCharacter::OnHpChanged);
 	GetCapsuleComponent()->OnComponentHit.AddUniqueDynamic(Body, &UBodyComponent::OnComponentHitted);
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddUniqueDynamic(this, &AMainCharacter::OnBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddUniqueDynamic(this, &AMainCharacter::OnEndOverlap);
@@ -49,14 +53,33 @@ void AMainCharacter::SetVelocity(const FVector& Velocity)
 void AMainCharacter::ResetProperties()
 {
 	//AMainPlayerState* State = GetController()->GetPlayerState<AMainPlayerState>();
-	Backpack->SetBackpack(EPawnType::MainChar, LevelBackpack);
 	Body->SetStrength(EPawnType::MainChar, LevelStrength);
+	Backpack->SetBackpack(EPawnType::MainChar, LevelBackpack);
 	Body->SetShieldCold(EPawnType::MainChar, LevelShieldCold);
 	Body->SetShieldHeat(EPawnType::MainChar, LevelShieldHeat);
 	Body->SetShieldPress(EPawnType::MainChar, LevelShieldPress);
 
 	Engine->SetEngine(EPawnType::MainChar, LevelEngine);
 	Engine->SetEnergy(EPawnType::MainChar, LevelEnergy);
+}
+
+void AMainCharacter::Destroy()
+{
+	Super::Destroy();
+	ChangePawn(nullptr);
+	AMainLevelScriptActor::SetMainChar(nullptr);
+
+	// Actor销毁后，画面虽然还留在该Actor上，但视角（旋转）会归零，所以要创建一个保留死亡视角的摄像机
+	if (DeathCamera)
+	{
+		DeathCamera->TeleportTo(FollowCamera->GetComponentLocation(), FollowCamera->GetComponentRotation());
+	}
+	else
+	{
+		DeathCamera = GetWorld()->SpawnActor<ACameraActor>(FollowCamera->GetComponentLocation(), FollowCamera->GetComponentRotation());
+	}
+	auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	PlayerController->SetViewTargetWithBlend(DeathCamera);
 }
 
 ASpaceship* AMainCharacter::FindSpaceship() const
@@ -125,6 +148,7 @@ void AMainCharacter::Controlled()
 		const FRotator TargetRotation = CurrentVehicle->GetActorRotation();
 		const FVector TargetVelocity = CurrentVehicle->GetVelocity();
 
+		FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
 		TeleportTo(TargetLocation, TargetRotation);
 		SetVelocity(TargetVelocity);
 	}
@@ -138,7 +162,6 @@ void AMainCharacter::UnControlled()
 	SetActorHiddenInGame(true);
 	// 该函数会调用UpdateOverlaps，飞船会立即发出碰撞事件
 	SetActorEnableCollision(false);
-	FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
 	SetVelocity(FVector::ZeroVector);
 }
 
@@ -162,10 +185,11 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	AMainLevelScriptActor::SetMainChar(this);
+	ChangePawn(this);
 
 	ResetProperties();
-	Body->ChangeHP(Body->GetMaximumHP() * 0.5);
-	Engine->ChangeEnergy(0xFFFF);
+	Body->ChangeHP(Body->GetMaximumHP());
+	Engine->ChangeEnergy(Engine->GetMaximumEnergy());
 }
 
 void AMainCharacter::Tick(float DeltaTime)
@@ -298,6 +322,14 @@ void AMainCharacter::UpdateMass()
 	if (Movement->Mass != InMass)
 	{
 		Movement->Mass = InMass;
+	}
+}
+
+void AMainCharacter::OnHpChanged(float Delta)
+{
+	if (Body->GetCurrentHP() <= 0)
+	{
+		Destroy();
 	}
 }
 

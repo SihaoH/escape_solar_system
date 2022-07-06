@@ -111,14 +111,17 @@ void APlanetActor::PerformGravity(float DeltaTime)
 void APlanetActor::UpdateInfoWidget()
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	float Distance = FVector::Dist(Player->GetActorLocation(), GetActorLocation()) - SelfRadius;
-	if (PreDistance != 0)
+	if (Player)
 	{
-		float Delta = (Distance - PreDistance) / 0.1;
-		InfoWidgetObject->SetSpeed(Delta);
-		InfoWidgetObject->SetDistance(Distance);
+		float Distance = FVector::Dist(Player->GetActorLocation(), GetActorLocation()) - SelfRadius;
+		if (PreDistance != 0)
+		{
+			float Delta = (Distance - PreDistance) / 0.1;
+			InfoWidgetObject->SetSpeed(Delta);
+			InfoWidgetObject->SetDistance(Distance);
+		}
+		PreDistance = Distance;
 	}
-	PreDistance = Distance;
 }
 
 void APlanetActor::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

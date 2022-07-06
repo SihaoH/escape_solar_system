@@ -93,8 +93,6 @@ protected:
 
 private:
 	bool bFreeLook = true;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class AMainCharacter* CurrentPilot = nullptr;
 
 private:

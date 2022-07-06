@@ -28,6 +28,7 @@ public:
 	void SetShieldHeat(EPawnType Type, int32 Level);
 	void SetShieldPress(EPawnType Type, int32 Level);
 
+	UFUNCTION(BlueprintCallable)
 	void ChangeHP(int32 Delta);
 	FORCEINLINE float GetMass() const { return Mass; }
 	FORCEINLINE float GetCurrentHP() const { return CurrentHP; }

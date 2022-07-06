@@ -22,14 +22,19 @@ const ETitle = {
 let MenuDisplay = null;
 
 const BpGetter = title => {
+    const char = MainLevelScriptActor.GetMainChar();
+    const ship = MainLevelScriptActor.GetSpaceship();
     const base = MainLevelScriptActor.GetEarthBase();
     switch (title) {
         case ETitle.Char:
-            return MainLevelScriptActor.GetMainChar().Backpack;
+            // 主角的背包何时都在
+            return char.Backpack;
         case ETitle.Base:
-            return base && base.Backpack;
+            // 需要主角在基地才能有基地的存储
+            return base.FindMainChar() && base.Backpack;
         case ETitle.Ship:
-            return base && base.FindSpaceship() && base.FindSpaceship().Backpack;
+            // 主角在飞船附近 或者 主角和飞船都在基地
+            return char.FindSpaceship() || base.FindMainChar() && base.FindSpaceship() ? ship.Backpack : null;
     }
 };
 
@@ -168,7 +173,7 @@ class BpEntryContent extends React.Component {
                     React.createElement(
                         'span',
                         null,
-                        React.createElement('text', {
+                        React.createElement('uTextBlock', {
                             Slot: {
                                 Padding: Utils.ltrb(20, 0),
                                 Size: { SizeRule: ESlateSizeRule.Fill }
@@ -183,7 +188,7 @@ class BpEntryContent extends React.Component {
                             },
                             Text: name
                         }),
-                        React.createElement('text', {
+                        React.createElement('uTextBlock', {
                             Slot: {
                                 Padding: Utils.ltrb(20, 0)
                             },
@@ -365,7 +370,7 @@ class Menu extends React.Component {
         this.shipBp = BpGetter(ETitle.Ship);
 
         this.char = MainLevelScriptActor.GetMainChar();
-        this.ship = MainLevelScriptActor.GetEarthBase() && MainLevelScriptActor.GetEarthBase().FindSpaceship();
+        this.ship = MainLevelScriptActor.GetEarthBase().FindSpaceship();
         this.char.Body.HpChangedDelegate = Delta => this.setState({ charHP: { cur: this.char.Body.CurrentHP, max: this.char.Body.MaximumHP } });
         this.char.Engine.EnergyChangedDelegate = Delta => this.setState({ charHP: { cur: this.char.Engine.CurrentEnergy, max: this.char.Engine.MaximumEnergy } });
         if (this.ship) {
@@ -399,10 +404,9 @@ class Menu extends React.Component {
     componentWillUnmount() {
         helper = null;
         event = null;
-        this.char.Body.HpChangedDelegate = null;
-        if (this.ship) {
-            this.ship.Body.HpChangedDelegate = null;
-        }
+        this.char = MainLevelScriptActor.GetMainChar();
+        if (this.char) this.char.Body.HpChangedDelegate = null;
+        if (this.ship) this.ship.Body.HpChangedDelegate = null;
     }
 
     render() {

@@ -39,7 +39,7 @@ class ItemToolTip extends React.Component {
                     React.createElement(
                         'div',
                         null,
-                        React.createElement('text', {
+                        React.createElement('uTextBlock', {
                             Slot: {
                                 Padding: Utils.ltrb(20, 0)
                             },
@@ -53,7 +53,7 @@ class ItemToolTip extends React.Component {
                             },
                             Text: itemData.Name
                         }),
-                        React.createElement('text', {
+                        React.createElement('uTextBlock', {
                             Slot: {
                                 Padding: Utils.ltrb(20, 5)
                             },
@@ -74,7 +74,7 @@ class ItemToolTip extends React.Component {
                     Brush: { ImageSize: { X: 32, Y: 2 } },
                     ColorAndOpacity: Utils.rgba(0, 0, 0, 0.1)
                 }),
-                React.createElement('text', {
+                React.createElement('uTextBlock', {
                     Font: {
                         FontObject: F_Sans,
                         TypefaceFontName: "Bold",

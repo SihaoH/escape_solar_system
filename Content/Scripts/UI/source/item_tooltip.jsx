@@ -31,7 +31,7 @@ class ItemToolTip extends React.Component {
                             }}
                         />
                         <div>
-                            <text
+                            <uTextBlock
                                 Slot={{
                                     Padding: Utils.ltrb(20, 0),
                                 }}
@@ -45,7 +45,7 @@ class ItemToolTip extends React.Component {
                                 }}
                                 Text={itemData.Name} 
                             />
-                            <text
+                            <uTextBlock
                                 Slot={{
                                     Padding: Utils.ltrb(20, 5),
                                 }}
@@ -66,7 +66,7 @@ class ItemToolTip extends React.Component {
                         Brush={{ ImageSize: {X: 32, Y: 2} }}
                         ColorAndOpacity={Utils.rgba(0, 0, 0, 0.1)}
                     />
-                    <text
+                    <uTextBlock
                         Font={{
                             FontObject: F_Sans,
                             TypefaceFontName: "Bold",

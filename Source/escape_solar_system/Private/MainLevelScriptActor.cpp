@@ -9,68 +9,77 @@
 #include <Blueprint/UserWidget.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
-AMainLevelScriptActor* AMainLevelScriptActor::s_Instance = nullptr;
+AMainLevelScriptActor* AMainLevelScriptActor::ThisInstance = nullptr;
 
 AMainLevelScriptActor::AMainLevelScriptActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
-	s_Instance = this;
+	ThisInstance = this;
 }
 
 void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
 {
-	check(s_Instance->MainChar == nullptr);
-	s_Instance->MainChar = Char;
+	// 以这种方式判断主角死亡并发出通知，是不是不太好？
+	// 但目前也只有主角死亡时才会Set nullptr
+	if (ThisInstance->MainChar != nullptr && Char == nullptr)
+	{
+		ThisInstance->DeathOpenedDelegate.Broadcast();
+	}
+	ThisInstance->MainChar = Char;
 }
 
 void AMainLevelScriptActor::SetSpaceship(ASpaceship* Ship)
 {
-	if (Ship != nullptr && s_Instance->Spaceship != nullptr)
+	if (Ship != nullptr && ThisInstance->Spaceship != nullptr)
 	{
 		// 只能存在一架飞船
 		check(false);
 	}
-	s_Instance->Spaceship = Ship;
+	ThisInstance->Spaceship = Ship;
+}
+
+void AMainLevelScriptActor::SetEarthBase(AEarthBase* Base)
+{
+	ThisInstance->EarthBase = Base;
 }
 
 AMainCharacter* AMainLevelScriptActor::GetMainChar()
 {
-	return s_Instance->MainChar;
+	return ThisInstance->MainChar;
 }
 
 ASpaceship* AMainLevelScriptActor::GetSpaceship()
 {
-	return s_Instance->Spaceship;
+	return ThisInstance->Spaceship;
 }
 
 AEarthBase* AMainLevelScriptActor::GetEarthBase()
 {
-	check(s_Instance->MainChar);
-	return s_Instance->MainChar->FindEarthBase();
+	return ThisInstance->EarthBase;
 }
 
 FActionDoneSignature& AMainLevelScriptActor::AddActionPrompt(FName Action, FText Tag, float Interval)
 {
-	s_Instance->SetActionPrompt({ Action, Tag, Interval });
-	s_Instance->ActionStack.Add({ Action, Tag, Interval });
+	ThisInstance->SetActionPrompt({ Action, Tag, Interval });
+	ThisInstance->ActionStack.Add({ Action, Tag, Interval });
 
-	return s_Instance->ActionStack.Last().ActionDoneDelegate;
+	return ThisInstance->ActionStack.Last().ActionDoneDelegate;
 }
 
 void AMainLevelScriptActor::RemoveActionPrompt(FName Action)
 {
-	for (int Index = s_Instance->ActionStack.Num()-1; Index >= 0; Index--)
+	for (int Index = ThisInstance->ActionStack.Num()-1; Index >= 0; Index--)
 	{
-		if (s_Instance->ActionStack[Index].Name == Action)
+		if (ThisInstance->ActionStack[Index].Name == Action)
 		{
-			s_Instance->ActionRemovedDelegate.Broadcast();
-			s_Instance->InputComponent->RemoveActionBinding(Action, IE_Pressed);
-			s_Instance->InputComponent->RemoveActionBinding(Action, IE_Released);
-			s_Instance->ActionStack.RemoveAt(Index);
-			if (s_Instance->ActionStack.Num() > 0)
+			ThisInstance->ActionRemovedDelegate.Broadcast();
+			ThisInstance->InputComponent->RemoveActionBinding(Action, IE_Pressed);
+			ThisInstance->InputComponent->RemoveActionBinding(Action, IE_Released);
+			ThisInstance->ActionStack.RemoveAt(Index);
+			if (ThisInstance->ActionStack.Num() > 0)
 			{
-				s_Instance->SetActionPrompt(s_Instance->ActionStack.Last());
+				ThisInstance->SetActionPrompt(ThisInstance->ActionStack.Last());
 			}
 			break;
 		}
@@ -79,7 +88,7 @@ void AMainLevelScriptActor::RemoveActionPrompt(FName Action)
 
 void AMainLevelScriptActor::BeginPlay()
 {
-	check(s_Instance == this);
+	check(ThisInstance == this);
 	Super::BeginPlay();
 
 	UJavascriptComponent* Comp = NewObject<UJavascriptComponent>(this, TEXT("MainScript"));
@@ -93,7 +102,7 @@ void AMainLevelScriptActor::BeginPlay()
 
 void AMainLevelScriptActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	s_Instance = nullptr;
+	ThisInstance = nullptr;
 	MainChar = nullptr;
 	IControllable::ClearUp();
 }
@@ -136,10 +145,6 @@ void AMainLevelScriptActor::OnPaused()
 
 void AMainLevelScriptActor::OnMenuOpened()
 {
-	//UUserWidget* PauseWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Menu.WB_Menu_C'")));
-	//PauseWidget->AddToViewport();
-	//MainController->bShowMouseCursor = true;
-	//UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(MainController);
 	MenuOpenedDelegate.Broadcast();
 }
 
@@ -160,7 +165,7 @@ void AMainLevelScriptActor::OnActionReleased()
 
 void AMainLevelScriptActor::ActionDone()
 {
-	const ActionInfo& Info = s_Instance->ActionStack.Last();
+	const ActionInfo& Info = ThisInstance->ActionStack.Last();
 	Info.ActionDoneDelegate.Broadcast();
 	RemoveActionPrompt(Info.Name);
 }

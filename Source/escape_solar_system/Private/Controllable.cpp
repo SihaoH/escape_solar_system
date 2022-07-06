@@ -29,14 +29,24 @@ void IControllable::GetLocation(int& X, int& Y, int& Z)
 
 void IControllable::ChangePawn(APawn* NewPawn)
 {
-	AActor* Self = Cast<AActor>(this);
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(Self->GetWorld(), 0);
+	auto Self = Cast<APawn>(this);
+	auto PlayerController = UGameplayStatics::GetPlayerController(Self->GetWorld(), 0);
 	PlayerController->bAutoManageActiveCameraTarget = false;
-	PlayerController->SetViewTargetWithBlend(NewPawn, 0.5f);
-	PlayerController->Possess(NewPawn);
+	if (NewPawn)
+	{
+		PlayerController->SetViewTargetWithBlend(NewPawn, 0.5f);
+		if (NewPawn != PlayerController->GetPawn())
+		{
+			PlayerController->Possess(NewPawn);
+		}
+	}
+	else
+	{
+		PlayerController->UnPossess();
+	}
 
-	this->UnControlled();
-	Cast<IControllable>(NewPawn)->Controlled();
+	if (NewPawn != Self) this->UnControlled();
+	if (NewPawn) Cast<IControllable>(NewPawn)->Controlled();
 }
 
 void IControllable::LookPlanet()

@@ -17,8 +17,13 @@ class ESCAPE_SOLAR_SYSTEM_API AEarthBase : public AActor
 public:
 	AEarthBase();
 
+	UFUNCTION(BlueprintCallable)
+	void CreateMainChar();
+	UFUNCTION(BlueprintCallable)
 	void CreateSpaceship();
 
+	UFUNCTION(BlueprintPure)
+	class AMainCharacter* FindMainChar() const;
 	UFUNCTION(BlueprintPure)
 	class ASpaceship* FindSpaceship() const;
 
@@ -30,6 +35,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	TSubclassOf<AMainCharacter> BP_MainCharClass;
 	TSubclassOf<ASpaceship> BP_SpaceshipClass;
 
 	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
