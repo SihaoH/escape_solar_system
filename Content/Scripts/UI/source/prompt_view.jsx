@@ -14,7 +14,7 @@ class PromptView extends React.Component {
             bannerText: ""
         }
 
-        MainLevelScriptActor.Instance().ExplorePointsDelegate.Add(Msg => {
+        MainLevelScript.Instance().ExplorePointsDelegate.Add(Msg => {
             this.setState({bannerText: Msg})
 
             const banner_width = this.uBanner.GetCachedGeometry().GetLocalSize().X

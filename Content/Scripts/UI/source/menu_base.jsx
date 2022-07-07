@@ -53,7 +53,7 @@ class Menu extends React.Component {
             }
         }
         
-        this.earthBase = MainLevelScriptActor.GetEarthBase()
+        this.earthBase = MainLevelScript.GetEarthBase()
         this.earthBase.Backpack.ChangedDelegate.Add(() => {
             this.forceUpdate()
             this.updateCountBtn()
@@ -115,7 +115,7 @@ class Menu extends React.Component {
     render() {
         const show_demand = this.state.selectedIndex > -1
         const sel_item = this.state.selectedIndex > -1 ? this.uMakeableList.GetItemAt(this.state.selectedIndex) : {RowName: "1000"}
-        const sel_data = MainFunctionLibrary.GetItemData(sel_item.RowName)
+        const sel_data = MainLibrary.GetItemData(sel_item.RowName)
         const max_make = this.helper.GetMaxMakeableCount(sel_item.RowName)
         const btn_color = Utils.color(max_make > 0 ? "#FFF" : "#F55")
         return (
@@ -213,7 +213,7 @@ class Menu extends React.Component {
                                         this.uBtnBg.SetRenderTranslation({X: -160, Y: 0})
                                         this.destroyAnime = null
 
-                                        MainLevelScriptActor.GetSpaceship().Destroy()
+                                        MainLevelScript.GetSpaceship().Destroy()
                                         this.setState({ shipDist: this.helper.GetShipDistance() })
                                     }
                                 })
@@ -391,7 +391,7 @@ class Menu extends React.Component {
                             />
                         </span>
                     {_.map(sel_data.DemandList, (val, key) => {
-                        const item_data = MainFunctionLibrary.GetItemData(key)
+                        const item_data = MainLibrary.GetItemData(key)
                         const hold_count = this.helper.GetHoldCount(key)
                         const need_count = val * this.state.makeCount
                         return (
@@ -605,7 +605,7 @@ class Menu extends React.Component {
                         SelectionMode={ESelectionMode.Single}
                         OnGenerateRow={(item, view) => {
                             const index = view.GetIndexForItem(item)
-                            const item_data = MainFunctionLibrary.GetItemData(item.RowName)
+                            const item_data = MainLibrary.GetItemData(item.RowName)
                             const is_hovered = this.state.hoveredIndex === index
                             const is_selected = this.state.selectedIndex === index
                             return ReactUMG.wrap(

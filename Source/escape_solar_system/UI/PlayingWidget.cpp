@@ -68,7 +68,7 @@ FText UPlayingHelper::GetShipOperDesc(FName Name)
 
 void UPlayingHelper::GetDebugInfo(TArray<FText>& OutList) const
 {
-	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
+	AMainCharacter* Char = AMainLevelScript::GetMainChar();
 	if (Char->FindSpaceship() && Char->FindSpaceship()->GetPilot())
 	{
 		ASpaceship* Ship = Char->FindSpaceship();

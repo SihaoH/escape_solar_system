@@ -9,14 +9,14 @@ UBackpackComponent::UBackpackComponent()
 
 void UBackpackComponent::SetBackpack(EPawnType Type, int32 Level)
 {
-	MaxLoad = UMainFunctionLibrary::GetLevelValue(Type == EPawnType::MainChar ? ELevel::CharBackpack : ELevel::ShipBackpack, Level);
+	MaxLoad = UMainLibrary::GetLevelValue(Type == EPawnType::MainChar ? ELevel::CharBackpack : ELevel::ShipBackpack, Level);
 }
 
 void UBackpackComponent::AddItem(const FName& RowName, int32 Count)
 {
 	if (Count <= 0) return;
 
-	const FItemData& ItemData = UMainFunctionLibrary::GetItemData(RowName);
+	const FItemData& ItemData = UMainLibrary::GetItemData(RowName);
 	check(&ItemData);
 	check(Count <= GetMaxAddNum(RowName))
 
@@ -56,7 +56,7 @@ int32 UBackpackComponent::GetMaxAddNum(const FName& RowName) const
 	{
 		return MAX_int32;
 	}
-	const FItemData& ItemData = UMainFunctionLibrary::GetItemData(RowName);
+	const FItemData& ItemData = UMainLibrary::GetItemData(RowName);
 	float Remaining = MaxLoad - GetMass();
 	return FMath::FloorToInt(Remaining / ItemData.Mass);
 }
@@ -84,7 +84,7 @@ void UBackpackComponent::UpdateMass()
 	Mass = 0.f;
 	for (const auto& Elem : ItemList)
 	{
-		const FItemData& ItemData = UMainFunctionLibrary::GetItemData(Elem.Key);
+		const FItemData& ItemData = UMainLibrary::GetItemData(Elem.Key);
 		Mass += ItemData.Mass * Elem.Value;
 	}
 }

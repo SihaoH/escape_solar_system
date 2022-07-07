@@ -92,8 +92,8 @@ void ASpaceship::ResetProperties()
 void ASpaceship::Destroy()
 {
 	Super::Destroy();
-	AMainLevelScriptActor::SetSpaceship(nullptr);
-	UMainFunctionLibrary::SendMessage(INVTEXT("飞船已销毁"));
+	AMainLevelScript::SetSpaceship(nullptr);
+	UMainLibrary::SendMessage(INVTEXT("飞船已销毁"));
 
 	if (CurrentPilot)
 	{
@@ -129,7 +129,7 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
-	AMainLevelScriptActor::SetSpaceship(this);
+	AMainLevelScript::SetSpaceship(this);
 
 	ResetProperties();
 	Body->ChangeHP(Body->GetMaximumHP());

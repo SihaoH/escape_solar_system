@@ -9,16 +9,16 @@
 #include <Blueprint/UserWidget.h>
 #include <Blueprint/WidgetBlueprintLibrary.h>
 
-AMainLevelScriptActor* AMainLevelScriptActor::ThisInstance = nullptr;
+AMainLevelScript* AMainLevelScript::ThisInstance = nullptr;
 
-AMainLevelScriptActor::AMainLevelScriptActor(const FObjectInitializer& ObjectInitializer)
+AMainLevelScript::AMainLevelScript(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	ThisInstance = this;
 }
 
-void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
+void AMainLevelScript::SetMainChar(AMainCharacter* Char)
 {
 	// 以这种方式判断主角死亡并发出通知，是不是不太好？
 	// 但目前也只有主角死亡时才会Set nullptr
@@ -29,7 +29,7 @@ void AMainLevelScriptActor::SetMainChar(AMainCharacter* Char)
 	ThisInstance->MainChar = Char;
 }
 
-void AMainLevelScriptActor::SetSpaceship(ASpaceship* Ship)
+void AMainLevelScript::SetSpaceship(ASpaceship* Ship)
 {
 	if (Ship != nullptr && ThisInstance->Spaceship != nullptr)
 	{
@@ -39,27 +39,27 @@ void AMainLevelScriptActor::SetSpaceship(ASpaceship* Ship)
 	ThisInstance->Spaceship = Ship;
 }
 
-void AMainLevelScriptActor::SetEarthBase(AEarthBase* Base)
+void AMainLevelScript::SetEarthBase(AEarthBase* Base)
 {
 	ThisInstance->EarthBase = Base;
 }
 
-AMainCharacter* AMainLevelScriptActor::GetMainChar()
+AMainCharacter* AMainLevelScript::GetMainChar()
 {
 	return ThisInstance->MainChar;
 }
 
-ASpaceship* AMainLevelScriptActor::GetSpaceship()
+ASpaceship* AMainLevelScript::GetSpaceship()
 {
 	return ThisInstance->Spaceship;
 }
 
-AEarthBase* AMainLevelScriptActor::GetEarthBase()
+AEarthBase* AMainLevelScript::GetEarthBase()
 {
 	return ThisInstance->EarthBase;
 }
 
-FActionDoneSignature& AMainLevelScriptActor::AddActionPrompt(FName Action, FText Tag, float Interval)
+FActionDoneSignature& AMainLevelScript::AddActionPrompt(FName Action, FText Tag, float Interval)
 {
 	ThisInstance->SetActionPrompt({ Action, Tag, Interval });
 	ThisInstance->ActionStack.Add({ Action, Tag, Interval });
@@ -67,7 +67,7 @@ FActionDoneSignature& AMainLevelScriptActor::AddActionPrompt(FName Action, FText
 	return ThisInstance->ActionStack.Last().ActionDoneDelegate;
 }
 
-void AMainLevelScriptActor::RemoveActionPrompt(FName Action)
+void AMainLevelScript::RemoveActionPrompt(FName Action)
 {
 	for (int Index = ThisInstance->ActionStack.Num()-1; Index >= 0; Index--)
 	{
@@ -86,7 +86,7 @@ void AMainLevelScriptActor::RemoveActionPrompt(FName Action)
 	}
 }
 
-void AMainLevelScriptActor::BeginPlay()
+void AMainLevelScript::BeginPlay()
 {
 	check(ThisInstance == this);
 	Super::BeginPlay();
@@ -95,24 +95,24 @@ void AMainLevelScriptActor::BeginPlay()
 	Comp->ScriptSourceFile = "main.js";
 	Comp->RegisterComponent();
 
-	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScriptActor::OnPaused);
-	InputComponent->BindAction("Menu", IE_Pressed, this, &AMainLevelScriptActor::OnMenuOpened);
-	InputComponent->BindAction("Enter", IE_Pressed, this, &AMainLevelScriptActor::OnEntered);
+	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScript::OnPaused);
+	InputComponent->BindAction("Menu", IE_Pressed, this, &AMainLevelScript::OnMenuOpened);
+	InputComponent->BindAction("Enter", IE_Pressed, this, &AMainLevelScript::OnEntered);
 }
 
-void AMainLevelScriptActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AMainLevelScript::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	ThisInstance = nullptr;
 	MainChar = nullptr;
 	IControllable::ClearUp();
 }
 
-void AMainLevelScriptActor::Tick(float DeltaTime)
+void AMainLevelScript::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void AMainLevelScriptActor::SetActionPrompt(const ActionInfo& Info)
+void AMainLevelScript::SetActionPrompt(const ActionInfo& Info)
 {
 	if (ActionStack.Num() > 0 && Info.Name != ActionStack.Last().Name)
 	{
@@ -120,8 +120,8 @@ void AMainLevelScriptActor::SetActionPrompt(const ActionInfo& Info)
 		InputComponent->RemoveActionBinding(LastAction, IE_Pressed);
 		InputComponent->RemoveActionBinding(LastAction, IE_Released);
 	}
-	InputComponent->BindAction(Info.Name, IE_Pressed, this, &AMainLevelScriptActor::OnActionPressed);
-	InputComponent->BindAction(Info.Name, IE_Released, this, &AMainLevelScriptActor::OnActionReleased);
+	InputComponent->BindAction(Info.Name, IE_Pressed, this, &AMainLevelScript::OnActionPressed);
+	InputComponent->BindAction(Info.Name, IE_Released, this, &AMainLevelScript::OnActionReleased);
 
 	auto InputSettings = UInputSettings::GetInputSettings();
 	TArray<FInputActionKeyMapping> Mappings;
@@ -135,7 +135,7 @@ void AMainLevelScriptActor::SetActionPrompt(const ActionInfo& Info)
 	ActionAddedDelegate.Broadcast(Key, Info.Tag, Info.Interval);
 }
 
-void AMainLevelScriptActor::OnPaused()
+void AMainLevelScript::OnPaused()
 {
 	// 弹出暂停界面
 	UUserWidget* PauseWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Pause.WB_Pause_C'")));
@@ -143,27 +143,27 @@ void AMainLevelScriptActor::OnPaused()
 	PausedDelegate.Broadcast();
 }
 
-void AMainLevelScriptActor::OnMenuOpened()
+void AMainLevelScript::OnMenuOpened()
 {
 	MenuOpenedDelegate.Broadcast();
 }
 
-void AMainLevelScriptActor::OnEntered()
+void AMainLevelScript::OnEntered()
 {
 	EnteredDelegate.Broadcast();
 }
 
-void AMainLevelScriptActor::OnActionPressed()
+void AMainLevelScript::OnActionPressed()
 {
 	ActionPressedDelegate.Broadcast();
 }
 
-void AMainLevelScriptActor::OnActionReleased()
+void AMainLevelScript::OnActionReleased()
 {
 	ActionReleasedDelegate.Broadcast();
 }
 
-void AMainLevelScriptActor::ActionDone()
+void AMainLevelScript::ActionDone()
 {
 	const ActionInfo& Info = ThisInstance->ActionStack.Last();
 	Info.ActionDoneDelegate.Broadcast();

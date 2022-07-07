@@ -158,7 +158,7 @@ class MessageListView extends React.Component {
                             lastEnter = true;
                             this.uInputBox.SetKeyboardFocus();
                             if (text) {
-                                MainFunctionLibrary.SendMessage(text);
+                                MainLibrary.SendMessage(text);
                             }
                         }
                     }

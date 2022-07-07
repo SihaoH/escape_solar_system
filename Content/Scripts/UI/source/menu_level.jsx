@@ -29,7 +29,7 @@ function energy_btn(p, ship_energy) {
 }
 
 function checkBase(btn_val) {
-    const base = MainLevelScriptActor.GetEarthBase()
+    const base = MainLevelScript.GetEarthBase()
     return btn_val.isShip ? (base.FindMainChar() && base.FindSpaceship()) : base.FindMainChar()
 }
 
@@ -77,9 +77,9 @@ class LevelButton extends React.Component {
         let isEnabled = true
         const in_base = checkBase(btnVal)
         if (btnVal.shipEngine !== undefined) {
-            isEnabled = MainLevelScriptActor.GetSpaceship().EngineType <= btnVal.shipEngine
+            isEnabled = MainLevelScript.GetSpaceship().EngineType <= btnVal.shipEngine
         } else if (btnVal.shipEnergy !== undefined) {
-            isEnabled = MainLevelScriptActor.GetSpaceship().EngineType === btnVal.shipEnergy
+            isEnabled = MainLevelScript.GetSpaceship().EngineType === btnVal.shipEnergy
         }
         if (this.btn) this.btn.SetIsEnabled(isEnabled)
         return (
@@ -533,8 +533,8 @@ class MenuLevel extends React.Component {
     updateInfo() {
         if (upgradeAnime) return
 
-        const char = MainLevelScriptActor.GetMainChar()
-        const ship = MainLevelScriptActor.GetSpaceship()
+        const char = MainLevelScript.GetMainChar()
+        const ship = MainLevelScript.GetSpaceship()
         if (char) {
             this.setState({
                 charInfo: [
@@ -578,7 +578,7 @@ class MenuLevel extends React.Component {
     }
 
     render() {
-        const has_ship = !!MainLevelScriptActor.GetSpaceship()
+        const has_ship = !!MainLevelScript.GetSpaceship()
         return (
             <uCanvasPanel>
                 <span

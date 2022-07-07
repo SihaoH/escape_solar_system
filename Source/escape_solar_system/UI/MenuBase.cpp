@@ -15,17 +15,17 @@
 
 float UMenuBaseHelper::GetShipDistance() const
 {
-	auto SpaceShip = AMainLevelScriptActor::GetSpaceship();
+	auto SpaceShip = AMainLevelScript::GetSpaceship();
 	if (SpaceShip)
 	{
-		return SpaceShip->GetDistanceTo(AMainLevelScriptActor::GetEarthBase()) / 100;
+		return SpaceShip->GetDistanceTo(AMainLevelScript::GetEarthBase()) / 100;
 	}
 	return -1;
 }
 
 void UMenuBaseHelper::GetMakeableList(TArray<class UItemDataObject*>& OutItems) const
 {
-	TArray<FName> MakeableNames = UMainFunctionLibrary::GetMakeableItemList();
+	TArray<FName> MakeableNames = UMainLibrary::GetMakeableItemList();
 	for (const FName& RowName : MakeableNames)
 	{
 		UItemDataObject* Obj = NewObject<UItemDataObject>(const_cast<UMenuBaseHelper*>(this));
@@ -36,7 +36,7 @@ void UMenuBaseHelper::GetMakeableList(TArray<class UItemDataObject*>& OutItems) 
 
 int32 UMenuBaseHelper::GetMaxMakeableCount(const FName& RowName) const
 {
-	FItemData& MakeableData = UMainFunctionLibrary::GetItemData(RowName);
+	FItemData& MakeableData = UMainLibrary::GetItemData(RowName);
 	int32 RowNumber = FCString::Atoi(*(RowName.ToString()));
 	int32 Value = 0;
 	UBackpackComponent* Storehouse = GetStorehouse();
@@ -52,7 +52,7 @@ int32 UMenuBaseHelper::GetMaxMakeableCount(const FName& RowName) const
 	// 飞船的物品编号，只能制作一台
 	if (RowNumber == 9999)
 	{
-		if (AMainLevelScriptActor::GetSpaceship())
+		if (AMainLevelScript::GetSpaceship())
 		{
 			Value = 0;
 		}
@@ -72,7 +72,7 @@ int32 UMenuBaseHelper::GetHoldCount(const FName& RowName) const
 void UMenuBaseHelper::MakeItem(UObject* SelItem, float Count)
 {
 	UItemDataObject* Item = Cast<UItemDataObject>(SelItem);
-	FItemData& MakeableData = UMainFunctionLibrary::GetItemData(Item->RowName);
+	FItemData& MakeableData = UMainLibrary::GetItemData(Item->RowName);
 	UBackpackComponent* Storehouse = GetStorehouse();
 	check(Storehouse);
 	for (const TPair<FName, int32>& Demand : MakeableData.DemandList)
@@ -82,7 +82,7 @@ void UMenuBaseHelper::MakeItem(UObject* SelItem, float Count)
 	int32 RowNumber = FCString::Atoi(*(Item->RowName.ToString()));
 	if (RowNumber == 9999)
 	{
-		AMainLevelScriptActor::GetEarthBase()->CreateSpaceship();
+		AMainLevelScript::GetEarthBase()->CreateSpaceship();
 	}
 	else
 	{
@@ -92,7 +92,7 @@ void UMenuBaseHelper::MakeItem(UObject* SelItem, float Count)
 
 class UBackpackComponent* UMenuBaseHelper::GetStorehouse() const
 {
-	AEarthBase* EarthBase = AMainLevelScriptActor::GetMainChar()->FindEarthBase();
+	AEarthBase* EarthBase = AMainLevelScript::GetMainChar()->FindEarthBase();
 	return EarthBase ? EarthBase->Backpack : nullptr;
 }
 

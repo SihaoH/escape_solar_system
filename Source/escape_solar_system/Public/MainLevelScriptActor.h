@@ -19,8 +19,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionPressedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionReleasedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionDoneSignature);
 
+
 UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API AMainLevelScriptActor : public ALevelScriptActor
+class ESCAPE_SOLAR_SYSTEM_API AMainLevelScript : public ALevelScriptActor
 {
 	GENERATED_BODY()
 
@@ -34,10 +35,10 @@ public:
 	};
 
 public:
-	AMainLevelScriptActor(const FObjectInitializer& ObjectInitializer);
+	AMainLevelScript(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintPure)
-	static AMainLevelScriptActor* Instance() { return ThisInstance; }
+	static AMainLevelScript* Instance() { return ThisInstance; }
 
 	static void SetMainChar(class AMainCharacter* Char);
 	static void SetSpaceship(class ASpaceship* Ship);
@@ -103,7 +104,7 @@ private:
 	static void ActionDone();
 
 private:
-	static AMainLevelScriptActor* ThisInstance;
+	static AMainLevelScript* ThisInstance;
 	TArray<ActionInfo> ActionStack;
 	class APlayerController* MainController = nullptr;
 	class AMainCharacter* MainChar = nullptr;

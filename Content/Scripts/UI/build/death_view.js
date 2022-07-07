@@ -64,7 +64,7 @@ class DeathView extends React.Component {
                     },
                     WidgetStyle: ButtonStyle,
                     OnReleased: () => {
-                        MainLevelScriptActor.GetEarthBase().CreateMainChar();
+                        MainLevelScript.GetEarthBase().CreateMainChar();
                         ThisWidget.RemoveFromViewport();
                     }
                 },

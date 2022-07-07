@@ -29,7 +29,7 @@ void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Props)
 	{
 		for (const auto& elemt : Props) {
 			InfoStr += LV::DispName[elemt].ToString() + TEXT(": ");
-			InfoStr += FString::FormatAsNumber(UMainFunctionLibrary::GetLevelValue(elemt, Val)) + TEXT("\n");
+			InfoStr += FString::FormatAsNumber(UMainLibrary::GetLevelValue(elemt, Val)) + TEXT("\n");
 		}
 		InfoStr.RemoveFromEnd(TEXT("\n"));
 		CurLevelInfo = FText::FromString(InfoStr);
@@ -40,18 +40,18 @@ void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Props)
 		InfoStr = FString();
 		for (const auto& elemt : Props) {
 			InfoStr += LV::DispName[elemt].ToString() + TEXT(": ");
-			InfoStr += FString::FormatAsNumber(UMainFunctionLibrary::GetLevelValue(elemt, Val+1)) + TEXT("\n");
+			InfoStr += FString::FormatAsNumber(UMainLibrary::GetLevelValue(elemt, Val+1)) + TEXT("\n");
 		}
 		InfoStr.RemoveFromEnd(TEXT("\n"));
 		NextLevelInfo = FText::FromString(InfoStr);
 
-		FLevelDemand LevelDemand = UMainFunctionLibrary::GetLevelDemand(Level, Val+1);
+		FLevelDemand LevelDemand = UMainLibrary::GetLevelDemand(Level, Val+1);
 		// 已升级过的技能不消耗探索点
 		DemandPoints = FText::Format(LOCTEXT("Points", "探索点数: {0}"), Val >= PlayerState->GetBestLevel(Props) ? LevelDemand.Points : 0);
 
-		AEarthBase* EarthBase = AMainLevelScriptActor::GetMainChar()->FindEarthBase();
+		AEarthBase* EarthBase = AMainLevelScript::GetMainChar()->FindEarthBase();
 		UBackpackComponent* Backpack = EarthBase ? EarthBase->Backpack : nullptr;
-		auto DemandInfo = UMainFunctionLibrary::GetDemandInfo(LevelDemand.Items, Backpack);
+		auto DemandInfo = UMainLibrary::GetDemandInfo(LevelDemand.Items, Backpack);
 		CanUpgrade = DemandInfo.Key && (PlayerState->GetExplorePoints() >= LevelDemand.Points);
 		DemandItems = DemandInfo.Value;
 	}
@@ -63,15 +63,15 @@ void UMenuLevelHelper::SelectLevel(const TArray<ELevel>& Props)
 
 void UMenuLevelHelper::UpgradeLevel(const TArray<ELevel>& Props)
 {
-	if (!CanUpgrade || !AMainLevelScriptActor::GetEarthBase()) return;
+	if (!CanUpgrade || !AMainLevelScript::GetEarthBase()) return;
 
 	ELevel Level = Props[0];
 	int* ValPtr = GetTarget(Level);
 	if (*ValPtr < Max_Level)
 	{
-		FLevelDemand LevelDemand = UMainFunctionLibrary::GetLevelDemand(Level, *ValPtr+1);
+		FLevelDemand LevelDemand = UMainLibrary::GetLevelDemand(Level, *ValPtr+1);
 		auto PlayerState = AMainPlayerState::Instance();
-		auto Backpack = AMainLevelScriptActor::GetEarthBase()->Backpack;
+		auto Backpack = AMainLevelScript::GetEarthBase()->Backpack;
 		// 已升级过的技能不消耗探索点
 		if (*ValPtr >= PlayerState->GetBestLevel(Props))
 		{
@@ -82,9 +82,9 @@ void UMenuLevelHelper::UpgradeLevel(const TArray<ELevel>& Props)
 			Backpack->RemoveItem(Demand.Key, Demand.Value);
 		}
 		*ValPtr += 1;
-		AMainLevelScriptActor::GetMainChar()->ResetProperties();
-		if (AMainLevelScriptActor::GetSpaceship()) {
-			AMainLevelScriptActor::GetSpaceship()->ResetProperties();
+		AMainLevelScript::GetMainChar()->ResetProperties();
+		if (AMainLevelScript::GetSpaceship()) {
+			AMainLevelScript::GetSpaceship()->ResetProperties();
 		}
 		SelectLevel(Props);
 	}
@@ -262,11 +262,11 @@ int32 UMenuLevelHelper::GetCurVal(const TArray<ELevel>& Props)
 void UMenuLevelHelper::Debug()
 {
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	auto Char = AMainLevelScriptActor::GetMainChar();
+	auto Char = AMainLevelScript::GetMainChar();
 	Char->Body->ChangeHP(Char->Body->GetMaximumHP());
 	Char->Engine->ChangeEnergy(Char->Engine->GetMaximumEnergy());
 
-	auto Ship = AMainLevelScriptActor::GetSpaceship();
+	auto Ship = AMainLevelScript::GetSpaceship();
 	if (Ship)
 	{
 		Ship->Body->ChangeHP(Ship->Body->GetMaximumHP());
@@ -277,8 +277,8 @@ void UMenuLevelHelper::Debug()
 
 int* UMenuLevelHelper::GetTarget(ELevel Level)
 {
-	auto Char = AMainLevelScriptActor::GetMainChar();
-	auto Ship = AMainLevelScriptActor::GetSpaceship();
+	auto Char = AMainLevelScript::GetMainChar();
+	auto Ship = AMainLevelScript::GetSpaceship();
 
 	int* ValPtr = nullptr;
 	switch (Level)
@@ -371,7 +371,7 @@ int* UMenuLevelHelper::GetTarget(ELevel Level)
 inline TArray<class UBackpackComponent*> UMenuLevelHelper::GetBackpackList()
 {
 	TArray<UBackpackComponent*> BpList;
-	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
+	AMainCharacter* Char = AMainLevelScript::GetMainChar();
 	BpList.Add(Char->Backpack);
 	if (Char->FindSpaceship())
 	{

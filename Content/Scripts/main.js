@@ -10,13 +10,13 @@ function JSX(file) {
 // let p = JavascriptProcess.Create("C:\\Program Files\\nodejs\\npm", "--version")
 // p.Wait()
 //require('devrequire')(__filename)
-MainLevelScriptActor.Instance().MenuOpenedDelegate.Add(()=> {
+MainLevelScript.Instance().MenuOpenedDelegate.Add(()=> {
     let menu_view = require(JSX("menu_view"))()
     if (!menu_view.IsInViewport()) {
         menu_view.AddToViewport()
     }
 })
-MainLevelScriptActor.Instance().DeathOpenedDelegate.Add(()=> {
+MainLevelScript.Instance().DeathOpenedDelegate.Add(()=> {
     let menu_view = require(JSX("menu_view"))()
     if (menu_view.IsInViewport()) {
         menu_view.RemoveFromViewport()

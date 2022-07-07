@@ -25,13 +25,13 @@ AEarthBase::AEarthBase()
 
 void AEarthBase::CreateMainChar()
 {
-	check(!AMainLevelScriptActor::GetMainChar());
+	check(!AMainLevelScript::GetMainChar());
 	GetWorld()->SpawnActor<AMainCharacter>(BP_MainCharClass, GetActorLocation(), GetActorRotation());
 }
 
 void AEarthBase::CreateSpaceship()
 {
-	check(!AMainLevelScriptActor::GetSpaceship());
+	check(!AMainLevelScript::GetSpaceship());
 	GetWorld()->SpawnActor<ASpaceship>(BP_SpaceshipClass, GetActorLocation(), GetActorRotation());
 }
 
@@ -60,5 +60,5 @@ ASpaceship* AEarthBase::FindSpaceship() const
 void AEarthBase::BeginPlay()
 {
 	Super::BeginPlay();
-	AMainLevelScriptActor::SetEarthBase(this);
+	AMainLevelScript::SetEarthBase(this);
 }

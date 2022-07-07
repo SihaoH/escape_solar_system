@@ -55,7 +55,7 @@ void UMenuBackpackHelper::DropItem(int32 Count)
 
 void UMenuBackpackHelper::ConsumeItem(int32 Count, EPawnType Target)
 {
-	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
+	AMainCharacter* Char = AMainLevelScript::GetMainChar();
 	ASpaceship* Ship = Char->FindSpaceship();
 	UBodyComponent* Body = nullptr;
 	UEngineComponent* Engine = nullptr;
@@ -75,7 +75,7 @@ void UMenuBackpackHelper::ConsumeItem(int32 Count, EPawnType Target)
 	check(Engine);
 	check(SelectedItem);
 	int32 RowName = FCString::Atoi(*(SelectedItem->RowName.ToString()));
-	float Value = UMainFunctionLibrary::GetItemData(SelectedItem->RowName).ReplenishedValue * Count;
+	float Value = UMainLibrary::GetItemData(SelectedItem->RowName).ReplenishedValue * Count;
 	if (RowName >= 3000 && RowName < 4000)
 	{
 		Body->ChangeHP(Value);
@@ -107,7 +107,7 @@ void UMenuBackpackHelper::TryDropItem(UBackpackComponent* DstBp, UBackpackCompon
 		DstBackpack = DstBp;
 		SrcBackpack = SrcBp;
 
-		FItemData& ItemData = UMainFunctionLibrary::GetItemData(SelectedItem->RowName);
+		FItemData& ItemData = UMainLibrary::GetItemData(SelectedItem->RowName);
 		if (!ItemData.CanStack || SelectedItem->Count <= 1)
 		{
 			// 单个物品直接放入
@@ -144,7 +144,7 @@ void UMenuBackpackHelper::GetMenuOptions(TArray<EItemOptions>& OutList)
 	else if (RowName >= 3000 && RowName < 5000)
 	{
 		OutList.Add(EItemOptions::ConsumeToChar);
-		if (AMainLevelScriptActor::GetSpaceship())
+		if (AMainLevelScript::GetSpaceship())
 		{
 			OutList.Add(EItemOptions::ConsumeToShip);
 		}

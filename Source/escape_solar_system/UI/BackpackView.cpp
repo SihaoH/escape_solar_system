@@ -10,7 +10,7 @@
 UBackpackComponent* UBackpackViewHelper::GetBackpack() const
 {
 	UBackpackComponent* Bp = nullptr;
-	AMainCharacter* Char = AMainLevelScriptActor::GetMainChar();
+	AMainCharacter* Char = AMainLevelScript::GetMainChar();
 	if (Type == EBackpackType::Char)
 	{
 		Bp = Char->Backpack;

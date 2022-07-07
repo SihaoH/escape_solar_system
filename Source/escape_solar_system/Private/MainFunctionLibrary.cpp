@@ -5,12 +5,12 @@
 #include "MainLevelScriptActor.h"
 #define LOCTEXT_NAMESPACE "MainFunctionLibrary"
 
-UDataTable* UMainFunctionLibrary::DT_ItemInfo = nullptr;
+UDataTable* UMainLibrary::DT_ItemInfo = nullptr;
 
-UDataTable* UMainFunctionLibrary::DT_LevelDemand = nullptr;
-UDataTable* UMainFunctionLibrary::DT_LevelValue = nullptr;
+UDataTable* UMainLibrary::DT_LevelDemand = nullptr;
+UDataTable* UMainLibrary::DT_LevelValue = nullptr;
 
-UMainFunctionLibrary::UMainFunctionLibrary()
+UMainLibrary::UMainLibrary()
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Item(TEXT("DataTable'/Game/DataTable/DT_ItemInfo.DT_ItemInfo'"));
 	DT_ItemInfo = Finder_Item.Object;
@@ -24,21 +24,21 @@ UMainFunctionLibrary::UMainFunctionLibrary()
 	check(DT_LevelValue);
 }
 
-void UMainFunctionLibrary::SendMessage(FText Msg)
+void UMainLibrary::SendMessage(FText Msg)
 {
-	if (AMainLevelScriptActor::Instance())
+	if (AMainLevelScript::Instance())
 	{
-		AMainLevelScriptActor::Instance()->MessagedDelegate.Broadcast(Msg);
+		AMainLevelScript::Instance()->MessagedDelegate.Broadcast(Msg);
 	}
 	// 其他Level的委派广播（如有）
 }
 
-FItemData& UMainFunctionLibrary::GetItemData(const FName& RowName)
+FItemData& UMainLibrary::GetItemData(const FName& RowName)
 {
 	return *DT_ItemInfo->FindRow<FItemData>(RowName, FString());
 }
 
-TArray<FName> UMainFunctionLibrary::GetMakeableItemList()
+TArray<FName> UMainLibrary::GetMakeableItemList()
 {
 	static TArray<FName> List;
 	if (List.Num() <= 0)
@@ -54,7 +54,7 @@ TArray<FName> UMainFunctionLibrary::GetMakeableItemList()
 	return List;
 }
 
-FLevelDemand UMainFunctionLibrary::GetLevelDemand(ELevel Level, int32 Val)
+FLevelDemand UMainLibrary::GetLevelDemand(ELevel Level, int32 Val)
 {
 	FLevelDemandList* DemandList = DT_LevelDemand->FindRow<FLevelDemandList>(LV::DemandRow[Level], FString());
 	if (DemandList)
@@ -68,7 +68,7 @@ FLevelDemand UMainFunctionLibrary::GetLevelDemand(ELevel Level, int32 Val)
 	return FLevelDemand();
 }
 
-float UMainFunctionLibrary::GetLevelValue(ELevel Level, int32 Val)
+float UMainLibrary::GetLevelValue(ELevel Level, int32 Val)
 {
 	FLevelValueList* ValueList = DT_LevelValue->FindRow<FLevelValueList>(LV::ValueRow[Level], FString());
 	if (ValueList)
@@ -82,13 +82,13 @@ float UMainFunctionLibrary::GetLevelValue(ELevel Level, int32 Val)
 	return 0;
 }
 
-TPair<bool, FText> UMainFunctionLibrary::GetDemandInfo(const TMap<FName, int32>& List, UBackpackComponent* Backpack, int32 Count)
+TPair<bool, FText> UMainLibrary::GetDemandInfo(const TMap<FName, int32>& List, UBackpackComponent* Backpack, int32 Count)
 {
 	FString DemandStr;
 	bool Enough = true;
 	for (const TPair<FName, int32>& Demand : List)
 	{
-		FItemData& DemandData = UMainFunctionLibrary::GetItemData(Demand.Key);
+		FItemData& DemandData = UMainLibrary::GetItemData(Demand.Key);
 		int32 NeedCount = Demand.Value * FMath::Max(Count, 1);
 		int32 HoldCount = Backpack ? Backpack->CountItem(Demand.Key) : 0;
 		FStringFormatOrderedArguments Arguments;

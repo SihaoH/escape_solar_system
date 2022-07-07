@@ -15,7 +15,7 @@ class Dialog extends React.Component {
 
     render() {
         const {item, opName, onAccepted, maximum, close} = this.props
-        const item_data = MainFunctionLibrary.GetItemData(item.RowName)
+        const item_data = MainLibrary.GetItemData(item.RowName)
         return (
             <uBorder
                 Background={{

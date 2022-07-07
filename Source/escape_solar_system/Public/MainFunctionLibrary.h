@@ -16,12 +16,12 @@ enum class EPawnType : uint8
 };
 
 UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API UMainFunctionLibrary : public UBlueprintFunctionLibrary
+class ESCAPE_SOLAR_SYSTEM_API UMainLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
-	UMainFunctionLibrary();
+	UMainLibrary();
 
 public:
 	UFUNCTION(BlueprintPure)

@@ -46,7 +46,7 @@ void UExplorableZoneComponent::HandleBonus()
 	AMainPlayerState::Instance()->ChangeExplorePoints(BonusPoints);
 
 	FText Msg = FText::Format(LOCTEXT("Msg", "到达{0}\n获得 {1} 探索点"), PlaceName, BonusPoints);
-	AMainLevelScriptActor::Instance()->ExplorePointsDelegate.Broadcast(Msg);
+	AMainLevelScript::Instance()->ExplorePointsDelegate.Broadcast(Msg);
 
 	IsAvailable = false;
 	// TODO 写到存档

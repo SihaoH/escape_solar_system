@@ -67,7 +67,7 @@ void AMainCharacter::Destroy()
 {
 	Super::Destroy();
 	ChangePawn(nullptr);
-	AMainLevelScriptActor::SetMainChar(nullptr);
+	AMainLevelScript::SetMainChar(nullptr);
 
 	// Actor销毁后，画面虽然还留在该Actor上，但视角（旋转）会归零，所以要创建一个保留死亡视角的摄像机
 	if (DeathCamera)
@@ -184,7 +184,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	AMainLevelScriptActor::SetMainChar(this);
+	AMainLevelScript::SetMainChar(this);
 	ChangePawn(this);
 
 	ResetProperties();
@@ -233,9 +233,9 @@ void AMainCharacter::PickupItem()
 		int32 AddedCount = FMath::Min(Backpack->GetMaxAddNum(RowName), PickedCount);
 		Backpack->AddItem(RowName, AddedCount);
 
-		UMainFunctionLibrary::SendMessage(FText::Format(
+		UMainLibrary::SendMessage(FText::Format(
 			INVTEXT("拾取了 {0} x{1}"),
-			UMainFunctionLibrary::GetItemData(RowName).Name, 
+			UMainLibrary::GetItemData(RowName).Name, 
 			AddedCount)
 		);
 	}
@@ -338,18 +338,18 @@ void AMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	if (OtherActor->IsA<APickableItemActor>())
 	{
 		auto ItemRowName = Cast<APickableItemActor>(OtherActor)->ItemRowName;
-		AMainLevelScriptActor::AddActionPrompt("Pickup", UMainFunctionLibrary::GetItemData(ItemRowName).Name, 2)
+		AMainLevelScript::AddActionPrompt("Pickup", UMainLibrary::GetItemData(ItemRowName).Name, 2)
 			.AddUniqueDynamic(this, &AMainCharacter::PickupItem);
 	}
 	else if (OtherActor->IsA<ASpaceship>())
 	{
-		AMainLevelScriptActor::AddActionPrompt("Drive", LOCTEXT("Drive", "登上飞船"))
+		AMainLevelScript::AddActionPrompt("Drive", LOCTEXT("Drive", "登上飞船"))
 			.AddUniqueDynamic(this, &AMainCharacter::DriveShip);
 	}
 	else if (OtherActor->IsA<AEarthBase>())
 	{
 		// _Menu和Menu是一样的按键，但_Menu是特意为了提示用的，实际还是Menu起作用
-		AMainLevelScriptActor::AddActionPrompt("_Menu", LOCTEXT("Menu", "连接基地"));
+		AMainLevelScript::AddActionPrompt("_Menu", LOCTEXT("Menu", "连接基地"));
 	}
 }
 
@@ -357,15 +357,15 @@ void AMainCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 {
 	if (OtherActor->IsA<APickableItemActor>())
 	{
-		AMainLevelScriptActor::RemoveActionPrompt("Pickup");
+		AMainLevelScript::RemoveActionPrompt("Pickup");
 	}
 	else if (OtherActor->IsA<ASpaceship>())
 	{
-		AMainLevelScriptActor::RemoveActionPrompt("Drive");
+		AMainLevelScript::RemoveActionPrompt("Drive");
 	}
 	else if (OtherActor->IsA<AEarthBase>())
 	{
-		AMainLevelScriptActor::RemoveActionPrompt("_Menu");
+		AMainLevelScript::RemoveActionPrompt("_Menu");
 	}
 }
 

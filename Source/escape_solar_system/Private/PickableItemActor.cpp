@@ -19,7 +19,7 @@ APickableItemActor::APickableItemActor()
 
 void APickableItemActor::Pickup(FName& RowName, int32& Count)
 {
-	FItemData& ItemData = UMainFunctionLibrary::GetItemData(ItemRowName);
+	FItemData& ItemData = UMainLibrary::GetItemData(ItemRowName);
 	Deactivate(FMath::RandRange(ItemData.RebirthTime.Min, ItemData.RebirthTime.Max));
 	RowName = ItemRowName;
 	Count = FMath::RandRange(ItemData.PickCount.Min, ItemData.PickCount.Max);
@@ -28,7 +28,7 @@ void APickableItemActor::Pickup(FName& RowName, int32& Count)
 void APickableItemActor::BeginPlay()
 {
 	Super::BeginPlay();
-	ItemName = UMainFunctionLibrary::GetItemData(ItemRowName).Name;
+	ItemName = UMainLibrary::GetItemData(ItemRowName).Name;
 }
 
 void APickableItemActor::Activate()

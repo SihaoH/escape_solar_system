@@ -31,7 +31,7 @@ function energy_btn(p, ship_energy) {
 }
 
 function checkBase(btn_val) {
-    const base = MainLevelScriptActor.GetEarthBase();
+    const base = MainLevelScript.GetEarthBase();
     return btn_val.isShip ? base.FindMainChar() && base.FindSpaceship() : base.FindMainChar();
 }
 
@@ -78,9 +78,9 @@ class LevelButton extends React.Component {
         let isEnabled = true;
         const in_base = checkBase(btnVal);
         if (btnVal.shipEngine !== undefined) {
-            isEnabled = MainLevelScriptActor.GetSpaceship().EngineType <= btnVal.shipEngine;
+            isEnabled = MainLevelScript.GetSpaceship().EngineType <= btnVal.shipEngine;
         } else if (btnVal.shipEnergy !== undefined) {
-            isEnabled = MainLevelScriptActor.GetSpaceship().EngineType === btnVal.shipEnergy;
+            isEnabled = MainLevelScript.GetSpaceship().EngineType === btnVal.shipEnergy;
         }
         if (this.btn) this.btn.SetIsEnabled(isEnabled);
         return React.createElement(
@@ -501,8 +501,8 @@ class MenuLevel extends React.Component {
     updateInfo() {
         if (upgradeAnime) return;
 
-        const char = MainLevelScriptActor.GetMainChar();
-        const ship = MainLevelScriptActor.GetSpaceship();
+        const char = MainLevelScript.GetMainChar();
+        const ship = MainLevelScript.GetSpaceship();
         if (char) {
             this.setState({
                 charInfo: [info_row("HP", `${Utils.num2Txt(char.Body.CurrentHP)}/${char.Body.MaximumHP}`), info_row("质量", char.GetMass(), "kg"), [info_row("躯体", char.Body.Mass, "kg"), info_row("背包", char.Backpack.Mass, "kg"), info_row("引擎", char.Engine.Mass, "kg"), info_row("燃料", char.Engine.GetEnergyMass(), "kg")], info_row("引擎类型", "化学动力"), info_row("引擎推力", char.Engine.Power, "N"), info_row("燃料能量", `${Utils.num2Txt(char.Engine.CurrentEnergy)}/${char.Engine.MaximumEnergy}`), info_row("耐冷", char.Body.ShieldCold, "℃"), info_row("耐热", char.Body.ShieldHeat, "℃"), info_row("耐压", char.Body.ShieldPress, "kPa")]
@@ -516,7 +516,7 @@ class MenuLevel extends React.Component {
     }
 
     render() {
-        const has_ship = !!MainLevelScriptActor.GetSpaceship();
+        const has_ship = !!MainLevelScript.GetSpaceship();
         return React.createElement(
             'uCanvasPanel',
             null,

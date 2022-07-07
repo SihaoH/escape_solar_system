@@ -49,7 +49,7 @@ function num2Txt(num, x = 0) {
 }
 
 function isDev() {
-    return MainFunctionLibrary.IsDev()
+    return MainLibrary.IsDev()
 }
 
 function setInputMode(cursor) {

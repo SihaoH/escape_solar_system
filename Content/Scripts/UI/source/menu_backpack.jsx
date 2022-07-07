@@ -20,9 +20,9 @@ const ETitle = {
 let MenuDisplay = null
 
 const BpGetter = title => {
-    const char = MainLevelScriptActor.GetMainChar()
-    const ship = MainLevelScriptActor.GetSpaceship()
-    const base = MainLevelScriptActor.GetEarthBase()
+    const char = MainLevelScript.GetMainChar()
+    const ship = MainLevelScript.GetSpaceship()
+    const base = MainLevelScript.GetEarthBase()
     switch (title) {
     case ETitle.Char:
         // 主角的背包何时都在
@@ -304,7 +304,7 @@ class BackpackView extends React.Component {
                     SelectionMode={ESelectionMode.Single}
                     OnGenerateRow={(item, view) => {
                         const index = view.GetIndexForItem(item)
-                        const item_data = MainFunctionLibrary.GetItemData(item.RowName)
+                        const item_data = MainLibrary.GetItemData(item.RowName)
                         const is_hovered = (hoveredIndex === index)
                         return ReactUMG.wrap(
                             <uSizeBox
@@ -350,8 +350,8 @@ class Menu extends React.Component {
         this.baseBp = BpGetter(ETitle.Base)
         this.shipBp = BpGetter(ETitle.Ship)
 
-        this.char = MainLevelScriptActor.GetMainChar()
-        this.ship = MainLevelScriptActor.GetEarthBase().FindSpaceship()
+        this.char = MainLevelScript.GetMainChar()
+        this.ship = MainLevelScript.GetEarthBase().FindSpaceship()
         this.char.Body.HpChangedDelegate = Delta => this.setState({ charHP: {cur: this.char.Body.CurrentHP, max: this.char.Body.MaximumHP} })
         this.char.Engine.EnergyChangedDelegate = Delta => this.setState({ charHP: {cur: this.char.Engine.CurrentEnergy, max: this.char.Engine.MaximumEnergy} })
         if (this.ship) {
@@ -385,7 +385,7 @@ class Menu extends React.Component {
     componentWillUnmount() {
         helper = null
         event = null
-        this.char = MainLevelScriptActor.GetMainChar()
+        this.char = MainLevelScript.GetMainChar()
         if (this.char) this.char.Body.HpChangedDelegate = null
         if (this.ship) this.ship.Body.HpChangedDelegate = null
     }

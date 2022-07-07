@@ -37,7 +37,7 @@ class MyOverlayer extends JavascriptWidget {
         }
 
         if (cur_key === "F10") {
-            MainLevelScriptActor.GetMainChar().Body.ChangeHP(-9999)
+            MainLevelScript.GetMainChar().Body.ChangeHP(-9999)
         }
         return EventReply.Unhandled()
     }
@@ -60,7 +60,7 @@ class MenuView extends React.Component {
         MainPlayerState.Instance().ExplorePointsChangedDelegate.Add(this.updatePoints)
 
         let list = ["存储", "科技", "见闻"]
-        this.inBase = !!MainLevelScriptActor.GetEarthBase().FindMainChar()
+        this.inBase = !!MainLevelScript.GetEarthBase().FindMainChar()
         this.menuList = this.inBase ? ["基地", ...list] : list
     }
 

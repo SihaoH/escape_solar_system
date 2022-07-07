@@ -27,7 +27,7 @@ class PlayingView extends React.Component {
         this.timer = setInterval(() => {
             if (this.actionAnime) return;
 
-            let char = MainLevelScriptActor.GetMainChar();
+            let char = MainLevelScript.GetMainChar();
             if (!char) {
                 this.setState({
                     HP: { cur: 0 }
@@ -36,7 +36,7 @@ class PlayingView extends React.Component {
             }
 
             if (char.IsDriving()) {
-                char = MainLevelScriptActor.GetSpaceship();
+                char = MainLevelScript.GetSpaceship();
             }
             this.setState({
                 HP: { cur: char.Body.CurrentHP, max: char.Body.MaximumHP },
@@ -47,13 +47,13 @@ class PlayingView extends React.Component {
                 this.setState({ debugInfo: this.helper.GetDebugInfo().OutList });
             }
         }, 200);
-        MainLevelScriptActor.Instance().ActionAddedDelegate.Add((Key, Tag, Interval) => {
+        MainLevelScript.Instance().ActionAddedDelegate.Add((Key, Tag, Interval) => {
             this.setState({ actionPrompt: { key: Key, tag: Tag, interval: Interval } });
         });
-        MainLevelScriptActor.Instance().ActionRemovedDelegate.Add(() => {
+        MainLevelScript.Instance().ActionRemovedDelegate.Add(() => {
             this.setState({ actionPrompt: null });
         });
-        MainLevelScriptActor.Instance().ActionPressedDelegate.Add(() => {
+        MainLevelScript.Instance().ActionPressedDelegate.Add(() => {
             const prompt = this.state.actionPrompt;
             if (prompt) {
                 if (prompt.interval > 0) {
@@ -64,25 +64,25 @@ class PlayingView extends React.Component {
                         } }).then(_ => {
                         if (this.actionAnime) {
                             this.actionAnime = null;
-                            MainLevelScriptActor.ActionDone();
+                            MainLevelScript.ActionDone();
                         }
                     });
                 } else {
-                    MainLevelScriptActor.ActionDone();
+                    MainLevelScript.ActionDone();
                 }
             }
         });
-        MainLevelScriptActor.Instance().ActionReleasedDelegate.Add(() => {
+        MainLevelScript.Instance().ActionReleasedDelegate.Add(() => {
             this.uActionBg.SetRenderTranslation({ X: 0, Y: this.uActionBg.GetCachedGeometry().GetLocalSize().Y });
             if (this.actionAnime) {
                 this.actionAnime.destroy();
                 this.actionAnime = null;
             }
         });
-        MainLevelScriptActor.Instance().MessagedDelegate.Add(Msg => {
+        MainLevelScript.Instance().MessagedDelegate.Add(Msg => {
             this.msgListView.AppendMsg(Msg);
         });
-        MainLevelScriptActor.Instance().EnteredDelegate.Add(() => {
+        MainLevelScript.Instance().EnteredDelegate.Add(() => {
             this.msgListView.toggleReview();
         });
 
@@ -97,7 +97,7 @@ class PlayingView extends React.Component {
     }
 
     render() {
-        const on_ship = MainLevelScriptActor.GetMainChar() && MainLevelScriptActor.GetMainChar().IsDriving();
+        const on_ship = MainLevelScript.GetMainChar() && MainLevelScript.GetMainChar().IsDriving();
         return React.createElement(
             'uCanvasPanel',
             null,
