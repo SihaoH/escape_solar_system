@@ -3,7 +3,7 @@
 #include "ExplorableZoneComponent.h"
 #include "Controllable.h"
 #include "MainPlayerState.h"
-#include "MainLevelScriptActor.h"
+#include "MainLevelScript.h"
 #define LOCTEXT_NAMESPACE "ExplorableZone"
 
 UExplorableZoneComponent::UExplorableZoneComponent()

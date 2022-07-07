@@ -1,13 +1,13 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "Spaceship.h"
-#include "LevelData.h"
+#include "TechData.h"
 #include "MainCharacter.h"
 #include "BackpackComponent.h"
 #include "BodyComponent.h"
 #include "EngineComponent.h"
 #include "MainPlayerState.h"
-#include "MainFunctionLibrary.h"
+#include "MainLibrary.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/BoxComponent.h>
 #include <GameFramework/SpringArmComponent.h>

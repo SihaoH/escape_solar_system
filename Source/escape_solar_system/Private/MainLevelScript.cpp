@@ -1,6 +1,6 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
-#include "MainLevelScriptActor.h"
+#include "MainLevelScript.h"
 #include "MainCharacter.h"
 #include "Controllable.h"
 #include <JavascriptComponent.h>

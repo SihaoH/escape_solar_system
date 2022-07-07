@@ -54,6 +54,8 @@ function isDev() {
 
 function setInputMode(cursor) {
     let mainController = GameplayStatics.GetPlayerController(GWorld, 0)
+    if (!mainController) return
+    
     mainController.bShowMouseCursor = cursor
     if (cursor) {
         WidgetBlueprintLibrary.SetInputMode_UIOnlyEx(mainController)

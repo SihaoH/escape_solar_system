@@ -2,41 +2,41 @@
 
 #pragma once
 
-#include "LevelData.h"
+#include "TechData.h"
 #include "ItemDataObject.h"
 #include "CoreMinimal.h"
-#include "MenuLevel.generated.h"
+#include "MenuTech.generated.h"
 
 /**
  * 菜单页面中的等级部件
  */
 UCLASS(BlueprintType)
-class ESCAPE_SOLAR_SYSTEM_API UMenuLevelHelper : public UObject
+class ESCAPE_SOLAR_SYSTEM_API UMenuTechHelper : public UObject
 {
 	GENERATED_BODY()
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void SelectLevel(const TArray<ELevel>& Props);
+	void SelectTech(const TArray<ETech>& Props);
 
 	UFUNCTION(BlueprintCallable)
-	void UpgradeLevel(const TArray<ELevel>& Props);
+	void UpgradeTech(const TArray<ETech>& Props);
 
 	UFUNCTION(BlueprintPure)
-	FText GetLevelName(const TArray<ELevel>& Props);
+	FText GetTechName(const TArray<ETech>& Props);
 	UFUNCTION(BlueprintPure)
-	FText GetLevelDesc(const TArray<ELevel>& Props);
+	FText GetTechDesc(const TArray<ETech>& Props);
 	UFUNCTION(BlueprintPure)
-	int32 GetMaxVal(const TArray<ELevel>& Props);
+	int32 GetMaxLv(const TArray<ETech>& Props);
 	UFUNCTION(BlueprintPure)
-	int32 GetCurVal(const TArray<ELevel>& Props);
+	int32 GetCurLv(const TArray<ETech>& Props);
 
 
 	UFUNCTION(BlueprintCallable, meta = (DevelopmentOnly))
 	void Debug();
 
 private:
-	int* GetTarget(ELevel Level);
+	int* GetTarget(ETech Level);
 	inline TArray<class UBackpackComponent*> GetBackpackList();
 
 private:

@@ -3,18 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PlayingWidget.generated.h"
+#include "PlayingView.generated.h"
 
 /**
  * 游玩进行状态时显示的UI，例如按键提示
  */
 UCLASS(BlueprintType)
-class ESCAPE_SOLAR_SYSTEM_API UPlayingHelper : public UObject
+class ESCAPE_SOLAR_SYSTEM_API UPlayingViewHelper : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UPlayingHelper();
+	UPlayingViewHelper();
 
 	/** 获取Action操作所绑定的按键组 */
 	UFUNCTION(BlueprintPure)

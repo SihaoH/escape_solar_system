@@ -96,7 +96,7 @@ private:
 	class AMainCharacter* CurrentPilot = nullptr;
 
 private:
-	friend class UMenuLevelHelper;
+	friend class UMenuTechHelper;
 	/** 属性等级 */
 	int32 LevelStrength    = 0; //包含Mass和HP
 	int32 LevelBackpack    = 0;

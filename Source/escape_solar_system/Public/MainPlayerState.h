@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "LevelData.h"
+#include "TechData.h"
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "MainPlayerState.generated.h"
@@ -23,8 +23,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	static AMainPlayerState* Instance() { return s_Instance; }
 
-	void UpdateBestLevel(const TArray<ELevel>& Props, int32 Val);
-	int32 GetBestLevel(const TArray<ELevel>& Props);
+	void UpdateBestLevel(const TArray<ETech>& Props, int32 Val);
+	int32 GetBestLevel(const TArray<ETech>& Props);
 
 	void ChangeExplorePoints(int32 Delta);
 	UFUNCTION(BlueprintPure)
@@ -35,7 +35,7 @@ public:
 	FExplorePointsChangedSignature ExplorePointsChangedDelegate;
 
 private:
-	FORCEINLINE int32* GetBest(const TArray<ELevel>& Props);
+	FORCEINLINE int32* GetBest(const TArray<ETech>& Props);
 
 private:
 	static AMainPlayerState* s_Instance;

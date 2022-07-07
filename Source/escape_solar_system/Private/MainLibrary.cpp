@@ -1,14 +1,14 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
-#include "MainFunctionLibrary.h"
+#include "MainLibrary.h"
 #include "BackpackComponent.h"
-#include "MainLevelScriptActor.h"
+#include "MainLevelScript.h"
 #define LOCTEXT_NAMESPACE "MainFunctionLibrary"
 
 UDataTable* UMainLibrary::DT_ItemInfo = nullptr;
 
-UDataTable* UMainLibrary::DT_LevelDemand = nullptr;
-UDataTable* UMainLibrary::DT_LevelValue = nullptr;
+UDataTable* UMainLibrary::DT_TechDemand = nullptr;
+UDataTable* UMainLibrary::DT_TechValue = nullptr;
 
 UMainLibrary::UMainLibrary()
 {
@@ -16,12 +16,12 @@ UMainLibrary::UMainLibrary()
 	DT_ItemInfo = Finder_Item.Object;
 	check(DT_ItemInfo);
 
-	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Demand(TEXT("DataTable'/Game/DataTable/DT_LevelDemand.DT_LevelDemand'"));
-	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Value(TEXT("DataTable'/Game/DataTable/DT_LevelValue.DT_LevelValue'"));
-	DT_LevelDemand = Finder_Demand.Object;
-	check(DT_LevelDemand);
-	DT_LevelValue = Finder_Value.Object;
-	check(DT_LevelValue);
+	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Demand(TEXT("DataTable'/Game/DataTable/DT_TechDemand.DT_TechDemand'"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Value(TEXT("DataTable'/Game/DataTable/DT_TechValue.DT_TechValue'"));
+	DT_TechDemand = Finder_Demand.Object;
+	check(DT_TechDemand);
+	DT_TechValue = Finder_Value.Object;
+	check(DT_TechValue);
 }
 
 void UMainLibrary::SendMessage(FText Msg)
@@ -54,9 +54,9 @@ TArray<FName> UMainLibrary::GetMakeableItemList()
 	return List;
 }
 
-FLevelDemand UMainLibrary::GetLevelDemand(ELevel Level, int32 Val)
+FTechDemand UMainLibrary::GetTechDemand(ETech Level, int32 Val)
 {
-	FLevelDemandList* DemandList = DT_LevelDemand->FindRow<FLevelDemandList>(LV::DemandRow[Level], FString());
+	FTechDemandList* DemandList = DT_TechDemand->FindRow<FTechDemandList>(TECH::DemandRow[Level], FString());
 	if (DemandList)
 	{
 		if (Val >= 0 && Val < DemandList->List.Num())
@@ -65,12 +65,12 @@ FLevelDemand UMainLibrary::GetLevelDemand(ELevel Level, int32 Val)
 		}
 	}
 	//check(false);
-	return FLevelDemand();
+	return FTechDemand();
 }
 
-float UMainLibrary::GetLevelValue(ELevel Level, int32 Val)
+float UMainLibrary::GetTechValue(ETech Level, int32 Val)
 {
-	FLevelValueList* ValueList = DT_LevelValue->FindRow<FLevelValueList>(LV::ValueRow[Level], FString());
+	FTechValueList* ValueList = DT_TechValue->FindRow<FTechValueList>(TECH::ValueRow[Level], FString());
 	if (ValueList)
 	{
 		if (Val >= 0 && Val < ValueList->List.Num())

@@ -1,7 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "BodyComponent.h"
-#include "MainFunctionLibrary.h"
+#include "MainLibrary.h"
 #include <Kismet/KismetSystemLibrary.h>
 
 #define IsChar(Type) (Type == EPawnType::MainChar)
@@ -12,23 +12,23 @@ UBodyComponent::UBodyComponent()
 
 void UBodyComponent::SetStrength(EPawnType Type, int32 Level)
 {
-	MaximumHP = UMainLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharHP : ELevel::ShipHP, Level);
-	Mass = UMainLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharMass : ELevel::ShipMass, Level);
+	MaximumHP = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharHP : ETech::ShipHP, Level);
+	Mass = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharMass : ETech::ShipMass, Level);
 }
 
 void UBodyComponent::SetShieldCold(EPawnType Type, int32 Level)
 {
-	ShieldCold = UMainLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharShieldCold : ELevel::ShipShieldCold, Level);
+	ShieldCold = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharShieldCold : ETech::ShipShieldCold, Level);
 }
 
 void UBodyComponent::SetShieldHeat(EPawnType Type, int32 Level)
 {
-	ShieldHeat = UMainLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharShieldHeat : ELevel::ShipShieldHeat, Level);
+	ShieldHeat = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharShieldHeat : ETech::ShipShieldHeat, Level);
 }
 
 void UBodyComponent::SetShieldPress(EPawnType Type, int32 Level)
 {
-	ShieldPress = UMainLibrary::GetLevelValue(IsChar(Type) ? ELevel::CharShieldPress : ELevel::ShipShieldPress, Level);
+	ShieldPress = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharShieldPress : ETech::ShipShieldPress, Level);
 }
 
 void UBodyComponent::ChangeHP(int32 Delta)

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "MainFunctionLibrary.h"
+#include "MainLibrary.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "BodyComponent.generated.h"

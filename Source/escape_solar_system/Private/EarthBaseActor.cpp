@@ -1,7 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "EarthBaseActor.h"
-#include "MainLevelScriptActor.h"
+#include "MainLevelScript.h"
 #include "BackpackComponent.h"
 #include "MainCharacter.h"
 #include "Spaceship.h"

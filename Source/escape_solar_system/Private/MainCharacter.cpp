@@ -1,7 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "MainCharacter.h"
-#include "LevelData.h"
+#include "TechData.h"
 #include "GravityMovementComponent.h"
 #include "BackpackComponent.h"
 #include "BodyComponent.h"
@@ -10,8 +10,8 @@
 #include "EarthBaseActor.h"
 #include "PickableItemActor.h"
 #include "MainPlayerState.h"
-#include "MainLevelScriptActor.h"
-#include "MainFunctionLibrary.h"
+#include "MainLevelScript.h"
+#include "MainLibrary.h"
 #include <Components/CapsuleComponent.h>
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraActor.h>

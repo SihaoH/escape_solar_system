@@ -18,16 +18,16 @@ function info_row(k, v, u = "") {
     return { key: k, val: v, unit: u };
 }
 
-function level_btn(p, is_ship = false) {
-    return { name: helper.GetLevelName(p), desc: helper.GetLevelDesc(p), props: p, isShip: is_ship };
+function tech_btn(p, is_ship = false) {
+    return { name: helper.GetTechName(p), desc: helper.GetTechDesc(p), props: p, isShip: is_ship };
 }
 
 function engine_btn(p, ship_engine) {
-    return _extends({}, level_btn(p, true), { shipEngine: ship_engine });
+    return _extends({}, tech_btn(p, true), { shipEngine: ship_engine });
 }
 
 function energy_btn(p, ship_energy) {
-    return _extends({}, level_btn(p, true), { shipEnergy: ship_energy });
+    return _extends({}, tech_btn(p, true), { shipEnergy: ship_energy });
 }
 
 function checkBase(btn_val) {
@@ -68,7 +68,7 @@ class SplitLine extends React.Component {
     }
 }
 
-class LevelButton extends React.Component {
+class TechButton extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -99,9 +99,9 @@ class LevelButton extends React.Component {
                             // 而任意祖父元素或自身的state改变，都会触发更新
                             // 所以这里限制只在最开始赋值一次
                             this.btn.ToolTipWidgetDelegate = () => {
-                                helper.SelectLevel(btnVal.props);
-                                const cur_lv = helper.GetCurVal(btnVal.props);
-                                const max_lv = helper.GetMaxVal(btnVal.props);
+                                helper.SelectTech(btnVal.props);
+                                const cur_lv = helper.GetCurLv(btnVal.props);
+                                const max_lv = helper.GetMaxLv(btnVal.props);
                                 const in_base = checkBase(btnVal);
                                 return ReactUMG.wrap(React.createElement(
                                     'uBorder',
@@ -165,7 +165,7 @@ class LevelButton extends React.Component {
                                             ColorAndOpacity: {
                                                 SpecifiedColor: Utils.color("#222")
                                             },
-                                            Text: helper.CurLevelInfo
+                                            Text: helper.CurTechInfo
                                         }),
                                         cur_lv < max_lv && React.createElement(
                                             'div',
@@ -181,7 +181,7 @@ class LevelButton extends React.Component {
                                                 ColorAndOpacity: {
                                                     SpecifiedColor: Utils.color("#222")
                                                 },
-                                                Text: helper.NextLevelInfo
+                                                Text: helper.NextTechInfo
                                             }),
                                             React.createElement(SplitLine, { Text: "升级所需" }),
                                             React.createElement('uTextBlock', {
@@ -256,7 +256,7 @@ class LevelButton extends React.Component {
                                 return { X: 0, Y: (1 - t) * 80 };
                             } }).then(_ => {
                             if (upgradeAnime) {
-                                helper.UpgradeLevel(btnVal.props);
+                                helper.UpgradETech(btnVal.props);
                                 this.uBtnBg.SetRenderTranslation({ X: 0, Y: 80 });
                                 this.btn.SetVisibility(ESlateVisibility.Visible);
                                 upgradeAnime = null;
@@ -307,7 +307,7 @@ class LevelButton extends React.Component {
                             }
                         },
                         Brush: {
-                            ResourceObject: Texture2D.Load("/Game/UI/Icon/T_LevelTemp"),
+                            ResourceObject: Texture2D.Load("/Game/UI/Icon/T_TechTemp"),
                             ImageSize: { X: 64, Y: 64 }
                         }
                     }),
@@ -328,7 +328,7 @@ class LevelButton extends React.Component {
                                 OutlineColor: Utils.rgba(0, 0, 0, 0.6)
                             }
                         },
-                        Text: `${helper.GetCurVal(btnVal.props)}/${helper.GetMaxVal(btnVal.props)}`
+                        Text: `${helper.GetCurLv(btnVal.props)}/${helper.GetMaxLv(btnVal.props)}`
                     })
                 )
             )
@@ -411,7 +411,7 @@ class InfoCard extends React.Component {
     }
 }
 
-class LevelView extends React.Component {
+class TechView extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -419,7 +419,7 @@ class LevelView extends React.Component {
         return React.createElement(
             'div',
             this.props,
-            _.map(this.props.levelList, val => React.createElement(
+            _.map(this.props.techList, val => React.createElement(
                 'span',
                 {
                     Slot: { Padding: Utils.ltrb(0, 5) }
@@ -440,7 +440,7 @@ class LevelView extends React.Component {
                         text: val.tag
                     })
                 ),
-                _.map(val.btn, b_val => React.createElement(LevelButton, {
+                _.map(val.btn, b_val => React.createElement(TechButton, {
                     Slot: {
                         Padding: Utils.ltrb(20, 0, 0, 0)
                     },
@@ -452,36 +452,36 @@ class LevelView extends React.Component {
     }
 }
 
-class MenuLevel extends React.Component {
+class MenuTech extends React.Component {
     constructor(props) {
         super(props);
 
-        helper = new MenuLevelHelper();
-        this.charLevel = [{
+        helper = new MenuTechHelper();
+        this.charTech = [{
             tag: "机身",
-            btn: [level_btn([ELevel.CharHP, ELevel.CharMass]), level_btn([ELevel.CharBackpack])]
+            btn: [tech_btn([ETech.CharHP, ETech.CharMass]), tech_btn([ETech.CharBackpack])]
         }, {
             tag: "护盾",
-            btn: [level_btn([ELevel.CharShieldCold]), level_btn([ELevel.CharShieldHeat]), level_btn([ELevel.CharShieldPress])]
+            btn: [tech_btn([ETech.CharShieldCold]), tech_btn([ETech.CharShieldHeat]), tech_btn([ETech.CharShieldPress])]
         }, {
             tag: "引擎",
-            btn: [level_btn([ELevel.CharEnginePower, ELevel.CharEngineMass, ELevel.CharEngineEPR, ELevel.CharEngineEMR])]
+            btn: [tech_btn([ETech.CharEnginePower, ETech.CharEngineMass, ETech.CharEngineEPR, ETech.CharEngineEMR])]
         }, {
             tag: "燃料仓",
-            btn: [level_btn([ELevel.CharEnergy])]
+            btn: [tech_btn([ETech.CharEnergy])]
         }];
-        this.shipLevel = [{
+        this.shipTech = [{
             tag: "机身",
-            btn: [level_btn([ELevel.ShipHP, ELevel.ShipMass], true), level_btn([ELevel.ShipBackpack], true)]
+            btn: [tech_btn([ETech.ShipHP, ETech.ShipMass], true), tech_btn([ETech.ShipBackpack], true)]
         }, {
             tag: "护盾",
-            btn: [level_btn([ELevel.ShipShieldCold], true), level_btn([ELevel.ShipShieldHeat], true), level_btn([ELevel.ShipShieldPress], true)]
+            btn: [tech_btn([ETech.ShipShieldCold], true), tech_btn([ETech.ShipShieldHeat], true), tech_btn([ETech.ShipShieldPress], true)]
         }, {
             tag: "引擎",
-            btn: [engine_btn([ELevel.ShipEngine0Power, ELevel.ShipEngine0Mass, ELevel.ShipEngine0EPR, ELevel.ShipEngine0EMR], 0), engine_btn([ELevel.ShipEngine1Power, ELevel.ShipEngine1Mass, ELevel.ShipEngine1EPR, ELevel.ShipEngine1EMR], 1), engine_btn([ELevel.ShipEngine2Power, ELevel.ShipEngine2Mass, ELevel.ShipEngine2EPR, ELevel.ShipEngine2EMR], 2)]
+            btn: [engine_btn([ETech.ShipEngine0Power, ETech.ShipEngine0Mass, ETech.ShipEngine0EPR, ETech.ShipEngine0EMR], 0), engine_btn([ETech.ShipEngine1Power, ETech.ShipEngine1Mass, ETech.ShipEngine1EPR, ETech.ShipEngine1EMR], 1), engine_btn([ETech.ShipEngine2Power, ETech.ShipEngine2Mass, ETech.ShipEngine2EPR, ETech.ShipEngine2EMR], 2)]
         }, {
             tag: "燃料仓",
-            btn: [energy_btn([ELevel.ShipEnergy0], 0), energy_btn([ELevel.ShipEnergy1], 1), energy_btn([ELevel.ShipEnergy2], 2)]
+            btn: [energy_btn([ETech.ShipEnergy0], 0), energy_btn([ETech.ShipEnergy1], 1), energy_btn([ETech.ShipEnergy2], 2)]
         }];
         this.state = {
             charInfo: [],
@@ -536,25 +536,25 @@ class MenuLevel extends React.Component {
                     title: "躯体",
                     info: this.state.charInfo
                 }),
-                React.createElement(LevelView, {
+                React.createElement(TechView, {
                     Slot: {
                         Padding: Utils.ltrb(20, 70, 120, 0)
                     },
-                    levelList: this.charLevel
+                    techList: this.charTech
                 }),
                 has_ship && React.createElement(InfoCard, {
                     title: "飞船",
                     info: this.state.shipInfo
                 }),
-                has_ship && React.createElement(LevelView, {
+                has_ship && React.createElement(TechView, {
                     Slot: {
                         Padding: Utils.ltrb(20, 70, 0, 0)
                     },
-                    levelList: this.shipLevel
+                    techList: this.shipTech
                 })
             )
         );
     }
 }
 
-module.exports = MenuLevel;
+module.exports = MenuTech;

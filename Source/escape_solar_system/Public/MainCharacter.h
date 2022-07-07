@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GravityMovementComponent.h"
-#include "MainLevelScriptActor.h"
+#include "MainLevelScript.h"
 #include "MassActorInterface.h"
 #include "Controllable.h"
 #include "CoreMinimal.h"
@@ -93,7 +93,7 @@ private:
 	class UCameraComponent* FollowCamera = nullptr;
 
 private:
-	friend class UMenuLevelHelper;
+	friend class UMenuTechHelper;
 	/** 属性等级 */
 	int32 LevelStrength    = 0; //包含Mass和HP
 	int32 LevelBackpack    = 0; //背包承重

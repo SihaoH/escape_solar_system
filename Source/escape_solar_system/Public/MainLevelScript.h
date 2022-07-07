@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/LevelScriptActor.h"
-#include "MainLevelScriptActor.generated.h"
+#include "MainLevelScript.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPausedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMenuOpenedSignature);

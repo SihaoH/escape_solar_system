@@ -15,7 +15,7 @@ const T_Keycap = Texture2D.Load('/Game/UI/Icon/T_Keycap64x64');
 class PlayingView extends React.Component {
     constructor(props) {
         super(props);
-        this.helper = new PlayingHelper();
+        this.helper = new PlayingViewHelper();
 
         this.state = {
             HP: { cur: 0, max: 1 },

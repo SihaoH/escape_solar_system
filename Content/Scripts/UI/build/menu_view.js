@@ -9,7 +9,7 @@ const { F_Sans } = require('../style');
 const TabButton = require('./tab_button');
 const MenuBase = require('./menu_base');
 const MenuBackpack = require('./menu_backpack');
-const MenuLevel = require('./menu_level');
+const MenuTech = require('./menu_tech');
 const MenuInfo = require('./menu_info');
 
 let ThisWidget = null;
@@ -163,7 +163,7 @@ class MenuView extends React.Component {
                     },
                     this.inBase && React.createElement(MenuBase, null),
                     React.createElement(MenuBackpack, null),
-                    React.createElement(MenuLevel, null),
+                    React.createElement(MenuTech, null),
                     React.createElement(MenuInfo, null)
                 )
             )

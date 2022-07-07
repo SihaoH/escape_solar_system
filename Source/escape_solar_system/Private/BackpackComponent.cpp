@@ -9,7 +9,7 @@ UBackpackComponent::UBackpackComponent()
 
 void UBackpackComponent::SetBackpack(EPawnType Type, int32 Level)
 {
-	MaxLoad = UMainLibrary::GetLevelValue(Type == EPawnType::MainChar ? ELevel::CharBackpack : ELevel::ShipBackpack, Level);
+	MaxLoad = UMainLibrary::GetTechValue(Type == EPawnType::MainChar ? ETech::CharBackpack : ETech::ShipBackpack, Level);
 }
 
 void UBackpackComponent::AddItem(const FName& RowName, int32 Count)

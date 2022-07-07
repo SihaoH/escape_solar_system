@@ -10,59 +10,59 @@ UEngineComponent::UEngineComponent()
 
 void UEngineComponent::SetEngine(EPawnType PType, int32 Level, int32 Type)
 {
-	ELevel PowerLV = ELevel::CharEnginePower;
-	ELevel MassLV  = ELevel::CharEngineMass;
-	ELevel EprLV   = ELevel::CharEngineEPR;
-	ELevel EmrLV   = ELevel::CharEngineEMR;
+	ETech PowerLV = ETech::CharEnginePower;
+	ETech MassLV  = ETech::CharEngineMass;
+	ETech EprLV   = ETech::CharEngineEPR;
+	ETech EmrLV   = ETech::CharEngineEMR;
 	if (PType == EPawnType::SpaceShip)
 	{
 		switch (Type)
 		{
 		case 0:
-			PowerLV = ELevel::ShipEngine0Power;
-			MassLV  = ELevel::ShipEngine0Mass;
-			EprLV   = ELevel::ShipEngine0EPR;
-			EmrLV   = ELevel::ShipEngine0EMR;
+			PowerLV = ETech::ShipEngine0Power;
+			MassLV  = ETech::ShipEngine0Mass;
+			EprLV   = ETech::ShipEngine0EPR;
+			EmrLV   = ETech::ShipEngine0EMR;
 			break;
 		case 1:
-			PowerLV = ELevel::ShipEngine1Power;
-			MassLV  = ELevel::ShipEngine1Mass;
-			EprLV   = ELevel::ShipEngine1EPR;
-			EmrLV   = ELevel::ShipEngine1EMR;
+			PowerLV = ETech::ShipEngine1Power;
+			MassLV  = ETech::ShipEngine1Mass;
+			EprLV   = ETech::ShipEngine1EPR;
+			EmrLV   = ETech::ShipEngine1EMR;
 			break;
 		case 2:
-			PowerLV = ELevel::ShipEngine1Power;
-			MassLV  = ELevel::ShipEngine1Mass;
-			EprLV   = ELevel::ShipEngine1EPR;
-			EmrLV   = ELevel::ShipEngine1EMR;
+			PowerLV = ETech::ShipEngine1Power;
+			MassLV  = ETech::ShipEngine1Mass;
+			EprLV   = ETech::ShipEngine1EPR;
+			EmrLV   = ETech::ShipEngine1EMR;
 			break;
 		}
 	}
-	Power = UMainLibrary::GetLevelValue(PowerLV, Level);
-	Mass = UMainLibrary::GetLevelValue(MassLV, Level);
-	EPRatio = UMainLibrary::GetLevelValue(EprLV, Level);
-	EMRatio = UMainLibrary::GetLevelValue(EmrLV, Level);
+	Power = UMainLibrary::GetTechValue(PowerLV, Level);
+	Mass = UMainLibrary::GetTechValue(MassLV, Level);
+	EPRatio = UMainLibrary::GetTechValue(EprLV, Level);
+	EMRatio = UMainLibrary::GetTechValue(EmrLV, Level);
 }
 
 void UEngineComponent::SetEnergy(EPawnType PType, int32 Level, int32 Type)
 {
-	ELevel LV = ELevel::CharEnergy;
+	ETech LV = ETech::CharEnergy;
 	if (PType == EPawnType::SpaceShip)
 	{
 		switch (Type)
 		{
 		case 0:
-			LV = ELevel::ShipEnergy0;
+			LV = ETech::ShipEnergy0;
 			break;
 		case 1:
-			LV = ELevel::ShipEnergy1;
+			LV = ETech::ShipEnergy1;
 			break;
 		case 2:
-			LV = ELevel::ShipEnergy1;
+			LV = ETech::ShipEnergy1;
 			break;
 		}
 	}
-	MaximumEnergy = UMainLibrary::GetLevelValue(LV, Level);
+	MaximumEnergy = UMainLibrary::GetTechValue(LV, Level);
 }
 
 void UEngineComponent::ChangeEnergy(float Delta)

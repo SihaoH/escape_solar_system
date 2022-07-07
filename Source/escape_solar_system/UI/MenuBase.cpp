@@ -2,13 +2,13 @@
 
 #include "MenuBase.h"
 #include "ItemDataObject.h"
-#include "MainFunctionLibrary.h"
-#include "MainLevelScriptActor.h"
+#include "MainLibrary.h"
+#include "MainLevelScript.h"
 #include "MainCharacter.h"
 #include "EarthBaseActor.h"
 #include "BackpackComponent.h"
 #include "Spaceship.h"
-#include "MainLevelScriptActor.h"
+#include "MainLevelScript.h"
 #include <UMG.h>
 
 #define LOCTEXT_NAMESPACE "MenuBase"

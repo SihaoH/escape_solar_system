@@ -10,7 +10,7 @@ AMainPlayerState::AMainPlayerState()
 	s_Instance = this;
 }
 
-void AMainPlayerState::UpdateBestLevel(const TArray<ELevel>& Props, int32 Val)
+void AMainPlayerState::UpdateBestLevel(const TArray<ETech>& Props, int32 Val)
 {
 	int32* CurBest = GetBest(Props);
 	if (Val > *CurBest)
@@ -19,7 +19,7 @@ void AMainPlayerState::UpdateBestLevel(const TArray<ELevel>& Props, int32 Val)
 	}
 }
 
-int32 AMainPlayerState::GetBestLevel(const TArray<ELevel>& Props)
+int32 AMainPlayerState::GetBestLevel(const TArray<ETech>& Props)
 {
 	return *GetBest(Props);
 }
@@ -36,78 +36,78 @@ int32 AMainPlayerState::GetExplorePoints()
 	return ExplorePoints;
 }
 
-int32* AMainPlayerState::GetBest(const TArray<ELevel>& Props)
+int32* AMainPlayerState::GetBest(const TArray<ETech>& Props)
 {
-	ELevel Level = Props[0];
+	ETech Level = Props[0];
 	int32* Best = nullptr;
 	switch (Level)
 	{
-	case ELevel::CharHP:
-	case ELevel::CharMass:
+	case ETech::CharHP:
+	case ETech::CharMass:
 		Best = &Best_CharBody;
 		break;
-	case ELevel::CharBackpack:
+	case ETech::CharBackpack:
 		Best = &Best_CharBackpack;
 		break;
-	case ELevel::CharShieldCold:
+	case ETech::CharShieldCold:
 		Best = &Best_CharShieldCold;
 		break;
-	case ELevel::CharShieldHeat:
+	case ETech::CharShieldHeat:
 		Best = &Best_CharShieldHeat;
 		break;
-	case ELevel::CharShieldPress:
+	case ETech::CharShieldPress:
 		Best = &Best_CharShieldPress;
 		break;
-	case ELevel::CharEnginePower:
-	case ELevel::CharEngineMass:
-	case ELevel::CharEngineEPR:
-	case ELevel::CharEngineEMR:
+	case ETech::CharEnginePower:
+	case ETech::CharEngineMass:
+	case ETech::CharEngineEPR:
+	case ETech::CharEngineEMR:
 		Best = &Best_CharEngine;
 		break;
-	case ELevel::CharEnergy:
+	case ETech::CharEnergy:
 		Best = &Best_CharEnergy;
 		break;
-	case ELevel::ShipHP:
-	case ELevel::ShipMass:
+	case ETech::ShipHP:
+	case ETech::ShipMass:
 		Best = &Best_ShipBody;
 		break;
-	case ELevel::ShipBackpack:
+	case ETech::ShipBackpack:
 		Best = &Best_ShipBackpack;
 		break;
-	case ELevel::ShipShieldCold:
+	case ETech::ShipShieldCold:
 		Best = &Best_ShipShieldCold;
 		break;
-	case ELevel::ShipShieldHeat:
+	case ETech::ShipShieldHeat:
 		Best = &Best_ShipShieldHeat;
 		break;
-	case ELevel::ShipShieldPress:
+	case ETech::ShipShieldPress:
 		Best = &Best_ShipShieldPress;
 		break;
-	case ELevel::ShipEngine0Power:
-	case ELevel::ShipEngine0Mass:
-	case ELevel::ShipEngine0EPR:
-	case ELevel::ShipEngine0EMR:
+	case ETech::ShipEngine0Power:
+	case ETech::ShipEngine0Mass:
+	case ETech::ShipEngine0EPR:
+	case ETech::ShipEngine0EMR:
 		Best = &Best_ShipEngine[0];
 		break;
-	case ELevel::ShipEngine1Power:
-	case ELevel::ShipEngine1Mass:
-	case ELevel::ShipEngine1EPR:
-	case ELevel::ShipEngine1EMR:
+	case ETech::ShipEngine1Power:
+	case ETech::ShipEngine1Mass:
+	case ETech::ShipEngine1EPR:
+	case ETech::ShipEngine1EMR:
 		Best = &Best_ShipEngine[1];
 		break;
-	case ELevel::ShipEngine2Power:
-	case ELevel::ShipEngine2Mass:
-	case ELevel::ShipEngine2EPR:
-	case ELevel::ShipEngine2EMR:
+	case ETech::ShipEngine2Power:
+	case ETech::ShipEngine2Mass:
+	case ETech::ShipEngine2EPR:
+	case ETech::ShipEngine2EMR:
 		Best = &Best_ShipEngine[2];
 		break;
-	case ELevel::ShipEnergy0:
+	case ETech::ShipEnergy0:
 		Best = &Best_ShipEnergy[0];
 		break;
-	case ELevel::ShipEnergy1:
+	case ETech::ShipEnergy1:
 		Best = &Best_ShipEnergy[1];
 		break;
-	case ELevel::ShipEnergy2:
+	case ETech::ShipEnergy2:
 		Best = &Best_ShipEnergy[2];
 		break;
 	}

@@ -1,7 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "PickableItemActor.h"
-#include "MainFunctionLibrary.h"
+#include "MainLibrary.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/SphereComponent.h>
 #include <Particles/ParticleSystemComponent.h>

@@ -4,7 +4,6 @@
 #include "MainCharacter.h"
 #include "Spaceship.h"
 #include "EarthBaseActor.h"
-#include "BackpackView.h"
 #include "ItemDataObject.h"
 #include "BackpackComponent.h"
 #include "BodyComponent.h"

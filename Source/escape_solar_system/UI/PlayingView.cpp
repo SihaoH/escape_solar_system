@@ -1,6 +1,6 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
-#include "PlayingWidget.h"
+#include "PlayingView.h"
 #include "MainCharacter.h"
 #include "Spaceship.h"
 #include "BodyComponent.h"
@@ -8,7 +8,7 @@
 #include <GameFramework/InputSettings.h>
 #define LOCTEXT_NAMESPACE "PlayView"
 
-UPlayingHelper::UPlayingHelper()
+UPlayingViewHelper::UPlayingViewHelper()
 {
 	CharOperDesc.Add("MoveForward", LOCTEXT("CharMoveForward", "向前或向后驱动"));
 	CharOperDesc.Add("MoveRight", LOCTEXT("CharMoveRight", "左右驱动或(太空中)顺逆时针转动"));
@@ -30,7 +30,7 @@ UPlayingHelper::UPlayingHelper()
 	ShipOperDesc.Add("Drive", LOCTEXT("ShipDrive", "脱离飞船"));
 }
 
-TArray<FKey> UPlayingHelper::GetActionKeys(FName ActionName)
+TArray<FKey> UPlayingViewHelper::GetActionKeys(FName ActionName)
 {
 	TArray<FInputActionKeyMapping> Mappings;
 	TArray<FKey> Keys;
@@ -43,7 +43,7 @@ TArray<FKey> UPlayingHelper::GetActionKeys(FName ActionName)
 	return Keys;
 }
 
-TArray<FKey> UPlayingHelper::GetAxisKeys(FName AxisName)
+TArray<FKey> UPlayingViewHelper::GetAxisKeys(FName AxisName)
 {
 	TArray<FInputAxisKeyMapping> Mappings;
 	TArray<FKey> Keys;
@@ -56,17 +56,17 @@ TArray<FKey> UPlayingHelper::GetAxisKeys(FName AxisName)
 	return Keys;
 }
 
-FText UPlayingHelper::GetCharOperDesc(FName Name)
+FText UPlayingViewHelper::GetCharOperDesc(FName Name)
 {
 	return CharOperDesc[Name];
 }
 
-FText UPlayingHelper::GetShipOperDesc(FName Name)
+FText UPlayingViewHelper::GetShipOperDesc(FName Name)
 {
 	return ShipOperDesc[Name];
 }
 
-void UPlayingHelper::GetDebugInfo(TArray<FText>& OutList) const
+void UPlayingViewHelper::GetDebugInfo(TArray<FText>& OutList) const
 {
 	AMainCharacter* Char = AMainLevelScript::GetMainChar();
 	if (Char->FindSpaceship() && Char->FindSpaceship()->GetPilot())
