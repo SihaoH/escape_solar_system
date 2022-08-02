@@ -37,6 +37,10 @@ function color(str) {
     return { R: 1, G: 1, B: 1, A: 1}
 }
 
+function icon(file) {
+    return Texture2D.Load(`/Game/UI/Icon/${file}`)
+}
+
 function num2Txt(num, x = 0) {
     if (num > 10000000) {
         return Math.round((num / 1000000) * 100) / 100 + " M"
@@ -72,6 +76,7 @@ module.exports = {
     ltrb: ltrb,
     rgba: rgba,
     color: color,
+    icon: icon,
     num2Txt: num2Txt,
     isDev: isDev,
     setInputMode: setInputMode,

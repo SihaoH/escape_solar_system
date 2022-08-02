@@ -1,5 +1,5 @@
 const _ = require('lodash')
-const uclass = require('uclass')()
+const UClass = require('UClass')()
 const React = require('react')
 const ReactUMG = require('react-umg')
 const Utils = require('../Utils')
@@ -16,6 +16,7 @@ let ThisWidget = null
 
 class MyOverlayer extends JavascriptWidget {
     ctor() {
+        // 这里要延时设置焦点，否则接收不到按键事件
         this.bIsFocusable = true
         this.Visibility = ESlateVisibility.Visible
         setTimeout(() => {
@@ -42,7 +43,7 @@ class MyOverlayer extends JavascriptWidget {
         return EventReply.Unhandled()
     }
 }
-let MyOverlayer_C = uclass(global, MyOverlayer)
+let MyOverlayer_C = UClass(global, MyOverlayer)
 ReactUMG.Register('uMyOverlayer', MyOverlayer_C)
 
 
@@ -118,7 +119,7 @@ class MenuView extends React.Component {
                                 VerticalAlignment: EVerticalAlignment.VAlign_Center
                             }}
                             Brush={{
-                                ResourceObject: Texture2D.Load("/Game/UI/Icon/T_Points64x64"),
+                                ResourceObject: Utils.icon("T_Points64x64"),
                                 ImageSize: {X: 48, Y: 48}
                             }}
                         />

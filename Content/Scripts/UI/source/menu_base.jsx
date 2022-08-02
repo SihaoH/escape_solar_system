@@ -10,7 +10,7 @@ const TaggedCard = require('tagged_card')
 const ItemToolTip = require('item_tooltip')
 const {F_Sans, ButtonStyle, SpinBoxProps} = require('../style')
 
-let event = null
+let Event = null
 
 class MakeableEntry extends JavascriptWidget {
     properties() {
@@ -18,13 +18,13 @@ class MakeableEntry extends JavascriptWidget {
         this.index/*int*/
     }
     OnMouseEnter(MyGeometry, MouseEvent) {
-        event.emit("MouseEnter", this.index)
+        Event.emit("MouseEnter", this.index)
     }
     OnMouseLeave(MouseEvent) {
-        event.emit("MouseLeave", -1)
+        Event.emit("MouseLeave", -1)
     }
     OnMouseButtonDown(MyGeometry, MouseEvent) {
-        event.emit("MouseClick", this.index)
+        Event.emit("MouseClick", this.index)
     }
 }
 ReactUMG.Register("uMakeableEntry", UClass(global, MakeableEntry))
@@ -84,20 +84,20 @@ class Menu extends React.Component {
     }
 
     componentDidMount() {
-        event = new Events.EventEmitter()
-        event.on("MouseEnter", (idx) => {
+        Event = new Events.EventEmitter()
+        Event.on("MouseEnter", (idx) => {
             if (this.state.hoveredIndex !== idx) {
                 this.uMakeableList.RegenerateAllEntries()
                 this.setState({ hoveredIndex: idx })
             }
         })
-        event.on("MouseLeave", (idx) => {
+        Event.on("MouseLeave", (idx) => {
             if (this.state.hoveredIndex !== -1) {
                 this.uMakeableList.RegenerateAllEntries()
                 this.setState({ hoveredIndex: -1 })
             }
         })
-        event.on("MouseClick", (idx) => {
+        Event.on("MouseClick", (idx) => {
             if (this.state.selectedIndex !== idx) {
                 this.uMakeableList.RegenerateAllEntries()
                 this.setState({ selectedIndex: idx, makeCount: 1 })
@@ -108,7 +108,7 @@ class Menu extends React.Component {
 
     componentWillUnmount() {
         clearInterval(this.timer)
-        event = null
+        Event = null
         this.earthBase.Backpack.ChangedDelegate = null
     }
 

@@ -11,6 +11,8 @@ APickableItemActor::APickableItemActor()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	ScopeTigger = CreateDefaultSubobject<USphereComponent>(TEXT("ScopeTigger"));
 	PromptEffect = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("PromptEffect"));
+	StaticMesh->SetCollisionProfileName("InvisibleWallDynamic");
+	ScopeTigger->SetCollisionProfileName("UI");
 
 	RootComponent = StaticMesh;
 	ScopeTigger->SetupAttachment(RootComponent);

@@ -9,6 +9,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPausedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMenuOpenedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathOpenedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTalkOpenedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnteredSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, Msg);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FExplorePointsSignature, FText, Msg);
@@ -65,6 +66,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FDeathOpenedSignature DeathOpenedDelegate;
+	
+	UPROPERTY(BlueprintAssignable)
+	FTalkOpenedSignature TalkOpenedDelegate;
 	
 	UPROPERTY(BlueprintAssignable)
 	FEnteredSignature EnteredDelegate;

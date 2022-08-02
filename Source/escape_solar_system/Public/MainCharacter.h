@@ -36,7 +36,7 @@ public:
 	class AEarthBase* FindEarthBase() const;
 
 	UFUNCTION(BlueprintPure)
-	class APickableItemActor* FindPickableItem() const;
+	class ANPC* GetTalkableNPC() const { return TalkableNPC; };
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMass() const { return Movement->Mass; }
@@ -58,6 +58,10 @@ protected:
 
 	UFUNCTION()
 	void PickupItem();
+
+	UFUNCTION()
+	void TalkToNPC();
+
 	void Turn(float Value);
 	void LookUp(float Value);
 
@@ -66,6 +70,8 @@ protected:
 	void MoveUp(float Value);
 
 	void UpdateMass();
+	void CheckPickup();
+	void CheckNPC();
 
 	UFUNCTION()
 	void OnHpChanged(float Delta);
@@ -88,6 +94,8 @@ private:
 	static class ACameraActor* DeathCamera;
 	class UGravityMovementComponent* Movement = nullptr;
 	class ASpaceship* CurrentVehicle = nullptr;
+	class ANPC* TalkableNPC = nullptr;
+	class APickableItemActor* PickableItem = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera = nullptr;

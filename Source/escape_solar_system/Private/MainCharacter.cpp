@@ -9,6 +9,7 @@
 #include "Spaceship.h"
 #include "EarthBaseActor.h"
 #include "PickableItemActor.h"
+#include "NPC.h"
 #include "MainPlayerState.h"
 #include "MainLevelScript.h"
 #include "MainLibrary.h"
@@ -113,17 +114,6 @@ AEarthBase* AMainCharacter::FindEarthBase() const
 	return nullptr;
 }
 
-APickableItemActor* AMainCharacter::FindPickableItem() const
-{
-	TArray<AActor*> NearbyActors;
-	GetCapsuleComponent()->GetOverlappingActors(NearbyActors, APickableItemActor::StaticClass());
-	if (NearbyActors.Num() > 0)
-	{
-		return Cast<APickableItemActor>(NearbyActors[0]);
-	}
-	return nullptr;
-}
-
 FVector AMainCharacter::GetVelocity() const
 {
 	FVector Velocity = FVector::ZeroVector;
@@ -196,8 +186,10 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	LookPlanet();
 	UpdateMass();
+	LookPlanet();
+	CheckPickup();
+	CheckNPC();
 }
 
 void AMainCharacter::Thrusting(FVector Force)
@@ -224,7 +216,6 @@ void AMainCharacter::DriveShip()
 
 void AMainCharacter::PickupItem()
 {
-	auto PickableItem = FindPickableItem();
 	if (PickableItem)
 	{
 		FName RowName;
@@ -239,6 +230,11 @@ void AMainCharacter::PickupItem()
 			AddedCount)
 		);
 	}
+}
+
+void AMainCharacter::TalkToNPC()
+{
+	AMainLevelScript::Instance()->TalkOpenedDelegate.Broadcast();
 }
 
 void AMainCharacter::Turn(float Value)
@@ -325,6 +321,53 @@ void AMainCharacter::UpdateMass()
 	}
 }
 
+void AMainCharacter::CheckPickup()
+{
+	APickableItemActor* NewPickupItem = nullptr;
+	if (Controller->GetPawn() == this)
+	{
+		NewPickupItem = FindByLineTrace<APickableItemActor>(250.f);
+	}
+
+	if (NewPickupItem != PickableItem)
+	{
+		if (NewPickupItem)
+		{
+			auto ItemRowName = NewPickupItem->ItemRowName;
+			AMainLevelScript::AddActionPrompt("Pickup", UMainLibrary::GetItemData(ItemRowName).Name, 2)
+				.AddUniqueDynamic(this, &AMainCharacter::PickupItem);
+		}
+		else
+		{
+			AMainLevelScript::RemoveActionPrompt("Pickup");
+		}
+		PickableItem = NewPickupItem;
+	}
+}
+
+void AMainCharacter::CheckNPC()
+{
+	ANPC* NewNPC = nullptr;
+	if (Controller->GetPawn() == this)
+	{
+		NewNPC = FindByLineTrace<ANPC>(250.f);
+	}
+
+	if (NewNPC != TalkableNPC)
+	{
+		if (NewNPC)
+		{
+			AMainLevelScript::AddActionPrompt("Talk", NewNPC->GetName())
+				.AddUniqueDynamic(this, &AMainCharacter::TalkToNPC);
+		}
+		else
+		{
+			AMainLevelScript::RemoveActionPrompt("Talk");
+		}
+		TalkableNPC = NewNPC;
+	}
+}
+
 void AMainCharacter::OnHpChanged(float Delta)
 {
 	if (Body->GetCurrentHP() <= 0)
@@ -335,13 +378,7 @@ void AMainCharacter::OnHpChanged(float Delta)
 
 void AMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->IsA<APickableItemActor>())
-	{
-		auto ItemRowName = Cast<APickableItemActor>(OtherActor)->ItemRowName;
-		AMainLevelScript::AddActionPrompt("Pickup", UMainLibrary::GetItemData(ItemRowName).Name, 2)
-			.AddUniqueDynamic(this, &AMainCharacter::PickupItem);
-	}
-	else if (OtherActor->IsA<ASpaceship>())
+	if (OtherActor->IsA<ASpaceship>())
 	{
 		AMainLevelScript::AddActionPrompt("Drive", LOCTEXT("Drive", "登上飞船"))
 			.AddUniqueDynamic(this, &AMainCharacter::DriveShip);
@@ -355,11 +392,7 @@ void AMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 
 void AMainCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->IsA<APickableItemActor>())
-	{
-		AMainLevelScript::RemoveActionPrompt("Pickup");
-	}
-	else if (OtherActor->IsA<ASpaceship>())
+	if (OtherActor->IsA<ASpaceship>())
 	{
 		AMainLevelScript::RemoveActionPrompt("Drive");
 	}

@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Controllable)
 	virtual void GetLocation(int& X, int& Y, int& Z);
 
+	template <typename TargetClass>
+	FORCEINLINE TargetClass* FindByLineTrace(float Distance);
+
 	virtual void Controlled() {};
 	virtual void UnControlled() {};
 	virtual void Thrusting(FVector Force) {};
@@ -43,3 +46,22 @@ private:
 	/** 被锁定的星球 */
 	static class APlanetActor* LockedPlanet;
 };
+
+template<typename TargetClass>
+FORCEINLINE TargetClass* IControllable::FindByLineTrace(float Distance)
+{
+	AActor* Self = Cast<AActor>(this);
+	const APlayerController* Controller = UGameplayStatics::GetPlayerController(Self->GetWorld(), 0);
+	const APlayerCameraManager* CameraManager = Controller->PlayerCameraManager;
+	const FVector Start = CameraManager->GetCameraLocation();
+	const FVector End = Start + CameraManager->GetTransformComponent()->GetForwardVector() * Distance; //最长到64km
+	FHitResult OutHit;
+	TargetClass* HitTarget = nullptr;
+	if (UKismetSystemLibrary::LineTraceSingle(
+		Self->GetWorld(), Start, End,
+		ETraceTypeQuery::TraceTypeQuery1, true, { Self }, EDrawDebugTrace::ForOneFrame, OutHit, true))
+	{
+		HitTarget = Cast<TargetClass>(OutHit.GetActor());
+	}
+	return HitTarget;
+}

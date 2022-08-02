@@ -55,17 +55,7 @@ void IControllable::LookPlanet()
 	const APlayerController* Controller = UGameplayStatics::GetPlayerController(Self->GetWorld(), 0);
 	if (Controller->GetPawn() == Self)
 	{
-		const APlayerCameraManager* CameraManager = Controller->PlayerCameraManager;
-		const FVector Start = CameraManager->GetCameraLocation();
-		const FVector End = Start + CameraManager->GetTransformComponent()->GetForwardVector() * 6400000.f; //最长到64km
-		FHitResult OutHit;
-		APlanetActor* NewLookedPlanet = nullptr;
-		if (UKismetSystemLibrary::LineTraceSingle(
-			Self->GetWorld(), Start, End,
-			ETraceTypeQuery::TraceTypeQuery1, true, { Self }, EDrawDebugTrace::ForOneFrame, OutHit, true))
-		{
-			NewLookedPlanet = Cast<APlanetActor>(OutHit.GetActor());
-		}
+		APlanetActor* NewLookedPlanet = FindByLineTrace<APlanetActor>(6400000.f);
 		if (NewLookedPlanet != LookedPlanet)
 		{
 			if (LookedPlanet)

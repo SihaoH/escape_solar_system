@@ -7,6 +7,15 @@ function JSX(file) {
     return `UI/build/${file}.js`
 }
 
+function removeViews(list) {
+    for (let i in list) {
+        let view = require(JSX(list[i]))()
+        if (view.IsInViewport()) {
+            view.RemoveFromViewport()
+        }
+    }
+}
+
 // let p = JavascriptProcess.Create("C:\\Program Files\\nodejs\\npm", "--version")
 // p.Wait()
 //require('devrequire')(__filename)
@@ -17,13 +26,14 @@ MainLevelScript.Instance().MenuOpenedDelegate.Add(()=> {
     }
 })
 MainLevelScript.Instance().DeathOpenedDelegate.Add(()=> {
-    let menu_view = require(JSX("menu_view"))()
-    if (menu_view.IsInViewport()) {
-        menu_view.RemoveFromViewport()
-    }
+    removeViews(["menu_view", "talk_view"])
 
     let death_view = require(JSX("death_view"))()
     death_view.AddToViewport()
+})
+MainLevelScript.Instance().TalkOpenedDelegate.Add(()=> {
+    let talk_view = require(JSX("talk_view"))()
+    talk_view.AddToViewport()
 })
 
 let playing_view = require(JSX("playing_view"))
