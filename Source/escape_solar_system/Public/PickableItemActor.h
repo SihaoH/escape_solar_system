@@ -14,6 +14,8 @@ class ESCAPE_SOLAR_SYSTEM_API APickableItemActor : public AActor
 public:
 	APickableItemActor();
 
+	FORCEINLINE void SetHighlight(bool bValue);
+
 	UFUNCTION(BlueprintCallable)
 	void Pickup(FName& RowName, int32& Count);
 

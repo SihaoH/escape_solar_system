@@ -29,6 +29,9 @@ class ESCAPE_SOLAR_SYSTEM_API ANPC : public ADefaultPawn
 
 public:
 	ANPC();
+
+	FORCEINLINE void SetHighlight(bool bValue);
+
 	FORCEINLINE FText GetName() const { return Name; };
 
 	UFUNCTION(BlueprintPure)

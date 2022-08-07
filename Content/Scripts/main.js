@@ -19,6 +19,10 @@ function removeViews(list) {
 // let p = JavascriptProcess.Create("C:\\Program Files\\nodejs\\npm", "--version")
 // p.Wait()
 //require('devrequire')(__filename)
+MainLevelScript.Instance().PausedDelegate.Add(()=> {
+    let pause_view = require(JSX("pause_view"))()
+    pause_view.AddToViewport(999)
+})
 MainLevelScript.Instance().MenuOpenedDelegate.Add(()=> {
     let menu_view = require(JSX("menu_view"))()
     if (!menu_view.IsInViewport()) {
@@ -40,4 +44,4 @@ let playing_view = require(JSX("playing_view"))
 playing_view.AddToViewport()
 
 let prompt_view = require(JSX("prompt_view"))
-prompt_view.AddToViewport(999)
+prompt_view.AddToViewport(998)

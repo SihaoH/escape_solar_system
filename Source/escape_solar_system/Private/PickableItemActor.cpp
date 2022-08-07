@@ -19,6 +19,11 @@ APickableItemActor::APickableItemActor()
 	PromptEffect->SetupAttachment(RootComponent);
 }
 
+void APickableItemActor::SetHighlight(bool bValue)
+{
+	StaticMesh->SetRenderCustomDepth(bValue);
+}
+
 void APickableItemActor::Pickup(FName& RowName, int32& Count)
 {
 	FItemData& ItemData = UMainLibrary::GetItemData(ItemRowName);

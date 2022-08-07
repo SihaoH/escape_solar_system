@@ -138,8 +138,6 @@ void AMainLevelScript::SetActionPrompt(const ActionInfo& Info)
 void AMainLevelScript::OnPaused()
 {
 	// 弹出暂停界面
-	UUserWidget* PauseWidget = CreateWidget(GetWorld(), LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_Pause.WB_Pause_C'")));
-	PauseWidget->AddToViewport();
 	PausedDelegate.Broadcast();
 }
 

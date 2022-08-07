@@ -334,11 +334,13 @@ void AMainCharacter::CheckPickup()
 		if (NewPickupItem)
 		{
 			auto ItemRowName = NewPickupItem->ItemRowName;
+			NewPickupItem->SetHighlight(true);
 			AMainLevelScript::AddActionPrompt("Pickup", UMainLibrary::GetItemData(ItemRowName).Name, 2)
 				.AddUniqueDynamic(this, &AMainCharacter::PickupItem);
 		}
 		else
 		{
+			PickableItem->SetHighlight(false);
 			AMainLevelScript::RemoveActionPrompt("Pickup");
 		}
 		PickableItem = NewPickupItem;
@@ -357,11 +359,13 @@ void AMainCharacter::CheckNPC()
 	{
 		if (NewNPC)
 		{
+			NewNPC->SetHighlight(true);
 			AMainLevelScript::AddActionPrompt("Talk", NewNPC->GetName())
 				.AddUniqueDynamic(this, &AMainCharacter::TalkToNPC);
 		}
 		else
 		{
+			TalkableNPC->SetHighlight(false);
 			AMainLevelScript::RemoveActionPrompt("Talk");
 		}
 		TalkableNPC = NewNPC;

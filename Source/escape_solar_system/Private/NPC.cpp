@@ -9,6 +9,11 @@ ANPC::ANPC()
 	GetMeshComponent()->SetCollisionProfileName("BlockAllDynamic");
 }
 
+void ANPC::SetHighlight(bool bValue)
+{
+	GetMeshComponent()->SetRenderCustomDepth(bValue);
+}
+
 FText ANPC::GetText(FName Index) const
 {
 	if (Index.IsNone()) {
