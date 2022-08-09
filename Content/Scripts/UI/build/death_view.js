@@ -14,8 +14,8 @@ class DeathView extends React.Component {
     }
 
     componentDidMount() {
-        // 如果菜单打开，按流程自动关闭时，那边触发的设置会比这里要晚，所以这里加个延时
-        setTimeout(() => Utils.setInputMode(true), 50);
+        // 如果菜单打开，按流程自动关闭时，那边触发的设置会比这里要晚
+        process.nextTick(() => Utils.setInputMode(true));
     }
 
     componentWillUnmount() {

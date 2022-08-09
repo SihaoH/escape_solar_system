@@ -16,6 +16,9 @@ function removeViews(list) {
     }
 }
 
+// 画面淡入效果
+process.nextTick(() => GWorld.GetPlayerCameraManager(0).StartCameraFade(1.0, 0.0, 3.0))
+
 // let p = JavascriptProcess.Create("C:\\Program Files\\nodejs\\npm", "--version")
 // p.Wait()
 //require('devrequire')(__filename)

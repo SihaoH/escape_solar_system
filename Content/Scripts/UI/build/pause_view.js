@@ -7,18 +7,17 @@ const EAnchors = require('../anchors');
 const { F_Sans, ButtonStyle } = require('../style');
 
 let ThisWidget = null;
-let Event = null;
 
 class MyOverlayer extends JavascriptWidget {
     ctor() {
         // 这里要延时设置焦点，否则接收不到按键事件
         this.bIsFocusable = true;
         this.Visibility = ESlateVisibility.Visible;
-        setTimeout(() => {
+        process.nextTick(() => {
             if (this.GetOwningPlayerPawn()) {
                 this.SetFocus();
             }
-        }, 50);
+        });
         this.close = () => {
             ThisWidget.RemoveFromViewport();
         };
@@ -42,7 +41,7 @@ class TalkView extends React.Component {
             if (idx === 0) {
                 ThisWidget.RemoveFromViewport();
             } else if (idx === 1) {
-                // TODO
+                GameplayStatics.OpenLevel(GWorld, World.Load("/Game/MainBP/Maps/StarterMap"));
             } else if (idx === 2) {
                 GWorld.QuitGame();
             }
@@ -50,11 +49,12 @@ class TalkView extends React.Component {
     }
 
     componentDidMount() {
-        // 如果菜单打开，按流程自动关闭时，那边触发的设置会比这里要晚，所以这里加个延时
-        setTimeout(() => {
+        // 如果菜单打开，按流程自动关闭时，那边触发的设置会比这里要晚
+        // 这里要放到下一帧更新时执行，否则设置鼠标显示就无效
+        process.nextTick(() => {
             Utils.setInputMode(true);
             GWorld.SetGlobalTimeDilation(1 / 200);
-        }, 50);
+        });
     }
 
     componentWillUnmount() {
@@ -113,13 +113,13 @@ class TalkView extends React.Component {
                             bAutoSize: true
                         }
                     },
-                    _.map(["继续游戏", "标题页面", "退出游戏"], (val, idx) => React.createElement(
+                    _.map(["继续游戏", "标题页面" /*, "退出游戏"*/], (val, idx) => React.createElement(
                         'uButton',
                         {
                             Slot: { Padding: Utils.ltrb(0, 5) },
                             WidgetStyle: ButtonStyle,
                             IsFocusable: false,
-                            OnPressed: () => {
+                            OnReleased: () => {
                                 this.handleAction(idx);
                             }
                         },

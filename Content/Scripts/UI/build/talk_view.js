@@ -18,11 +18,11 @@ class MyOverlayer extends JavascriptWidget {
         // 这里要延时设置焦点，否则接收不到按键事件
         this.bIsFocusable = true;
         this.Visibility = ESlateVisibility.Visible;
-        setTimeout(() => {
+        process.nextTick(() => {
             if (this.GetOwningPlayerPawn()) {
                 this.SetFocus();
             }
-        }, 50);
+        });
         this.close = () => {
             ThisWidget.RemoveFromViewport();
         };
@@ -52,8 +52,8 @@ class TalkView extends React.Component {
     }
 
     componentDidMount() {
-        // 如果菜单打开，按流程自动关闭时，那边触发的设置会比这里要晚，所以这里加个延时
-        setTimeout(() => Utils.setInputMode(true), 50);
+        // 如果菜单打开，按流程自动关闭时，那边触发的设置会比这里要晚
+        process.nextTick(() => Utils.setInputMode(true));
         Event = new Events.EventEmitter();
         Event.on("MouseClick", () => {
             // 点击背景，只响应只有下一句或结束对话的情况，更多选项需要用户点击按钮选择
