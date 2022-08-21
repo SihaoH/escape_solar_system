@@ -10,12 +10,15 @@
 APlanetActor::APlanetActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	// 这项很重要，在关卡开始时，已经放置在碰撞区域内的，可以发出一次BeginOverlap事件
+	bGenerateOverlapEventsDuringLevelStreaming = true;
 	RootComponent = GetStaticMeshComponent();
 	GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 
 	GravityZone = CreateDefaultSubobject<USphereComponent>(TEXT("GravityZone"));
 	GravityZone->SetupAttachment(GetRootComponent());
-	GravityZone->OnComponentEndOverlap.AddDynamic(this, &APlanetActor::OnComponentEndOverlap);
+	GravityZone->OnComponentBeginOverlap.AddDynamic(this, &APlanetActor::OnGravityZoneBeginOverlap);
+	GravityZone->OnComponentEndOverlap.AddDynamic(this, &APlanetActor::OnGravityZoneEndOverlap);
 
 	InfoWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InfoWidget"));
 	InfoWidget->SetupAttachment(GetRootComponent());
@@ -49,6 +52,15 @@ void APlanetActor::SetLooked(bool Looked)
 void APlanetActor::SetLocked(bool Locked)
 {
 	InfoWidgetObject->SetLocked(Locked);
+}
+
+void APlanetActor::CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const
+{
+	const FVector SelfLocation = GetActorLocation();
+	const FVector TargetLocation = Target->GetActorLocation();
+	Direction = (SelfLocation - TargetLocation).GetSafeNormal();
+	float Distance = FVector::Dist(SelfLocation, TargetLocation) - SelfRadius;
+	Accel = SurfaceGravity * FMath::Max((1 - Distance / 3 / SelfRadius), 0.f);
 }
 
 void APlanetActor::BeginPlay()
@@ -96,13 +108,10 @@ void APlanetActor::PerformGravity(float DeltaTime)
 	{
 		if (Actor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 		{
-			const FVector SelfLocation = GetActorLocation();
-			const FVector TargetLocation = Actor->GetActorLocation();
-			FVector Direction = (SelfLocation - TargetLocation).GetSafeNormal();
-			float Distance = FVector::Dist(SelfLocation, TargetLocation) - SelfRadius;
-			float Accel = SurfaceGravity * FMath::Max((1 - Distance / 3 / SelfRadius), 0.f);
+			FVector Direction = FVector::ZeroVector;
+			float Accel = 0;
+			CalcGravityResult(Actor, Direction, Accel);
 
-			Cast<IMassActorInterface>(Actor)->PlanetOwner = this;
 			IMassActorInterface::Execute_GravityActed(Actor, Direction, Accel);
 		}
 	}
@@ -124,7 +133,15 @@ void APlanetActor::UpdateInfoWidget()
 	}
 }
 
-void APlanetActor::OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void APlanetActor::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
+	{
+		Cast<IMassActorInterface>(OtherActor)->PlanetOwner = this;
+	}
+}
+
+void APlanetActor::OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{

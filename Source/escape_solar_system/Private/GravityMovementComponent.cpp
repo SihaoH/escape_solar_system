@@ -36,7 +36,10 @@ FORCEINLINE FVector GetClampedToMaxSizePrecise(const FVector& V, float MaxSize)
 
 UGravityMovementComponent::UGravityMovementComponent()
 {
+	// 推力
 	PushForceFactor = 500.f;
+	// 使用摩擦力
+	bUseSeparateBrakingFriction = true;
 }
 
 void UGravityMovementComponent::PhysFlying(float deltaTime, int32 Iterations)
@@ -229,6 +232,109 @@ void UGravityMovementComponent::HandleImpact(const FHitResult& Impact, float Tim
 	{
 		const FVector ForceAccel = Acceleration + (IsFalling() ? GetGravity() : FVector::ZeroVector);
 		ApplyImpactPhysicsForces(Impact, ForceAccel, Velocity);
+	}
+}
+
+void UGravityMovementComponent::CalcVelocity(float DeltaTime, float Friction, bool bFluid, float BrakingDeceleration)
+{
+	// Do not update velocity when using root motion or when SimulatedProxy and not simulating root motion - SimulatedProxy are repped their Velocity
+	if (!HasValidData() || HasAnimRootMotion() || DeltaTime < MIN_TICK_TIME || (CharacterOwner && CharacterOwner->GetLocalRole() == ROLE_SimulatedProxy && !bWasSimulatingRootMotion))
+	{
+		return;
+	}
+
+	Friction = FMath::Max(0.f, Friction);
+	const float MaxAccel = GetMaxAcceleration();
+	float MaxSpeed = GetMaxSpeed();
+
+	// Check if path following requested movement
+	bool bZeroRequestedAcceleration = true;
+	FVector RequestedAcceleration = FVector::ZeroVector;
+	float RequestedSpeed = 0.0f;
+	if (ApplyRequestedMove(DeltaTime, MaxAccel, MaxSpeed, Friction, BrakingDeceleration, RequestedAcceleration, RequestedSpeed))
+	{
+		bZeroRequestedAcceleration = false;
+	}
+
+	if (bForceMaxAccel)
+	{
+		// Force acceleration at full speed.
+		// In consideration order for direction: Acceleration, then Velocity, then Pawn's rotation.
+		if (Acceleration.SizeSquared() > SMALL_NUMBER)
+		{
+			Acceleration = Acceleration.GetSafeNormal() * MaxAccel;
+		}
+		else
+		{
+			Acceleration = MaxAccel * (Velocity.SizeSquared() < SMALL_NUMBER ? UpdatedComponent->GetForwardVector() : Velocity.GetSafeNormal());
+		}
+
+		AnalogInputModifier = 1.f;
+	}
+
+	// Path following above didn't care about the analog modifier, but we do for everything else below, so get the fully modified value.
+	// Use max of requested speed and max speed if we modified the speed in ApplyRequestedMove above.
+	const float MaxInputSpeed = FMath::Max(MaxSpeed * AnalogInputModifier, GetMinAnalogSpeed());
+	MaxSpeed = FMath::Max(RequestedSpeed, MaxInputSpeed);
+
+	// Apply braking or deceleration
+	const bool bZeroAcceleration = Acceleration.IsZero();
+	const bool bVelocityOverMax = IsExceedingMaxSpeed(MaxSpeed);
+
+	// Only apply braking if there is no acceleration, or we are over our max speed and need to slow down to it.
+	if ((bZeroAcceleration && bZeroRequestedAcceleration) || bVelocityOverMax)
+	{
+		const FVector OldVelocity = Velocity;
+
+		// 这里就正常的制动，先不考虑摩擦力
+		ApplyVelocityBraking(DeltaTime, 0, BrakingDeceleration);
+
+		// 重写一下这里的条件，应用摩擦力后，如果速度没有超过最大值就不应该再处理
+		if (bVelocityOverMax && Velocity.SizeSquared() > FMath::Square(MaxSpeed) && FVector::DotProduct(Acceleration, OldVelocity) > 0.0f)
+		{
+			Velocity = OldVelocity.GetSafeNormal() * MaxSpeed;
+		}
+	}
+	else if (!bZeroAcceleration)
+	{
+		// Friction affects our ability to change direction. This is only done for input acceleration, not path following.
+		const FVector AccelDir = Acceleration.GetSafeNormal();
+		const float VelSize = Velocity.Size();
+		Velocity = Velocity - (Velocity - AccelDir * VelSize) * FMath::Min(DeltaTime * Friction, 1.f);
+	}
+
+	// 把摩擦力的影响单独拿出来，在任意时刻都应生效
+	const float ActualBrakingFriction = (bUseSeparateBrakingFriction ? BrakingFriction : Friction);
+	if (ActualBrakingFriction > 0)
+	{
+		ApplyVelocityBraking(DeltaTime, ActualBrakingFriction, 0);
+	}
+
+	// Apply fluid friction
+	if (bFluid)
+	{
+		Velocity = Velocity * (1.f - FMath::Min(Friction * DeltaTime, 1.f));
+	}
+
+	// Apply input acceleration
+	if (!bZeroAcceleration)
+	{
+		const float NewMaxInputSpeed = IsExceedingMaxSpeed(MaxInputSpeed) ? Velocity.Size() : MaxInputSpeed;
+		Velocity += Acceleration * DeltaTime;
+		Velocity = Velocity.GetClampedToMaxSize(NewMaxInputSpeed);
+	}
+
+	// Apply additional requested acceleration
+	if (!bZeroRequestedAcceleration)
+	{
+		const float NewMaxRequestedSpeed = IsExceedingMaxSpeed(RequestedSpeed) ? Velocity.Size() : RequestedSpeed;
+		Velocity += RequestedAcceleration * DeltaTime;
+		Velocity = Velocity.GetClampedToMaxSize(NewMaxRequestedSpeed);
+	}
+
+	if (bUseRVOAvoidance)
+	{
+		CalcAvoidanceVelocity(DeltaTime);
 	}
 }
 
@@ -937,9 +1043,10 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 				// Acceleration = FallAcceleration for CalcVelocity(), but we restore it after using it.
 				TGuardValue<FVector> RestoreAcceleration(Acceleration, FallAcceleration);
 
-				Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection);
-				CalcVelocity(TimeTick, FallingLateralFriction, false, BrakingDecelerationFalling);
-				Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection) + OldVelocityZ;
+				// CalcVelocity计算时，会把摩擦力算上；但这里的两句，让重力方向的速度不受摩擦力的影响，不符合设定，所以注释掉
+				//Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection);
+				CalcVelocity(TimeTick, FallingLateralFriction, false, MaxDecel);
+				//Velocity = FVector::VectorPlaneProject(Velocity, GravityDirection) + OldVelocityZ;
 			}
 		}
 

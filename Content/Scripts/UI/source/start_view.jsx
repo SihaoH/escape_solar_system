@@ -22,7 +22,8 @@ class StartView extends React.Component {
             } else if (idx === 2) {
                 // TODO
             } else if (idx === 3) {
-                GWorld.QuitGame()
+                ThisWidget.RemoveFromViewport()
+                process.nextTick(() => GWorld.QuitGame())
             }
         }
     }

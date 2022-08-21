@@ -52,6 +52,7 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 	virtual void PerformMovement(float DeltaTime) override;
 	virtual void HandleImpact(const FHitResult& Impact, float TimeSlice = 0.f, const FVector& MoveDelta = FVector::ZeroVector) override;
+	virtual void CalcVelocity(float DeltaTime, float Friction, bool bFluid, float BrakingDeceleration);
 
 	// Tells if we are moving vertical / horizontal -> neccesary for all ground checks and fly
 	virtual void MaintainHorizontalGroundVelocity() override;

@@ -184,8 +184,8 @@ class TalkView extends React.Component {
     }
 }
 
-module.exports = function() {
-    if (!ThisWidget) {
+module.exports = function(need_wrap = true) {
+    if (!ThisWidget && need_wrap) {
         ThisWidget = ReactUMG.wrap(<TalkView/>)
     }
     return ThisWidget

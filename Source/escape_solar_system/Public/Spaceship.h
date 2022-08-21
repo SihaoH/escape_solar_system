@@ -20,6 +20,7 @@ public:
 	ASpaceship();
 
 	void SetPilot(class AMainCharacter* Pilot);
+	virtual FText GetDisplayName() const override;
 	void ResetProperties();
 
 	FORCEINLINE class AMainCharacter* GetPilot() const { return CurrentPilot; }

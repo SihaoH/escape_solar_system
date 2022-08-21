@@ -9,8 +9,8 @@ function JSX(file) {
 
 function removeViews(list) {
     for (let i in list) {
-        let view = require(JSX(list[i]))()
-        if (view.IsInViewport()) {
+        let view = require(JSX(list[i]))(false)
+        if (view && view.IsInViewport()) {
             view.RemoveFromViewport()
         }
     }

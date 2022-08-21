@@ -20,6 +20,8 @@ public:
 
 	void SetLooked(bool Looked);
 	void SetLocked(bool Locked);
+	float GetSurfaceGravity() const { return SurfaceGravity; }
+	void CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,7 +33,10 @@ private:
 	void UpdateInfoWidget();
 
 	UFUNCTION()
-	void OnComponentEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
 	/** 星球名称 */

@@ -51,6 +51,11 @@ void AMainCharacter::SetVelocity(const FVector& Velocity)
 	// TODO APlayerController::OnPossess的ClientRestart()调用会把速度置0（UMovementComponent::StopMovementImmediately）
 }
 
+FText AMainCharacter::GetDisplayName() const
+{
+	return LOCTEXT("Body", "躯体");
+}
+
 void AMainCharacter::ResetProperties()
 {
 	//AMainPlayerState* State = GetController()->GetPlayerState<AMainPlayerState>();
@@ -78,6 +83,7 @@ void AMainCharacter::Destroy()
 	else
 	{
 		DeathCamera = GetWorld()->SpawnActor<ACameraActor>(FollowCamera->GetComponentLocation(), FollowCamera->GetComponentRotation());
+		DeathCamera->GetCameraComponent()->SetConstraintAspectRatio(false);
 	}
 	auto PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	PlayerController->SetViewTargetWithBlend(DeathCamera);
@@ -178,7 +184,7 @@ void AMainCharacter::BeginPlay()
 	ChangePawn(this);
 
 	ResetProperties();
-	Body->ChangeHP(Body->GetMaximumHP());
+	Body->ChangeHP(9999);
 	Engine->ChangeEnergy(Engine->GetMaximumEnergy());
 }
 
@@ -203,6 +209,16 @@ void AMainCharacter::GravityActed_Implementation(FVector Direction, float Accel)
 	Movement->GravityAccel = Accel;
 }
 
+void AMainCharacter::BuoyancyActed_Implementation(FVector Force)
+{
+	Movement->AddForce(Force * Movement->Mass);
+}
+
+void AMainCharacter::DampingChanged_Implementation(float Linear, float Angular)
+{
+	Movement->BrakingFriction = Linear;
+}
+
 void AMainCharacter::DriveShip()
 {
 	ASpaceship* NearbySpaceship = FindSpaceship();
@@ -225,7 +241,7 @@ void AMainCharacter::PickupItem()
 		Backpack->AddItem(RowName, AddedCount);
 
 		UMainLibrary::SendMessage(FText::Format(
-			INVTEXT("拾取了 {0} x{1}"),
+			LOCTEXT("Pickup", "拾取了 {0} x{1}"),
 			UMainLibrary::GetItemData(RowName).Name, 
 			AddedCount)
 		);
@@ -288,6 +304,7 @@ void AMainCharacter::MoveForward(float Value)
 	{
 		AddMovementInput(GetActorForwardVector(), Value);
 		Engine->MoveForward(0);
+		Movement->AddForce(GetActorForwardVector()*Movement->Mass*100);
 	}
 	else
 	{
@@ -318,6 +335,9 @@ void AMainCharacter::UpdateMass()
 	if (Movement->Mass != InMass)
 	{
 		Movement->Mass = InMass;
+
+		// 假设躯体体积不变，以200kg为基准，重量越大，密度越大，随之浮力越小
+		// Buoyancy = 200.f / Movement->Mass;
 	}
 }
 

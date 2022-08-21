@@ -21,6 +21,7 @@ class ESCAPE_SOLAR_SYSTEM_API AMainCharacter : public ACharacter, public IMassAc
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetVelocity(const FVector& Velocity);
+	virtual FText GetDisplayName() const override;
 	void ResetProperties();
 
 	UFUNCTION(BlueprintCallable)
@@ -52,6 +53,8 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Thrusting(FVector Force) override;
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
+	virtual void BuoyancyActed_Implementation(FVector Force) override;
+	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
 
 	UFUNCTION()
 	void DriveShip();

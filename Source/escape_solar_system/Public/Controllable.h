@@ -21,6 +21,9 @@ class ESCAPE_SOLAR_SYSTEM_API IControllable
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Controllable)
+	virtual FText GetDisplayName() const = 0;
+
+	UFUNCTION(BlueprintCallable, Category = Controllable)
 	virtual float GetGravityAccel() const;
 
 	/** 获取可显示的坐标值（单位m） */

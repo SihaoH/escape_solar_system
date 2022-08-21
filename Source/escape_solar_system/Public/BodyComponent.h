@@ -58,29 +58,29 @@ private:
 
 	/** 当前血量 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float CurrentHP = 0;
+	float CurrentHP = 0.f;
 
 	/** 最大血量，即机体强度 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float MaximumHP = 1;
+	float MaximumHP = 1.f;
 
 	/** 耐冷护盾 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float ShieldCold = 0;
+	float ShieldCold = 0.f;
 
 	/** 耐热护盾 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float ShieldHeat = 0;
+	float ShieldHeat = 0.f;
 
 	/** 耐压护盾 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float ShieldPress = 0;
+	float ShieldPress = 0.f;
 
 	/** 机体/躯体当前的温度，当没受到外界温度影响时（比如真空中），物体温度理应维持稳定 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float CurrentTemp = 0;
+	float CurrentTemp = 50.f;
 
 	/** 当前气压，真空时为0 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float CurrentPress = 0;
+	float CurrentPress = 0.f;
 };

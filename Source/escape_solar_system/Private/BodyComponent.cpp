@@ -1,6 +1,9 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "BodyComponent.h"
+#include "MassActorInterface.h"
+#include "FluidZoneComponent.h"
+#include "Controllable.h"
 #include "MainLibrary.h"
 #include <Kismet/KismetSystemLibrary.h>
 
@@ -53,31 +56,31 @@ void UBodyComponent::BeginPlay()
 
 void UBodyComponent::CheckEnvironment()
 {
-	// TODO 外界温度影响区域
-	CurrentTemp = 0;
+	const auto FluidZone = Cast<IMassActorInterface>(GetOwner())->GetFluidZone();
+	CurrentTemp = FluidZone ? FluidZone->HeatTransfer(CurrentTemp) : CurrentTemp;
+	CurrentPress = FluidZone ? FluidZone->PressTransfer(GetOwner()->GetActorLocation()) : 0;
 
-	// TODO 外界压力影响区域
-	CurrentPress = 0;
+	const FText OwnerName = Cast<IControllable>(GetOwner())->GetDisplayName();
 
 	int32 Delta = 0;
 	if (CurrentTemp > ShieldHeat)
 	{
 		Delta = -(CurrentTemp - ShieldHeat);
 		ChangeHP(Delta);
-		UMainLibrary::SendMessage(FText::Format(INVTEXT("机体过热，HP {0}"), Delta));
+		UMainLibrary::SendMessage(FText::Format(INVTEXT("{0}过热，HP {1}"), OwnerName, Delta));
 	}
 	else if (CurrentTemp < ShieldCold)
 	{
 		Delta = -(ShieldCold - CurrentTemp);
 		ChangeHP(Delta);
-		UMainLibrary::SendMessage(FText::Format(INVTEXT("机体过冷，HP {0}"), Delta));
+		UMainLibrary::SendMessage(FText::Format(INVTEXT("{0}过冷，HP {1}"), OwnerName, Delta));
 	}
 
-	if (CurrentTemp > ShieldPress)
+	if (CurrentPress > ShieldPress)
 	{
-		Delta = -(CurrentTemp - ShieldPress);
-		ChangeHP(-(CurrentTemp - ShieldPress));
-		UMainLibrary::SendMessage(FText::Format(INVTEXT("压力过大，HP {0}"), Delta));
+		Delta = -(CurrentPress - ShieldPress);
+		ChangeHP(-(CurrentPress - ShieldPress));
+		UMainLibrary::SendMessage(FText::Format(INVTEXT("{0}压力过大，HP {1}"), OwnerName, Delta));
 	}
 }
 
