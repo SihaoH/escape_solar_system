@@ -33,12 +33,14 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void DampingChanged(float Linear, float Angular);
 
+	// 计算浮力，全部简化成球体来计算
+	FORCEINLINE float CalcDensity(float Mass, float Radius) { return Mass / (4.18879f * FMath::Cube(Radius / 100)); }
 	FORCEINLINE class APlanetActor* GetPlanetOwner() { return PlanetOwner; }
 	FORCEINLINE class UFluidZoneComponent* GetFluidZone() { return FluidZoneStack.Num() > 0 ? FluidZoneStack.Last() : nullptr; }
 
 protected:
-	/** 水浮力，跟重力的比率；因为接口不能声明UPROPERTY，所以该值要在子类中赋值 */
-	float Buoyancy = 1.0f;
+	/** 密度，要在子类中计算并赋值 */
+	float Density = 1000.f;
 
 private:
 	class APlanetActor* PlanetOwner = nullptr;

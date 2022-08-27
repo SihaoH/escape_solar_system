@@ -44,6 +44,7 @@ ASpaceship::ASpaceship()
 	ContactTrigger->SetMassOverrideInKg(NAME_None, KINDA_SMALL_NUMBER);
 	SpringArm->SetRelativeLocation(FVector(0, 0, 220));
 	SpringArm->TargetArmLength = 1200;
+	Body->HpChangedDelegate.AddDynamic(this, &ASpaceship::OnHpChanged);
 }
 
 void ASpaceship::SetPilot(AMainCharacter* Pilot)
@@ -113,6 +114,14 @@ void ASpaceship::Destroy()
 float ASpaceship::GetGravityAccel() const
 {
 	return GravityAccel;
+}
+
+void ASpaceship::OnHpChanged(float Delta)
+{
+	if (Body->GetCurrentHP() <= 0)
+	{
+		Destroy();
+	}
 }
 
 void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -273,6 +282,7 @@ void ASpaceship::UpdateMass()
 	if (GetMass() != InMass)
 	{
 		ShipMesh->SetMassOverrideInKg(NAME_None, InMass);
+		Density = CalcDensity(InMass, ShipMesh->Bounds.SphereRadius);
 	}
 }
 

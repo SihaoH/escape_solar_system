@@ -10,6 +10,7 @@
 UFluidZoneComponent::UFluidZoneComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	CastShadow = false;
 	SetGenerateOverlapEvents(true);
 	SetCollisionProfileName("OverlapAllDynamic");
 
@@ -42,8 +43,11 @@ float UFluidZoneComponent::PressTransfer(FVector Location) const
 	float Distance = FVector::Distance(GetComponentLocation(), Location);
 	if (Distance > CenterDist)
 	{
-		float Value = (1 - (Distance - CenterDist) / (Bounds.SphereRadius * BlendDistance)) * Pressure;
-		return Value > 0 ? Value : 0;
+		float NowRate = 1 - (Distance - CenterDist) / (Bounds.SphereRadius - CenterDist);
+		NowRate = NowRate > 0 ? NowRate : 0;
+		// 压力的最终值，需要混合上一层区域的值来计算
+		float Value = (1 - NowRate) * (PreFluidZone ? PreFluidZone->PressTransfer(Location) : 0) + NowRate * Pressure;;
+		return Value > 1 ? Value : 0;
 	}
 	return Pressure;
 }
@@ -58,21 +62,24 @@ void UFluidZoneComponent::BeginPlay()
 void UFluidZoneComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	TSet<AActor*> OverlappingActors;
-	GetOverlappingActors(OverlappingActors);
-	for (AActor* Actor : OverlappingActors)
+	if (Density > 0)
 	{
-		if (Actor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
+		TSet<AActor*> OverlappingActors;
+		GetOverlappingActors(OverlappingActors);
+		for (AActor* Actor : OverlappingActors)
 		{
-			auto MassActor = Cast<IMassActorInterface>(Actor);
-			if (MassActor->FluidZoneStack.Last() == this && FVector::Dist(Actor->GetActorLocation(), GetComponentLocation()) < Bounds.SphereRadius)
+			if (Actor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 			{
-				FVector Direction = FVector::ZeroVector;
-				float Accel = 0;
-				AttachedPlanet->CalcGravityResult(Actor, Direction, Accel);
-				Accel *= MassActor->Buoyancy * -1;
+				auto MassActor = Cast<IMassActorInterface>(Actor);
+				if (MassActor->GetFluidZone() == this && FVector::Dist(Actor->GetActorLocation(), GetComponentLocation()) < Bounds.SphereRadius)
+				{
+					FVector Direction = FVector::ZeroVector;
+					float Accel = 0;
+					AttachedPlanet->CalcGravityResult(Actor, Direction, Accel);
+					Accel *= (Density / MassActor->Density) * -1;
 
-				IMassActorInterface::Execute_BuoyancyActed(Actor, Direction*Accel);
+					IMassActorInterface::Execute_BuoyancyActed(Actor, Direction * Accel);
+				}
 			}
 		}
 	}
@@ -83,6 +90,7 @@ void UFluidZoneComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{
 		auto Target = Cast<IMassActorInterface>(OtherActor);
+		PreFluidZone = Target->GetFluidZone();
 		Target->FluidZoneStack.AddUnique(this);
 		IMassActorInterface::Execute_DampingChanged(OtherActor, LinerDamping, AngularDamping);
 	}
@@ -93,11 +101,10 @@ void UFluidZoneComponent::OnEndOverlap(UPrimitiveComponent* OverlappedComponent,
 	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{
 		auto MassActor = Cast<IMassActorInterface>(OtherActor);
-		check(MassActor->FluidZoneStack.Last() == this);
 		MassActor->FluidZoneStack.RemoveSingle(this);
 		if (MassActor->FluidZoneStack.Num() > 0)
 		{
-			IMassActorInterface::Execute_DampingChanged(OtherActor, MassActor->FluidZoneStack.Last()->LinerDamping, MassActor->FluidZoneStack.Last()->AngularDamping);
+			IMassActorInterface::Execute_DampingChanged(OtherActor, MassActor->GetFluidZone()->LinerDamping, MassActor->GetFluidZone()->AngularDamping);
 		}
 		else
 		{

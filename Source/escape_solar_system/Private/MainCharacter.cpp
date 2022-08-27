@@ -336,15 +336,15 @@ void AMainCharacter::UpdateMass()
 	{
 		Movement->Mass = InMass;
 
-		// 假设躯体体积不变，以200kg为基准，重量越大，密度越大，随之浮力越小
-		// Buoyancy = 200.f / Movement->Mass;
+		// 胶囊体，半径计算要更小一点
+		Density = CalcDensity(InMass, GetCapsuleComponent()->Bounds.SphereRadius / 2);
 	}
 }
 
 void AMainCharacter::CheckPickup()
 {
 	APickableItemActor* NewPickupItem = nullptr;
-	if (Controller->GetPawn() == this)
+	if (Controller && Controller->GetPawn() == this)
 	{
 		NewPickupItem = FindByLineTrace<APickableItemActor>(250.f);
 	}
@@ -370,7 +370,7 @@ void AMainCharacter::CheckPickup()
 void AMainCharacter::CheckNPC()
 {
 	ANPC* NewNPC = nullptr;
-	if (Controller->GetPawn() == this)
+	if (Controller && Controller->GetPawn() == this)
 	{
 		NewNPC = FindByLineTrace<ANPC>(250.f);
 	}

@@ -33,6 +33,9 @@ public:
 
 	virtual float GetGravityAccel() const override;
 
+	UFUNCTION()
+	void OnHpChanged(float Delta);
+
 protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;

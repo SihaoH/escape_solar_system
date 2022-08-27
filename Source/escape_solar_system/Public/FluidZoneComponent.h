@@ -56,9 +56,15 @@ private:
 
 private:
 	class APlanetActor* AttachedPlanet = nullptr;
+	// 上一个流体区域，用于嵌套的情况
+	UFluidZoneComponent* PreFluidZone = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UMeshPostProcessComponent* PostProcess = nullptr;
+
+	/** 密度，用于计算浮力，标准水的密度为1000 kg/m³ */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	float Density = 1000.f;
 
 	/** 流体对物体产生的线性阻尼 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

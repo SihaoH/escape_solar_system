@@ -11,7 +11,7 @@ AMovableMeshActor::AMovableMeshActor()
 
 void AMovableMeshActor::BeginPlay()
 {
-	Buoyancy = SelfBuoyancy;
+	Density = CalcDensity(GetStaticMeshComponent()->BodyInstance.GetMassOverride(), GetStaticMeshComponent()->Bounds.SphereRadius);
 }
 
 void AMovableMeshActor::GravityActed_Implementation(FVector Direction, float Accel)

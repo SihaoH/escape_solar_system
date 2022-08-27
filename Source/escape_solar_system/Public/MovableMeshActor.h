@@ -24,9 +24,4 @@ protected:
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
 	virtual void BuoyancyActed_Implementation(FVector Force) override;
 	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
-
-private:
-	/** 浮力 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float SelfBuoyancy = 1.0;
 };
