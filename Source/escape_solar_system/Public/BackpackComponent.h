@@ -9,10 +9,23 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBackpackChangedSignature);
 
+USTRUCT()
+struct FItemPair
+{
+	GENERATED_USTRUCT_BODY()
+	FItemPair() = default;
+	FItemPair(FName Name, int32 Num) : Key(Name), Value(Num) {}
+
+	UPROPERTY(SaveGame)
+	FName Key;
+	UPROPERTY(SaveGame)
+	int32 Value;
+};
+
 /**
  * 背包组件
  */
-UCLASS()
+UCLASS(ClassGroup = SaveGame)
 class ESCAPE_SOLAR_SYSTEM_API UBackpackComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -44,6 +57,7 @@ public:
 	FORCEINLINE float GetMass() const { return Mass; }
 
 protected:
+	virtual void Serialize(FArchive& Ar) override;
 	void UpdateMass();
 
 public:
@@ -58,6 +72,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float Mass = 0.f;
+
+	UPROPERTY(SaveGame)
+	TArray<FItemPair> SavedList;
 
 	TMultiMap<FName, int32> ItemList;
 };

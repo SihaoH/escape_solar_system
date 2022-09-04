@@ -9,7 +9,7 @@
 /**
  * 可探索的区域
  */
-UCLASS(BlueprintType, Blueprintable, meta = (BlueprintSpawnableComponent))
+UCLASS(BlueprintType, Blueprintable, ClassGroup = SaveGame, meta = (BlueprintSpawnableComponent))
 class ESCAPE_SOLAR_SYSTEM_API UExplorableZoneComponent : public USphereComponent
 {
 	GENERATED_BODY()
@@ -17,6 +17,9 @@ class ESCAPE_SOLAR_SYSTEM_API UExplorableZoneComponent : public USphereComponent
 public:
 	UExplorableZoneComponent();
 	void Reset();
+
+protected:
+	virtual void Serialize(FArchive& Ar) override;
 
 private:
 	UFUNCTION()
@@ -28,8 +31,10 @@ private:
 	void HandleBonus();
 
 private:
-	bool IsAvailable = true;
 	FTimerHandle Timer;
+
+	UPROPERTY(SaveGame)
+	bool IsAvailable = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FText PlaceName;

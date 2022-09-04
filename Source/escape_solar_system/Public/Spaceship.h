@@ -37,6 +37,7 @@ public:
 	void OnHpChanged(float Delta);
 
 protected:
+	virtual void Serialize(FArchive& Ar) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -61,13 +62,13 @@ protected:
 	void UpdateMass();
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	class UBackpackComponent* Backpack = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	class UBodyComponent* Body = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	class UEngineComponent* Engine = nullptr;
 
 private:
@@ -101,19 +102,34 @@ private:
 
 private:
 	friend class UMenuTechHelper;
+
+	UPROPERTY(SaveGame)
+	FTransform SavedTransform;
+
 	/** 属性等级 */
+	UPROPERTY(SaveGame)
 	int32 LevelStrength    = 0; //包含Mass和HP
+	UPROPERTY(SaveGame)
 	int32 LevelBackpack    = 0;
+	UPROPERTY(SaveGame)
 	int32 LevelShieldCold  = 0;
+	UPROPERTY(SaveGame)
 	int32 LevelShieldHeat  = 0;
+	UPROPERTY(SaveGame)
 	int32 LevelShieldPress = 0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame, meta = (AllowPrivateAccess = "true"))
 	int32 EngineType       = 0;
+	UPROPERTY(SaveGame)
 	int32 LevelEngine0     = 0; //包含Power、Mass、EPR、EMR
+	UPROPERTY(SaveGame)
 	int32 LevelEngine1     = -1;
+	UPROPERTY(SaveGame)
 	int32 LevelEngine2     = -1;
+	UPROPERTY(SaveGame)
 	int32 LevelEnergy0     = 0;
+	UPROPERTY(SaveGame)
 	int32 LevelEnergy1     = -1;
+	UPROPERTY(SaveGame)
 	int32 LevelEnergy2     = -1;
 };

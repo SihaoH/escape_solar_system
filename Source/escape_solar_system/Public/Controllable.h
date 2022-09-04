@@ -64,7 +64,14 @@ FORCEINLINE TargetClass* IControllable::FindByLineTrace(float Distance)
 		Self->GetWorld(), Start, End,
 		ETraceTypeQuery::TraceTypeQuery1, true, { Self }, EDrawDebugTrace::ForOneFrame, OutHit, true))
 	{
-		HitTarget = Cast<TargetClass>(OutHit.GetActor());
+		if (TargetClass::StaticClass()->IsChildOf(UPrimitiveComponent::StaticClass()))
+		{
+			HitTarget = Cast<TargetClass>(OutHit.GetComponent());
+		}
+		else
+		{
+			HitTarget = Cast<TargetClass>(OutHit.GetActor());
+		}
 	}
 	return HitTarget;
 }

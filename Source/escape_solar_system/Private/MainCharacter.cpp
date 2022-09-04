@@ -8,7 +8,7 @@
 #include "EngineComponent.h"
 #include "Spaceship.h"
 #include "EarthBaseActor.h"
-#include "PickableItemActor.h"
+#include "PickableItem.h"
 #include "NPC.h"
 #include "MainPlayerState.h"
 #include "MainLevelScript.h"
@@ -134,6 +134,25 @@ FVector AMainCharacter::GetVelocity() const
 float AMainCharacter::GetGravityAccel() const
 {
 	return Movement->GravityAccel;
+}
+
+void AMainCharacter::Serialize(FArchive& Ar)
+{
+	if (Ar.IsSaving())
+	{
+		SavedTransform = GetActorTransform();
+		Super::Serialize(Ar);
+	}
+	else if (Ar.IsLoading())
+	{
+		Super::Serialize(Ar);
+		SetActorTransform(SavedTransform);
+		ResetProperties();
+	}
+	else
+	{
+		Super::Serialize(Ar);
+	}
 }
 
 void AMainCharacter::Controlled()
@@ -343,10 +362,10 @@ void AMainCharacter::UpdateMass()
 
 void AMainCharacter::CheckPickup()
 {
-	APickableItemActor* NewPickupItem = nullptr;
+	UPickableItem* NewPickupItem = nullptr;
 	if (Controller && Controller->GetPawn() == this)
 	{
-		NewPickupItem = FindByLineTrace<APickableItemActor>(250.f);
+		NewPickupItem = FindByLineTrace<UPickableItem>(250.f);
 	}
 
 	if (NewPickupItem != PickableItem)

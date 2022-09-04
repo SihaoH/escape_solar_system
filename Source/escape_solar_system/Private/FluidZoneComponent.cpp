@@ -91,6 +91,7 @@ void UFluidZoneComponent::OnBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	{
 		auto Target = Cast<IMassActorInterface>(OtherActor);
 		PreFluidZone = Target->GetFluidZone();
+		if (PreFluidZone == this) PreFluidZone = nullptr;
 		Target->FluidZoneStack.AddUnique(this);
 		IMassActorInterface::Execute_DampingChanged(OtherActor, LinerDamping, AngularDamping);
 	}

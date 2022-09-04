@@ -3,16 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "PickableItemActor.generated.h"
+#include "Components/StaticMeshComponent.h"
+#include "PickableItem.generated.h"
 
-UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API APickableItemActor : public AActor
+UCLASS(BlueprintType, Blueprintable, ClassGroup = SaveGame, meta = (BlueprintSpawnableComponent))
+class ESCAPE_SOLAR_SYSTEM_API UPickableItem : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 	
 public:
-	APickableItemActor();
+	UPickableItem();
 
 	FORCEINLINE void SetHighlight(bool bValue);
 
@@ -20,11 +20,13 @@ public:
 	void Pickup(FName& RowName, int32& Count);
 
 protected:
+	virtual void Serialize(FArchive& Ar) override;
 	virtual void BeginPlay() override;
 
 private:
-	void Activate();
-	void Deactivate(int32 Time);
+	void Enable();
+	void Disable(int32 Time);
+	void OnCountdown();
 
 public:
 	UPROPERTY(Category = PickableItemActor, EditAnywhere, BlueprintReadWrite)
@@ -33,14 +35,11 @@ public:
 private:
 	FTimerHandle RebirthTimer;
 
+	UPROPERTY(SaveGame)
+	int32 Countdown = 0;
+
 	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FText ItemName;
-
-	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* StaticMesh = nullptr;
-
-	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* ScopeTigger = nullptr;
 
 	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UParticleSystemComponent* PromptEffect = nullptr;

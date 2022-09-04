@@ -56,7 +56,7 @@ TArray<FName> UMainLibrary::GetMakeableItemList()
 
 FTechDemand UMainLibrary::GetTechDemand(ETech Level, int32 Val)
 {
-	FTechDemandList* DemandList = DT_TechDemand->FindRow<FTechDemandList>(TECH::DemandRow[Level], FString());
+	FTechDemandList* DemandList = DT_TechDemand ? DT_TechDemand->FindRow<FTechDemandList>(TECH::DemandRow[Level], FString()) : nullptr;
 	if (DemandList)
 	{
 		if (Val >= 0 && Val < DemandList->List.Num())
@@ -70,7 +70,7 @@ FTechDemand UMainLibrary::GetTechDemand(ETech Level, int32 Val)
 
 float UMainLibrary::GetTechValue(ETech Level, int32 Val)
 {
-	FTechValueList* ValueList = DT_TechValue->FindRow<FTechValueList>(TECH::ValueRow[Level], FString());
+	FTechValueList* ValueList = DT_TechValue ? DT_TechValue->FindRow<FTechValueList>(TECH::ValueRow[Level], FString()) : nullptr;
 	if (ValueList)
 	{
 		if (Val >= 0 && Val < ValueList->List.Num())

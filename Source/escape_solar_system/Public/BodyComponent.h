@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHpChangedSignature, float, Delta);
 /**
  * 机体组件，包含强度（血量）、护盾、质量等信息
  */
-UCLASS()
+UCLASS(ClassGroup = SaveGame)
 class ESCAPE_SOLAR_SYSTEM_API UBodyComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -57,7 +57,7 @@ private:
 	float Mass = 1.f;
 
 	/** 当前血量 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame, meta = (AllowPrivateAccess = "true"))
 	float CurrentHP = 0.f;
 
 	/** 最大血量，即机体强度 */
@@ -80,7 +80,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float CurrentTemp = 50.f;
 
-	/** 当前气压，真空时为0 */
+	/** 当前气压；通过流体区域组件获取 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float CurrentPress = 0.f;
 };

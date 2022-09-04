@@ -8,10 +8,6 @@
 
 UExplorableZoneComponent::UExplorableZoneComponent()
 {
-	// TODO 从存档中读取IsAvailable的值
-	// ...
-	IsAvailable = true;
-
 	OnComponentBeginOverlap.AddDynamic(this, &UExplorableZoneComponent::OnBeginOverlap);
 	OnComponentEndOverlap.AddDynamic(this, &UExplorableZoneComponent::OnEndOverlap);
 
@@ -20,8 +16,16 @@ UExplorableZoneComponent::UExplorableZoneComponent()
 
 void UExplorableZoneComponent::Reset()
 {
-	if (!IsAvailable) {
-		DestroyComponent();
+	SetHiddenInGame(!IsAvailable);
+}
+
+void UExplorableZoneComponent::Serialize(FArchive& Ar)
+{
+	Super::Serialize(Ar);
+	if (Ar.IsLoading())
+	{
+		SetHiddenInGame(!IsAvailable);
+		SetCollisionEnabled(IsAvailable ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
 	}
 }
 
@@ -49,8 +53,6 @@ void UExplorableZoneComponent::HandleBonus()
 	AMainLevelScript::Instance()->ExplorePointsDelegate.Broadcast(Msg);
 
 	IsAvailable = false;
-	// TODO 写到存档
-	// ...
 	Reset();
 }
 

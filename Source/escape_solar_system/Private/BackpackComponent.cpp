@@ -79,6 +79,33 @@ int32 UBackpackComponent::GetCurCount() const
 	return ItemList.Num();
 }
 
+void UBackpackComponent::Serialize(FArchive& Ar)
+{
+	if (Ar.IsSaving())
+	{
+		for (const auto& Pair : ItemList)
+		{
+			SavedList.Add(FItemPair(Pair.Key, Pair.Value));
+		}
+		Super::Serialize(Ar);
+		SavedList.Empty(); // 存完之后就清空
+	}
+	else if (Ar.IsLoading())
+	{
+		Super::Serialize(Ar);
+		for (const auto& Pair : SavedList)
+		{
+			ItemList.Add(Pair.Key, Pair.Value);
+		}
+		SavedList.Empty();
+		UpdateMass();
+	}
+	else
+	{
+		Super::Serialize(Ar);
+	}
+}
+
 void UBackpackComponent::UpdateMass()
 {
 	Mass = 0.f;

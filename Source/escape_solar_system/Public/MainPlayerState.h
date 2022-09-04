@@ -40,21 +40,36 @@ private:
 private:
 	static AMainPlayerState* s_Instance;
 
+	UPROPERTY(SaveGame)
 	int32 ExplorePoints = 999;
 
+	UPROPERTY(SaveGame)
 	int32 Best_CharBody = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_CharBackpack = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_CharShieldCold = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_CharShieldHeat = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_CharShieldPress = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_CharEngine = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_CharEnergy = 0;
 
+	UPROPERTY(SaveGame)
 	int32 Best_ShipBody = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_ShipBackpack = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_ShipShieldCold = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_ShipShieldHeat = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_ShipShieldPress = 0;
+	UPROPERTY(SaveGame)
 	int32 Best_ShipEngine[3] = {0, -1, -1};
+	UPROPERTY(SaveGame)
 	int32 Best_ShipEnergy[3] = {0, -1, -1};
 };

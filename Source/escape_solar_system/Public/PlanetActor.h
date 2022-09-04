@@ -24,6 +24,7 @@ public:
 	void CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const;
 
 protected:
+	virtual void Serialize(FArchive& Ar) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
@@ -59,6 +60,9 @@ private:
 	FTimerHandle InfoTimer;
 	float PreDistance = 0.f;
 	float RelativeSpeed = 0.f;
+
+	UPROPERTY(SaveGame)
+	FTransform SavedTransform;
 
 	/** 和旋转中心的距离 */
 	UPROPERTY(Category = "Planet", VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

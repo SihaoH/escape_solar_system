@@ -124,6 +124,25 @@ void ASpaceship::OnHpChanged(float Delta)
 	}
 }
 
+void ASpaceship::Serialize(FArchive& Ar)
+{
+	if (Ar.IsSaving())
+	{
+		SavedTransform = GetActorTransform();
+		Super::Serialize(Ar);
+	}
+	else if (Ar.IsLoading())
+	{
+		Super::Serialize(Ar);
+		SetActorTransform(SavedTransform);
+		ResetProperties();
+	}
+	else
+	{
+		Super::Serialize(Ar);
+	}
+}
+
 void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);

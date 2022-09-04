@@ -48,3 +48,7 @@ playing_view.AddToViewport()
 
 let prompt_view = require(JSX("prompt_view"))
 prompt_view.AddToViewport(998)
+
+if (MainSaveGame.IsNeedLoad()) {
+    MainSaveGame.LoadAr()
+}

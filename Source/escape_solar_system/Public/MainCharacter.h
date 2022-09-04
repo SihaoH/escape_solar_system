@@ -46,6 +46,7 @@ public:
 	virtual float GetGravityAccel() const override;
 
 protected:
+	virtual void Serialize(FArchive& Ar) override;
 	virtual void Controlled() override;
 	virtual void UnControlled() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -98,19 +99,30 @@ private:
 	class UGravityMovementComponent* Movement = nullptr;
 	class ASpaceship* CurrentVehicle = nullptr;
 	class ANPC* TalkableNPC = nullptr;
-	class APickableItemActor* PickableItem = nullptr;
+	class UPickableItem* PickableItem = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera = nullptr;
 
 private:
 	friend class UMenuTechHelper;
+
+	UPROPERTY(SaveGame)
+	FTransform SavedTransform;
+
 	/** 属性等级 */
+	UPROPERTY(SaveGame)
 	int32 LevelStrength    = 0; //包含Mass和HP
+	UPROPERTY(SaveGame)
 	int32 LevelBackpack    = 0; //背包承重
+	UPROPERTY(SaveGame)
 	int32 LevelShieldCold  = 0;
+	UPROPERTY(SaveGame)
 	int32 LevelShieldHeat  = 0;
+	UPROPERTY(SaveGame)
 	int32 LevelShieldPress = 0;
+	UPROPERTY(SaveGame)
 	int32 LevelEngine      = 0; //包含Power、Mass、EPR、EMR
+	UPROPERTY(SaveGame)
 	int32 LevelEnergy      = 0;
 };

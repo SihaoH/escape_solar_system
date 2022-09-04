@@ -1,10 +1,11 @@
 const _ = require('lodash')
-const UClass = require('UClass')()
 const React = require('react')
 const ReactUMG = require('react-umg')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
 const {F_Sans, ButtonStyle} = require('../style')
+
+const ConfirmDialog = require('confirm_dialog')
 
 let ThisWidget = null
 
@@ -12,16 +13,30 @@ class StartView extends React.Component {
     constructor(props) {
         super(props)
 
+        this.options = ["新游戏", "设置", "退出游戏"]
+        if (MainSaveGame.HasAr()) {
+            this.options.unshift("继续")
+        }
+
+        this.openMainLv = (need_load) => {
+            MainSaveGame.SetNeedLoad(need_load)
+            ThisWidget.RemoveFromViewport()
+            // 第二参数直接使用string不行，要这样先加载关卡对象
+            setTimeout(() => {
+                GameplayStatics.OpenLevel(GWorld, World.Load("/Game/MainBP/Maps/SolarSystemMap"))
+            }, 2000)
+        }
+
         this.handleAction = (idx) => {
-            if (idx === 0) {
+            if (idx === 0) { // 继续
+                this.openMainLv(true)
+            } else if (idx === 1) { // 新游戏
+                ConfirmDialog.open("提示", "开始新游戏会覆盖已有存档", () => {
+                    this.openMainLv(false)
+                })
+            } else if (idx === 2) { // 设置
                 // TODO
-            } else if (idx === 1) {
-                ThisWidget.RemoveFromViewport()
-                // 第二参数直接使用string不行，要这样先加载关卡对象
-                setTimeout(() => GameplayStatics.OpenLevel(GWorld, World.Load("/Game/MainBP/Maps/SolarSystemMap")), 2000)
-            } else if (idx === 2) {
-                // TODO
-            } else if (idx === 3) {
+            } else if (idx === 3) { // 退出游戏
                 ThisWidget.RemoveFromViewport()
                 process.nextTick(() => GWorld.QuitGame())
             }
@@ -39,7 +54,10 @@ class StartView extends React.Component {
     componentWillUnmount() {
         ThisWidget = null
         Utils.setInputMode(false)
-        GWorld.GetPlayerCameraManager(0).StartCameraFade(0.0, 1.0, 2.0, Utils.rgba(0, 0, 0), false, true)
+        let CM = GWorld ? GWorld.GetPlayerCameraManager(0) : null
+        if (CM) {
+            CM.StartCameraFade(0.0, 1.0, 2.0, Utils.rgba(0, 0, 0), false, true)
+        }
     }
 
     render() {
@@ -74,7 +92,7 @@ class StartView extends React.Component {
                         bAutoSize: true
                     }}
                 >
-                    {_.map(["继续", "新游戏", "设置", "退出游戏"], (val, idx) => (
+                    {_.map(this.options, (val, idx) => (
                     <uButton
                         Slot={{ Padding: Utils.ltrb(0, 5) }}
                         WidgetStyle={ButtonStyle}

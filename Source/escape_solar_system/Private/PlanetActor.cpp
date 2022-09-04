@@ -16,11 +16,13 @@ APlanetActor::APlanetActor()
 	GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 
 	GravityZone = CreateDefaultSubobject<USphereComponent>(TEXT("GravityZone"));
+	// 必须附着在RootComponent上，否则无法获取到重叠物品
 	GravityZone->SetupAttachment(GetRootComponent());
 	GravityZone->OnComponentBeginOverlap.AddDynamic(this, &APlanetActor::OnGravityZoneBeginOverlap);
 	GravityZone->OnComponentEndOverlap.AddDynamic(this, &APlanetActor::OnGravityZoneEndOverlap);
 
 	InfoWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InfoWidget"));
+	// 必须附着在RootComponent上，否则会显示在世界的中心，而不是该星球的中心
 	InfoWidget->SetupAttachment(GetRootComponent());
 	InfoWidget->SetWidgetSpace(EWidgetSpace::Screen);
 	InfoWidget->SetDrawSize({ 0, 0 });
@@ -61,6 +63,24 @@ void APlanetActor::CalcGravityResult(AActor* Target, FVector& Direction, float& 
 	Direction = (SelfLocation - TargetLocation).GetSafeNormal();
 	float Distance = FVector::Dist(SelfLocation, TargetLocation) - SelfRadius;
 	Accel = SurfaceGravity * FMath::Max((1 - Distance / 3 / SelfRadius), 0.f);
+}
+
+void APlanetActor::Serialize(FArchive& Ar)
+{
+	if (Ar.IsSaving())
+	{
+		SavedTransform = GetActorTransform();
+		Super::Serialize(Ar);
+	}
+	else if (Ar.IsLoading())
+	{
+		Super::Serialize(Ar);
+		SetActorTransform(SavedTransform);
+	}
+	else
+	{
+		Super::Serialize(Ar);
+	}
 }
 
 void APlanetActor::BeginPlay()

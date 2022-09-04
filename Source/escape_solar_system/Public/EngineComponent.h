@@ -12,12 +12,15 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnergyChangedSignature, float, Delt
 /**
  * 发动机组件，推动机体运动
  */
-UCLASS()
+UCLASS(ClassGroup = SaveGame)
 class ESCAPE_SOLAR_SYSTEM_API UEngineComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(SaveGame)
+	float TestValue = 0.f;
 	UEngineComponent();
 
 	void SetEngine(EPawnType PType, int32 Level, int32 Type = 0);
@@ -65,7 +68,7 @@ private:
 	float EMRatio = 1.f;
 
 	/** 当前能量值 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame, meta = (AllowPrivateAccess = "true"))
 	float CurrentEnergy = 0;
 
 	/** 最大能量值 */
