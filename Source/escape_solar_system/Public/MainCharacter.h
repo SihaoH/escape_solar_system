@@ -21,7 +21,6 @@ class ESCAPE_SOLAR_SYSTEM_API AMainCharacter : public ACharacter, public IMassAc
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetVelocity(const FVector& Velocity);
-	virtual FText GetDisplayName() const override;
 	void ResetProperties();
 
 	UFUNCTION(BlueprintCallable)
@@ -37,13 +36,21 @@ public:
 	class AEarthBase* FindEarthBase() const;
 
 	UFUNCTION(BlueprintPure)
-	class ANPC* GetTalkableNPC() const { return TalkableNPC; };
+	class ANPC* GetTalkableNPC() const { return TalkableNPC; }
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMass() const { return Movement->Mass; }
 
 	virtual FVector GetVelocity() const override;
+
+	UFUNCTION(BlueprintPure)  // unreal.js不支持多重继承，所以IControllable父类的方法要再次声明UFUNCTION
+	virtual FText GetLabelName() const override;
+
+	UFUNCTION(BlueprintPure)
 	virtual float GetGravityAccel() const override;
+
+	UFUNCTION(BlueprintPure)
+	void GetLocationInfo(FText& Planet, FVector& Loction) const override { IControllable::GetLocationInfo(Planet, Loction); }
 
 protected:
 	virtual void Serialize(FArchive& Ar) override;

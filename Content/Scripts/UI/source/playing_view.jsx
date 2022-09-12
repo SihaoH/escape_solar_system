@@ -1,5 +1,4 @@
 const _ = require('lodash')
-const UClass = require('uclass')()
 const React = require('react')
 const AD = require('animation-driver')
 const ReactUMG = require('react-umg')
@@ -9,6 +8,7 @@ const {F_Sans, T_Rect} = require('../style')
 
 const PointBar = require('./point_bar')
 const MessageListView = require('./message_listview')
+const EngineToward = require('./engine_toward')
 
 const T_Keycap = Texture2D.Load('/Game/UI/Icon/T_Keycap64x64')
 
@@ -21,31 +21,42 @@ class PlayingView extends React.Component {
             HP: { cur: 0, max: 1},
             MP: { cur: 0, max: 1},
             actionPrompt: null,
-            debugInfo: []
+            locationInfo: "",
+            enginInfo: { max: 0, upDown: 0, frontBack: 0 },
+            basicInfo: []
         }
 
         this.timer = setInterval(() => {
             if (this.actionAnime) return
 
-            let char = MainLevelScript.GetMainChar()
-            if (!char) {
+            let player = MainLevelScript.GetMainChar()
+            if (!player) {
                 this.setState({
                     HP: { cur: 0 }
                 })
                 return
             }
 
-            if (char.IsDriving()) {
-                char = MainLevelScript.GetSpaceship()
+            if (player.IsDriving()) {
+                player = MainLevelScript.GetSpaceship()
             }
             this.setState({
-                HP: { cur: char.Body.CurrentHP, max: char.Body.MaximumHP },
-                MP: { cur: char.Engine.CurrentEnergy, max: char.Engine.MaximumEnergy},
+                HP: { cur: player.Body.CurrentHP, max: player.Body.MaximumHP },
+                MP: { cur: player.Engine.CurrentEnergy, max: player.Engine.MaximumEnergy},
             })
 
-            if (Utils.isDev()) {
-                this.setState({debugInfo: this.helper.GetDebugInfo().OutList})
-            }
+            this.setState({enginInfo: { max: player.Engine.Power, upDown: player.Engine.UpForce, frontBack: player.Engine.ForwardForce }})
+
+            let loc_info = player.GetLocationInfo()
+            this.setState({locationInfo: `${loc_info.Planet} (${(loc_info.Loction.X/100).toFixed(0)}, ${(loc_info.Loction.Y/100).toFixed(0)}, ${(loc_info.Loction.Z/100).toFixed(0)})` })
+
+            this.setState({basicInfo: [
+                { icon: "T_Temperature32x32", text: `温度: ${Utils.num2Txt(player.Body.CurrentTemp)} ℃`, color: player.Body.CurrentTemp > player.Body.ShieldHeat ? Utils.color("#f00") : player.Body.CurrentTemp < player.Body.ShieldCold ? Utils.color("#00f") : Utils.color("#fff") },
+                { icon: "T_Pressure32x32", text: `气压: ${Utils.num2Txt(player.Body.CurrentPress)} kPa`, color: player.Body.CurrentPress > player.Body.ShieldPress ? Utils.color("#f00") : Utils.color("#fff") },
+                { icon: "T_Mass32x32", text: `质量: ${Utils.num2Txt(player.GetMass())} kg`, color: Utils.color("#fff") },
+                { icon: "T_Gravity32x32", text: `重力: ${Utils.num2Txt(player.GetGravityAccel())} m/s²`, color: Utils.color("#fff") },
+                { icon: "T_Thrust32x32", text: `推力MAX: ${Utils.num2Txt(player.Engine.Power)} N`, color: Utils.color("#fff") },
+            ]})
         }, 200)
         MainLevelScript.Instance().ActionAddedDelegate.Add((Key, Tag, Interval) => {
             this.setState({ actionPrompt: { key: Key, tag: Tag, interval: Interval } })
@@ -133,6 +144,48 @@ class PlayingView extends React.Component {
                         maxVal={this.state.MP.max}
                     />
                 </div>
+                
+                /* 基本状态信息 */
+                <div Slot={{ LayoutData: { Offsets: Utils.ltrb(50, 105, 400, 32) } }} >
+                    {_.map(this.state.basicInfo, item => (
+                        <uBorder
+                            Slot={{
+                                HorizontalAlignment: EHorizontalAlignment.HAlign_Left,
+                                Padding: Utils.ltrb(0, 1)
+                            }}
+                            Padding={ Utils.ltrb(10, 1) }
+                            Background={{
+                                TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.2) }
+                            }}
+                        >
+                            <span>
+                                <uImage
+                                    Slot={{ Padding: Utils.ltrb(0, 0, 10, 0) }}
+                                    ColorAndOpacity={ item.color }
+                                    Brush={{
+                                        ResourceObject: Utils.icon(item.icon),
+                                        ImageSize: {X: 32, Y: 32}
+                                    }}
+                                />
+                                <uTextBlock
+                                    Slot={{ VerticalAlignment: EVerticalAlignment.VAlign_Center }}
+                                    Font={{ FontObject: F_Sans, Size: 12 }}
+                                    ColorAndOpacity={{
+                                        SpecifiedColor: item.color
+                                    }}
+                                    Text={item.text}
+                                />
+                            </span>
+                        </uBorder>
+                    ))}
+                </div>
+
+                <EngineToward
+                    Slot={{ LayoutData: { Offsets: Utils.ltrb(50, 280, 160, 160) } }}
+                    Max={this.state.enginInfo.max}
+                    UpDown={this.state.enginInfo.upDown}
+                    FrontBack={this.state.enginInfo.frontBack}
+                />
 
                 /* 右上角的按键操作指示 */
                 <div
@@ -306,16 +359,6 @@ class PlayingView extends React.Component {
                     </span>
                 </uCanvasPanel>}
 
-                /* 调试信息 */
-                <div Slot={{ LayoutData: { Offsets: Utils.ltrb(50, 300, 0, 0) } }} >
-                    {_.map(this.state.debugInfo, str => (
-                        <uTextBlock
-                            Font={ {FontObject: F_Sans, Size: 14} }
-                            Text={str}
-                        />
-                    ))}
-                </div>
-
                 /* 信息框 */
                 <MessageListView
                     ref={(elem) => {
@@ -331,6 +374,39 @@ class PlayingView extends React.Component {
                         }
                     }}
                 />
+
+                /* 位置信息 */
+                <uBorder
+                    Slot={{
+                        LayoutData: {
+                            Anchors: EAnchors.BottomRight,
+                            Alignment: { X: 1.0, Y: 1.0 },
+                            Offsets: Utils.ltrb(-50, -50, 0, 0)
+                        },
+                        AutoSize: true
+                    }}
+                    Padding={ Utils.ltrb(10, 10) }
+                    Background={{
+                        TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.2) }
+                    }}
+                >
+                    <span>
+                        <uImage
+                            Slot={{ Padding: Utils.ltrb(0, 0, 10, 0) }}
+                            //ColorAndOpacity={ item.color }
+                            Brush={{
+                                ResourceObject: Utils.icon("T_Location32x32"),
+                                ImageSize: {X: 32, Y: 32}
+                            }}
+                        />
+                        <uTextBlock
+                            Slot={{ VerticalAlignment: EVerticalAlignment.VAlign_Center }}
+                            Font={{ FontObject: F_Sans, Size: 14 }}
+                            //ColorAndOpacity={{ SpecifiedColor: item.color }}
+                            Text={this.state.locationInfo}
+                        />
+                    </span>
+                </uBorder>
             </uCanvasPanel>
         )
     }

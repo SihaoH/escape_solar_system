@@ -538,7 +538,7 @@ class MenuTech extends React.Component {
         if (char) {
             this.setState({
                 charInfo: [
-                    info_row("HP", `${Utils.num2Txt(char.Body.CurrentHP)}/${char.Body.MaximumHP}`),
+                    info_row("HP", `${Utils.num2Txt(char.Body.CurrentHP)}/${Utils.num2Txt(char.Body.MaximumHP)}`),
                     info_row("质量", char.GetMass(), "kg"),
                     [
                         info_row("躯体", char.Body.Mass, "kg"),
@@ -548,7 +548,7 @@ class MenuTech extends React.Component {
                     ],
                     info_row("引擎类型", "化学动力"),
                     info_row("引擎推力", char.Engine.Power, "N"),
-                    info_row("燃料能量", `${Utils.num2Txt(char.Engine.CurrentEnergy)}/${char.Engine.MaximumEnergy}`),
+                    info_row("燃料能量", `${Utils.num2Txt(char.Engine.CurrentEnergy)}/${Utils.num2Txt(char.Engine.MaximumEnergy)}`),
                     info_row("耐冷", char.Body.ShieldCold, "℃"),
                     info_row("耐热", char.Body.ShieldHeat, "℃"),
                     info_row("耐压", char.Body.ShieldPress, "kPa"),
@@ -558,7 +558,7 @@ class MenuTech extends React.Component {
         if (ship) {
             this.setState({
                 shipInfo: [
-                    info_row("HP", `${Utils.num2Txt(ship.Body.CurrentHP)}/${ship.Body.MaximumHP}`),
+                    info_row("HP", `${Utils.num2Txt(ship.Body.CurrentHP)}/${Utils.num2Txt(ship.Body.MaximumHP)}`),
                     info_row("质量", ship.GetMass(), "kg"),
                     [
                         info_row("躯体", ship.Body.Mass, "kg"),
@@ -568,7 +568,7 @@ class MenuTech extends React.Component {
                     ],
                     info_row("引擎类型", ["化学动力", "核裂变动力", "核聚变动力"][ship.EngineType]),
                     info_row("引擎推力", ship.Engine.Power, "N"),
-                    info_row("燃料能量", `${ship.Engine.CurrentEnergy}/${ship.Engine.MaximumEnergy}`),
+                    info_row("燃料能量", `${Utils.num2Txt(ship.Engine.CurrentEnergy)}/${Utils.num2Txt(ship.Engine.MaximumEnergy)}`),
                     info_row("耐冷", ship.Body.ShieldCold, "℃"),
                     info_row("耐热", ship.Body.ShieldHeat, "℃"),
                     info_row("耐压", ship.Body.ShieldPress, "kPa"),

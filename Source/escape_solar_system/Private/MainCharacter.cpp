@@ -9,6 +9,7 @@
 #include "Spaceship.h"
 #include "EarthBaseActor.h"
 #include "PickableItem.h"
+#include "PlanetActor.h"
 #include "NPC.h"
 #include "MainPlayerState.h"
 #include "MainLevelScript.h"
@@ -51,7 +52,7 @@ void AMainCharacter::SetVelocity(const FVector& Velocity)
 	// TODO APlayerController::OnPossess的ClientRestart()调用会把速度置0（UMovementComponent::StopMovementImmediately）
 }
 
-FText AMainCharacter::GetDisplayName() const
+FText AMainCharacter::GetLabelName() const
 {
 	return LOCTEXT("Body", "躯体");
 }

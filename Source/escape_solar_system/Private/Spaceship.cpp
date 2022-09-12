@@ -52,7 +52,7 @@ void ASpaceship::SetPilot(AMainCharacter* Pilot)
 	CurrentPilot = Pilot;
 }
 
-FText ASpaceship::GetDisplayName() const
+FText ASpaceship::GetLabelName() const
 {
 	return LOCTEXT("Spaceship", "飞船");
 }

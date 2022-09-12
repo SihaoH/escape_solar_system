@@ -20,7 +20,7 @@ public:
 	ASpaceship();
 
 	void SetPilot(class AMainCharacter* Pilot);
-	virtual FText GetDisplayName() const override;
+	virtual FText GetLabelName() const override;
 	void ResetProperties();
 
 	FORCEINLINE class AMainCharacter* GetPilot() const { return CurrentPilot; }
@@ -31,7 +31,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE float GetMass() const { return ShipMesh->GetMass(); }
 
+	UFUNCTION(BlueprintPure)
 	virtual float GetGravityAccel() const override;
+
+	UFUNCTION(BlueprintPure)
+	void GetLocationInfo(FText& Planet, FVector& Loction) const override { IControllable::GetLocationInfo(Planet, Loction); }
 
 	UFUNCTION()
 	void OnHpChanged(float Delta);

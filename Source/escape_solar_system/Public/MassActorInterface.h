@@ -34,9 +34,9 @@ public:
 	void DampingChanged(float Linear, float Angular);
 
 	// 计算浮力，全部简化成球体来计算
-	FORCEINLINE float CalcDensity(float Mass, float Radius) { return Mass / (4.18879f * FMath::Cube(Radius / 100)); }
-	FORCEINLINE class APlanetActor* GetPlanetOwner() { return PlanetOwner; }
-	FORCEINLINE class UFluidZoneComponent* GetFluidZone() { return FluidZoneStack.Num() > 0 ? FluidZoneStack.Last() : nullptr; }
+	FORCEINLINE float CalcDensity(float Mass, float Radius) const { return Mass / (4.18879f * FMath::Cube(Radius / 100)); }
+	FORCEINLINE class APlanetActor* GetPlanetOwner() const { return PlanetOwner; }
+	FORCEINLINE class UFluidZoneComponent* GetFluidZone() const { return FluidZoneStack.Num() > 0 ? FluidZoneStack.Last() : nullptr; }
 
 protected:
 	/** 密度，要在子类中计算并赋值 */

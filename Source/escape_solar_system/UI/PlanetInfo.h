@@ -17,7 +17,7 @@ class ESCAPE_SOLAR_SYSTEM_API UPlanetInfo : public UUserWidget
 public:
 	void SetLooked(bool bLooked);
 	void SetLocked(bool bLocked);
-	void SetName(FText Name);
+	void SetName(FText Name, TObjectPtr<UTexture2D> Icon = nullptr);
 	void SetDistance(float Dist);
 	void SetSpeed(float Speed);
 
@@ -27,7 +27,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLocked(ESlateVisibility OutVisibility);
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnNameSetted(const FText& Name);
+	void OnNameSetted(const FText& Name, const UTexture2D* Icon);
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDistanceChanged(const FText& Dist);
 	UFUNCTION(BlueprintImplementableEvent)

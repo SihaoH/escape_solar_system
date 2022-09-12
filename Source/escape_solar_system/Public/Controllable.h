@@ -20,14 +20,11 @@ class ESCAPE_SOLAR_SYSTEM_API IControllable
 	GENERATED_IINTERFACE_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = Controllable)
-	virtual FText GetDisplayName() const = 0;
-
-	UFUNCTION(BlueprintCallable, Category = Controllable)
+	virtual FText GetLabelName() const = 0;
 	virtual float GetGravityAccel() const;
+	virtual void GetLocationInfo(FText& Planet, FVector& Loction) const;
 
 	/** 获取可显示的坐标值（单位m） */
-	UFUNCTION(BlueprintCallable, Category = Controllable)
 	virtual void GetLocation(int& X, int& Y, int& Z);
 
 	template <typename TargetClass>

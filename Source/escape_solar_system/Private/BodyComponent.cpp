@@ -60,7 +60,7 @@ void UBodyComponent::CheckEnvironment()
 	CurrentTemp = FluidZone ? FluidZone->HeatTransfer(CurrentTemp) : CurrentTemp;
 	CurrentPress = FluidZone ? FluidZone->PressTransfer(GetOwner()->GetActorLocation()) : 0;
 
-	const FText OwnerName = Cast<IControllable>(GetOwner())->GetDisplayName();
+	const FText OwnerName = Cast<IControllable>(GetOwner())->GetLabelName();
 
 	int32 Delta = 0;
 	if (CurrentTemp > ShieldHeat)

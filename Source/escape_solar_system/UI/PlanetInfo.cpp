@@ -14,9 +14,9 @@ void UPlanetInfo::SetLocked(bool bLocked)
 	OnLocked(bSelfLocked ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 }
 
-void UPlanetInfo::SetName(FText Name)
+void UPlanetInfo::SetName(FText Name, TObjectPtr<UTexture2D> Icon)
 {
-	OnNameSetted(Name);
+	OnNameSetted(Name, Icon);
 }
 
 void UPlanetInfo::SetDistance(float Dist)

@@ -96,7 +96,7 @@ void APlanetActor::BeginPlay()
 	}
 
 	InfoWidgetObject = Cast<UPlanetInfo>(InfoWidget->GetUserWidgetObject());
-	InfoWidgetObject->SetName(Name);
+	InfoWidgetObject->SetName(Name, Icon);
 	GetWorldTimerManager().SetTimer(InfoTimer, this, &APlanetActor::UpdateInfoWidget, 0.1f, true, 0.f);
 }
 

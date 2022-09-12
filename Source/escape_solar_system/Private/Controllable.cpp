@@ -2,6 +2,7 @@
 
 #include "Controllable.h"
 #include "PlanetActor.h"
+#include "MassActorInterface.h"
 #include "GameFramework/Pawn.h"
 #include <Kismet/GameplayStatics.h>
 
@@ -17,6 +18,18 @@ class APlanetActor* IControllable::LockedPlanet = nullptr;
 float IControllable::GetGravityAccel() const
 {
 	return 0.0f;
+}
+
+void IControllable::GetLocationInfo(FText& Planet, FVector& Loction) const
+{
+	Planet = INVTEXT("太空");
+	Loction = Cast<AActor>(this)->GetActorLocation();
+	auto PlanetActor = Cast<IMassActorInterface>(this)->GetPlanetOwner();
+	if (PlanetActor)
+	{
+		Planet = PlanetActor->GetLabelName();
+		Loction = Loction - PlanetActor->GetActorLocation();
+	}
 }
 
 void IControllable::GetLocation(int& X, int& Y, int& Z)

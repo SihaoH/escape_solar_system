@@ -22,6 +22,7 @@ public:
 	void SetLocked(bool Locked);
 	float GetSurfaceGravity() const { return SurfaceGravity; }
 	void CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const;
+	FText GetLabelName() const { return Name; }
 
 protected:
 	virtual void Serialize(FArchive& Ar) override;
@@ -43,6 +44,10 @@ protected:
 	/** 星球名称 */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	FText Name;
+
+	/** 星球图标 */
+	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture2D> Icon;
 
 	/** 自转的角速度，以角度为单位 */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
