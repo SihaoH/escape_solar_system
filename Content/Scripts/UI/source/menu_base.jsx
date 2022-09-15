@@ -36,7 +36,8 @@ class Menu extends React.Component {
         this.helper = new MenuBaseHelper()
 
         this.state = {
-            status: this.getStatus(),
+            gameDate: this.helper.GetGameDate(),
+            planetDist: this.helper.GetPlanetDistance().List,
             shipDist: this.helper.GetShipDistance(),
             hoveredIndex: -1,
             selectedIndex: -1,
@@ -62,25 +63,12 @@ class Menu extends React.Component {
         this.timer = setInterval(() => {
             if (this.makedAnime || this.destroyAnime) return
 
-            let status = this.getStatus()
-            if (JSON.stringify(this.state.status) !== JSON.stringify(status)) {
-                this.setState({status: status})
-            }
-            this.setState({ shipDist: this.helper.GetShipDistance() })
+            this.setState({
+                gameDate: this.helper.GetGameDate(),
+                planetDist: this.helper.GetPlanetDistance().List,
+                shipDist: this.helper.GetShipDistance()
+            })
         }, 500)
-    }
-
-    getStatus() {
-        return [
-            {
-                "时间": new Date().toLocaleDateString(),
-                "探索点": 100
-            },
-            {
-                "地球": `${Utils.num2Txt(100)}m`,
-                "火星": `${Utils.num2Txt(30000)}m`,
-            }
-        ]
     }
 
     componentDidMount() {
@@ -130,39 +118,66 @@ class Menu extends React.Component {
                     }}
                     title={"状态"}
                 >
-                    {_.map(this.state.status, (val) => [
-                        ..._.map(val, (v, k) => (
-                            <span>
-                                <uTextBlock
-                                    Slot={{
-                                        HorizontalAlignment: EHorizontalAlignment.HAlign_Left
-                                    }}
-                                    Font={{
-                                        FontObject: F_Sans,
-                                        Size: 16,
-                                    }}
-                                    Text={k}
-                                />
-                                <uTextBlock
-                                    Slot={{
-                                        HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
-                                        Size: { SizeRule: ESlateSizeRule.Fill }
-                                    }}
-                                    Font={{
-                                        FontObject: F_Sans,
-                                        Size: 16,
-                                    }}
-                                    Text={v}
-                                />
-                            </span>)
-                        ),
-                            <uImage
-                                Slot={{ Padding: Utils.ltrb(0, 5) }}
-                                Brush={{ ImageSize: {X: 32, Y: 2} }}
-                                ColorAndOpacity={Utils.rgba(1, 1, 1, 0.5)}
+                    <span>
+                        <uTextBlock
+                            Slot={{
+                                HorizontalAlignment: EHorizontalAlignment.HAlign_Left
+                            }}
+                            Font={{
+                                FontObject: F_Sans,
+                                Size: 16,
+                            }}
+                            Text={"时间"}
+                        />
+                        <uTextBlock
+                            Slot={{
+                                HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
+                                Size: { SizeRule: ESlateSizeRule.Fill }
+                            }}
+                            Font={{
+                                FontObject: F_Sans,
+                                Size: 16,
+                            }}
+                            Text={this.state.gameDate}
+                        />
+                    </span>
+                    <uImage
+                        Slot={{ Padding: Utils.ltrb(0, 5) }}
+                        Brush={{ ImageSize: {X: 32, Y: 2} }}
+                        ColorAndOpacity={Utils.rgba(1, 1, 1, 0.5)}
+                    />
+
+                    /* 天体离基地的距离 */
+                    {_.map(this.state.planetDist, (v, k) => (
+                        <span>
+                            <uTextBlock
+                                Slot={{
+                                    HorizontalAlignment: EHorizontalAlignment.HAlign_Left
+                                }}
+                                Font={{
+                                    FontObject: F_Sans,
+                                    Size: 16,
+                                }}
+                                Text={k}
                             />
-                        ]
+                            <uTextBlock
+                                Slot={{
+                                    HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
+                                    Size: { SizeRule: ESlateSizeRule.Fill }
+                                }}
+                                Font={{
+                                    FontObject: F_Sans,
+                                    Size: 16,
+                                }}
+                                Text={`${Utils.num2Txt(v/100)}m`}
+                            />
+                        </span>)
                     )}
+                    <uImage
+                        Slot={{ Padding: Utils.ltrb(0, 5) }}
+                        Brush={{ ImageSize: {X: 32, Y: 2} }}
+                        ColorAndOpacity={Utils.rgba(1, 1, 1, 0.5)}
+                    />
 
                     {this.state.shipDist !== -1 &&
                     <span>

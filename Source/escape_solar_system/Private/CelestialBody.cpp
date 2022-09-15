@@ -1,13 +1,13 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
-#include "PlanetActor.h"
+#include "CelestialBody.h"
 #include "MassActorInterface.h"
 #include "../UI/PlanetInfo.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 
-APlanetActor::APlanetActor()
+ACelestialBody::ACelestialBody()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	// 这项很重要，在关卡开始时，已经放置在碰撞区域内的，可以发出一次BeginOverlap事件
@@ -18,8 +18,8 @@ APlanetActor::APlanetActor()
 	GravityZone = CreateDefaultSubobject<USphereComponent>(TEXT("GravityZone"));
 	// 必须附着在RootComponent上，否则无法获取到重叠物品
 	GravityZone->SetupAttachment(GetRootComponent());
-	GravityZone->OnComponentBeginOverlap.AddDynamic(this, &APlanetActor::OnGravityZoneBeginOverlap);
-	GravityZone->OnComponentEndOverlap.AddDynamic(this, &APlanetActor::OnGravityZoneEndOverlap);
+	GravityZone->OnComponentBeginOverlap.AddDynamic(this, &ACelestialBody::OnGravityZoneBeginOverlap);
+	GravityZone->OnComponentEndOverlap.AddDynamic(this, &ACelestialBody::OnGravityZoneEndOverlap);
 
 	InfoWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InfoWidget"));
 	// 必须附着在RootComponent上，否则会显示在世界的中心，而不是该星球的中心
@@ -35,7 +35,7 @@ APlanetActor::APlanetActor()
  * 而星球本身是要保持稳定的，只能按自转和公转来运动，所以重载该函数
  * 实现和UPrimitiveComponent::GetComponentVelocity类似，只是去掉了[模拟物理]的判断
  */
-FVector APlanetActor::GetVelocity() const
+FVector ACelestialBody::GetVelocity() const
 {
 	FVector Velocity = FVector::ZeroVector;
 	FBodyInstance* BodyInst = GetStaticMeshComponent()->GetBodyInstance();
@@ -46,17 +46,17 @@ FVector APlanetActor::GetVelocity() const
 	return Velocity;
 }
 
-void APlanetActor::SetLooked(bool Looked)
+void ACelestialBody::SetLooked(bool Looked)
 {
 	InfoWidgetObject->SetLooked(Looked);
 }
 
-void APlanetActor::SetLocked(bool Locked)
+void ACelestialBody::SetLocked(bool Locked)
 {
 	InfoWidgetObject->SetLocked(Locked);
 }
 
-void APlanetActor::CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const
+void ACelestialBody::CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const
 {
 	const FVector SelfLocation = GetActorLocation();
 	const FVector TargetLocation = Target->GetActorLocation();
@@ -65,7 +65,7 @@ void APlanetActor::CalcGravityResult(AActor* Target, FVector& Direction, float& 
 	Accel = SurfaceGravity * FMath::Max((1 - Distance / 3 / SelfRadius), 0.f);
 }
 
-void APlanetActor::Serialize(FArchive& Ar)
+void ACelestialBody::Serialize(FArchive& Ar)
 {
 	if (Ar.IsSaving())
 	{
@@ -83,7 +83,7 @@ void APlanetActor::Serialize(FArchive& Ar)
 	}
 }
 
-void APlanetActor::BeginPlay()
+void ACelestialBody::BeginPlay()
 {
 	Super::BeginPlay();
 	if (SelfRadius <= 0)
@@ -97,10 +97,10 @@ void APlanetActor::BeginPlay()
 
 	InfoWidgetObject = Cast<UPlanetInfo>(InfoWidget->GetUserWidgetObject());
 	InfoWidgetObject->SetName(Name, Icon);
-	GetWorldTimerManager().SetTimer(InfoTimer, this, &APlanetActor::UpdateInfoWidget, 0.1f, true, 0.f);
+	GetWorldTimerManager().SetTimer(InfoTimer, this, &ACelestialBody::UpdateInfoWidget, 0.1f, true, 0.f);
 }
 
-void APlanetActor::Tick(float DeltaTime)
+void ACelestialBody::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -108,7 +108,7 @@ void APlanetActor::Tick(float DeltaTime)
 	PerformGravity(DeltaTime);
 }
 
-void APlanetActor::PerformRotation(float DeltaTime)
+void ACelestialBody::PerformRotation(float DeltaTime)
 {
 	if (RotationSpeed != 0)
 	{
@@ -120,7 +120,7 @@ void APlanetActor::PerformRotation(float DeltaTime)
  * 对[质量体]产生引力作用
  * 在星球表面时引力最大，往外飞或往内部钻，引力都会越来越小
  */
-void APlanetActor::PerformGravity(float DeltaTime)
+void ACelestialBody::PerformGravity(float DeltaTime)
 {
 	TSet<AActor*> OverlappingActors;
 	GravityZone->GetOverlappingActors(OverlappingActors);
@@ -137,7 +137,7 @@ void APlanetActor::PerformGravity(float DeltaTime)
 	}
 }
 
-void APlanetActor::UpdateInfoWidget()
+void ACelestialBody::UpdateInfoWidget()
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	if (Player)
@@ -153,7 +153,7 @@ void APlanetActor::UpdateInfoWidget()
 	}
 }
 
-void APlanetActor::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACelestialBody::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{
@@ -161,7 +161,7 @@ void APlanetActor::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComp
 	}
 }
 
-void APlanetActor::OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void ACelestialBody::OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{

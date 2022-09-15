@@ -35,7 +35,7 @@ public:
 
 	// 计算浮力，全部简化成球体来计算
 	FORCEINLINE float CalcDensity(float Mass, float Radius) const { return Mass / (4.18879f * FMath::Cube(Radius / 100)); }
-	FORCEINLINE class APlanetActor* GetPlanetOwner() const { return PlanetOwner; }
+	FORCEINLINE class ACelestialBody* GetPlanetOwner() const { return PlanetOwner; }
 	FORCEINLINE class UFluidZoneComponent* GetFluidZone() const { return FluidZoneStack.Num() > 0 ? FluidZoneStack.Last() : nullptr; }
 
 protected:
@@ -43,9 +43,9 @@ protected:
 	float Density = 1000.f;
 
 private:
-	class APlanetActor* PlanetOwner = nullptr;
+	class ACelestialBody* PlanetOwner = nullptr;
 	TArray<class UFluidZoneComponent*> FluidZoneStack;
 
-	friend class APlanetActor;
+	friend class ACelestialBody;
 	friend class UFluidZoneComponent;
 };

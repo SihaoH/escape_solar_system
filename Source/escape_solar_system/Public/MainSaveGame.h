@@ -58,6 +58,8 @@ public:
 	static bool IsNeedLoad() { return bIsNeedLoad; }
 
 private:
+	friend class AMainLevelScript;
+	static int64 SaveTimestamp;
 	static bool bIsNeedLoad;
 	static FString SaveSlotName;
 	static uint32 UserIndex;

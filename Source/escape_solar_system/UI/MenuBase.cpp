@@ -6,12 +6,35 @@
 #include "MainLevelScript.h"
 #include "MainCharacter.h"
 #include "EarthBaseActor.h"
+#include "CelestialBody.h"
+#include "MainPlayerState.h"
 #include "BackpackComponent.h"
 #include "Spaceship.h"
 #include "MainLevelScript.h"
 #include <UMG.h>
 
 #define LOCTEXT_NAMESPACE "MenuBase"
+
+FString UMenuBaseHelper::GetGameDate() const
+{
+	static const FDateTime InitialDate(2077, 07, 31);
+	constexpr float MapVal = 86400.f / 300.f;
+	float RealTime = AMainPlayerState::Instance()->GetTotalTime() + AMainLevelScript::Instance()->GetWorld()->GetTimeSeconds();
+	return (InitialDate + FTimespan::FromSeconds(MapVal * RealTime)).ToString(TEXT("%Y/%m/%d %H:00"));
+}
+
+void UMenuBaseHelper::GetPlanetDistance(TMap<FString, float>& List) const
+{
+	auto BaseLoc = AMainLevelScript::GetEarthBase()->GetActorLocation();
+	for (TActorIterator<ACelestialBody> It(AMainLevelScript::Instance()->GetWorld()); It; ++It)
+	{
+		ACelestialBody* CB = *It;
+		if (CB->GetCelestialType() == ECelestialBodyType::Planet)
+		{
+			List.Add(CB->GetLabelName().ToString(), FVector::Dist(BaseLoc, CB->GetActorLocation()));
+		}
+	}
+}
 
 float UMenuBaseHelper::GetShipDistance() const
 {

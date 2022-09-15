@@ -3,7 +3,7 @@
 
 #include "FluidZoneComponent.h"
 #include "MassActorInterface.h"
-#include "PlanetActor.h"
+#include "CelestialBody.h"
 #include <Components/SphereComponent.h>
 
 
@@ -55,7 +55,7 @@ float UFluidZoneComponent::PressTransfer(FVector Location) const
 void UFluidZoneComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	AttachedPlanet = Cast<APlanetActor>(GetOwner());
+	AttachedPlanet = Cast<ACelestialBody>(GetOwner());
 	check(AttachedPlanet);
 }
 

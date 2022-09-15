@@ -9,7 +9,7 @@
 #include "Spaceship.h"
 #include "EarthBaseActor.h"
 #include "PickableItem.h"
-#include "PlanetActor.h"
+#include "CelestialBody.h"
 #include "NPC.h"
 #include "MainPlayerState.h"
 #include "MainLevelScript.h"
@@ -73,6 +73,7 @@ void AMainCharacter::ResetProperties()
 void AMainCharacter::Destroy()
 {
 	Super::Destroy();
+	AMainPlayerState::Instance()->IncreaseDeathCount();
 	ChangePawn(nullptr);
 	AMainLevelScript::SetMainChar(nullptr);
 

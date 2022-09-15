@@ -4,25 +4,35 @@
 
 #include "CoreMinimal.h"
 #include "Engine/StaticMeshActor.h"
-#include "PlanetActor.generated.h"
+#include "CelestialBody.generated.h"
+
+UENUM(BlueprintType)
+enum class ECelestialBodyType : uint8
+{
+	Star,
+	Planet,
+	Moon,
+	Comet
+};
 
 /**
- * 星球基类，发射引力，信息显示等
+ * 天体类，发射引力、信息显示等
  */
 UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API APlanetActor : public AStaticMeshActor
+class ESCAPE_SOLAR_SYSTEM_API ACelestialBody : public AStaticMeshActor
 {
 	GENERATED_BODY()
 
 public:
-	APlanetActor();
+	ACelestialBody();
 	virtual FVector GetVelocity() const override;
 
 	void SetLooked(bool Looked);
 	void SetLocked(bool Locked);
 	float GetSurfaceGravity() const { return SurfaceGravity; }
 	void CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const;
-	FText GetLabelName() const { return Name; }
+	FORCEINLINE FText GetLabelName() const { return Name; }
+	FORCEINLINE ECelestialBodyType GetCelestialType() const { return Type; }
 
 protected:
 	virtual void Serialize(FArchive& Ar) override;
@@ -41,6 +51,10 @@ private:
 	void OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
+	/** 星球类型 */
+	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	ECelestialBodyType Type = ECelestialBodyType::Planet;
+
 	/** 星球名称 */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	FText Name;

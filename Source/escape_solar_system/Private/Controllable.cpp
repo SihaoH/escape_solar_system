@@ -1,7 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "Controllable.h"
-#include "PlanetActor.h"
+#include "CelestialBody.h"
 #include "MassActorInterface.h"
 #include "GameFramework/Pawn.h"
 #include <Kismet/GameplayStatics.h>
@@ -12,8 +12,8 @@ UControllable::UControllable(const FObjectInitializer& ObjectInitializer)
 }
 
 
-class APlanetActor* IControllable::LookedPlanet = nullptr;
-class APlanetActor* IControllable::LockedPlanet = nullptr;
+class ACelestialBody* IControllable::LookedPlanet = nullptr;
+class ACelestialBody* IControllable::LockedPlanet = nullptr;
 
 float IControllable::GetGravityAccel() const
 {
@@ -68,7 +68,7 @@ void IControllable::LookPlanet()
 	const APlayerController* Controller = UGameplayStatics::GetPlayerController(Self->GetWorld(), 0);
 	if (Controller->GetPawn() == Self)
 	{
-		APlanetActor* NewLookedPlanet = FindByLineTrace<APlanetActor>(6400000.f);
+		ACelestialBody* NewLookedPlanet = FindByLineTrace<ACelestialBody>(6400000.f);
 		if (NewLookedPlanet != LookedPlanet)
 		{
 			if (LookedPlanet)

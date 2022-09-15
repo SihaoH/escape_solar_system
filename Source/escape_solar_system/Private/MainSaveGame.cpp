@@ -7,13 +7,14 @@
 #include "EarthBaseActor.h"
 #include "MainPlayerState.h"
 #include "MovableMeshActor.h"
-#include "PlanetActor.h"
+#include "CelestialBody.h"
 #include <Serialization/ObjectAndNameAsStringProxyArchive.h>
 #include <Kismet/GameplayStatics.h>
 #include <EngineUtils.h>
 #include <UObject/UE5MainStreamObjectVersion.h>
 #include "EngineComponent.h"
 
+int64 UMainSaveGame::SaveTimestamp = 0;
 bool UMainSaveGame::bIsNeedLoad = false;
 FString UMainSaveGame::SaveSlotName = TEXT("archive");
 uint32 UMainSaveGame::UserIndex = 0;
@@ -79,7 +80,7 @@ void UMainSaveGame::SaveAr()
 	if (IsBusy) return;
 
 	IsBusy = true;
-	TActorIterator<APlanetActor> Planet_It(AMainLevelScript::Instance()->GetWorld());
+	TActorIterator<ACelestialBody> Planet_It(AMainLevelScript::Instance()->GetWorld());
 	TActorIterator<AMovableMeshActor> Move_It(AMainLevelScript::Instance()->GetWorld());
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [Planet_It, Move_It] {
 		if (UMainSaveGame* Instance = Cast<UMainSaveGame>(UGameplayStatics::CreateSaveGameObject(UMainSaveGame::StaticClass())))
@@ -88,7 +89,7 @@ void UMainSaveGame::SaveAr()
 			for (auto It = Planet_It; It; ++It)
 			{
 				// 每个星球都有独立的蓝图类，所以这里使用Class的路径名
-				APlanetActor* Planet = *It;
+				ACelestialBody* Planet = *It;
 				Instance->PlanetList.Add({ Planet->GetClass()->GetPathName(), GetActorData(Planet) });
 			}
 
@@ -115,7 +116,10 @@ void UMainSaveGame::SaveAr()
 			}
 
 			// 保存等级状态
+			int64 NowTimestamp = FDateTime::UtcNow().ToUnixTimestamp();
+			AMainPlayerState::Instance()->UpdateTotalTime(NowTimestamp - SaveTimestamp);
 			Instance->PlayerState = GetObjectData(AMainPlayerState::Instance());
+			SaveTimestamp = NowTimestamp;
 
 			UGameplayStatics::SaveGameToSlot(Instance, SaveSlotName, UserIndex);
 		}
@@ -131,9 +135,9 @@ void UMainSaveGame::LoadAr()
 		auto CurWorld = AMainLevelScript::Instance()->GetWorld();
 
 		// 加载星球的数据
-		for (TActorIterator<APlanetActor> It(CurWorld); It; ++It)
+		for (TActorIterator<ACelestialBody> It(CurWorld); It; ++It)
 		{
-			APlanetActor* Planet = *It;
+			ACelestialBody* Planet = *It;
 			FString KeyName = Planet->GetClass()->GetPathName();
 			if (Instance->PlanetList.Contains(KeyName))
 			{

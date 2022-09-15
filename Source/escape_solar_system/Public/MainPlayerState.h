@@ -11,6 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FExplorePointsChangedSignature, int3
 
 /**
  * 玩家状态，记录了探索点数,躯体和飞船的最高等级
+ * 在默认游戏模式MainGameMode中指定
  */
 UCLASS()
 class ESCAPE_SOLAR_SYSTEM_API AMainPlayerState : public APlayerState
@@ -25,6 +26,11 @@ public:
 
 	void UpdateBestLevel(const TArray<ETech>& Props, int32 Val);
 	int32 GetBestLevel(const TArray<ETech>& Props);
+
+	void IncreaseDeathCount() { DeathCount += 1; }
+
+	float GetTotalTime() const { return TotalTime; }
+	void UpdateTotalTime(float Delta) { TotalTime += Delta; }
 
 	void ChangeExplorePoints(int32 Delta);
 	UFUNCTION(BlueprintPure)
@@ -42,6 +48,10 @@ private:
 
 	UPROPERTY(SaveGame)
 	int32 ExplorePoints = 999;
+	UPROPERTY(SaveGame)
+	int32 DeathCount = 0;
+	UPROPERTY(SaveGame)
+	float TotalTime = 0;
 
 	UPROPERTY(SaveGame)
 	int32 Best_CharBody = 0;

@@ -42,9 +42,9 @@ public:
 
 private:
 	/** 被注视的星球 */
-	static class APlanetActor* LookedPlanet;
+	static class ACelestialBody* LookedPlanet;
 	/** 被锁定的星球 */
-	static class APlanetActor* LockedPlanet;
+	static class ACelestialBody* LockedPlanet;
 };
 
 template<typename TargetClass>

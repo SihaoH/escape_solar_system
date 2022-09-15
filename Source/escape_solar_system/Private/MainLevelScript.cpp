@@ -3,6 +3,7 @@
 #include "MainLevelScript.h"
 #include "MainCharacter.h"
 #include "Controllable.h"
+#include "MainSaveGame.h"
 #include <JavascriptComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include <GameFramework/InputSettings.h>
@@ -90,6 +91,8 @@ void AMainLevelScript::BeginPlay()
 {
 	check(ThisInstance == this);
 	Super::BeginPlay();
+
+	UMainSaveGame::SaveTimestamp = FDateTime::UtcNow().ToUnixTimestamp();
 
 	UJavascriptComponent* Comp = NewObject<UJavascriptComponent>(this, TEXT("MainScript"));
 	Comp->ScriptSourceFile = "main.js";

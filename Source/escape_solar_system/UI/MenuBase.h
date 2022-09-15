@@ -15,6 +15,10 @@ class ESCAPE_SOLAR_SYSTEM_API UMenuBaseHelper : public UObject
 
 public:
 	UFUNCTION(BlueprintPure)
+	FString GetGameDate() const;
+	UFUNCTION(BlueprintPure)
+	void GetPlanetDistance(TMap<FString, float>& List) const;
+	UFUNCTION(BlueprintPure)
 	float GetShipDistance() const;
 	UFUNCTION(BlueprintPure)
 	void GetMakeableList(TArray<class UItemDataObject*>& OutItems) const;

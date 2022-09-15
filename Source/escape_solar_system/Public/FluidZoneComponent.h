@@ -55,7 +55,7 @@ private:
 	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
-	class APlanetActor* AttachedPlanet = nullptr;
+	class ACelestialBody* AttachedPlanet = nullptr;
 	// 上一个流体区域，用于嵌套的情况
 	UFluidZoneComponent* PreFluidZone = nullptr;
 
