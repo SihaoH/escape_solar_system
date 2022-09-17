@@ -69,7 +69,7 @@ class DeathView extends React.Component {
                 >
                     <uTextBlock
                         ColorAndOpacity={{ ColorUseRule: ESlateColorStylingMode.UseColor_Foreground }}
-                        Text={"重生"}
+                        Text={ Utils.tr("重生") }
                     />
                 </uButton>
 
@@ -85,7 +85,7 @@ class DeathView extends React.Component {
                 >
                     <uTextBlock
                         ColorAndOpacity={{ ColorUseRule: ESlateColorStylingMode.UseColor_Foreground }}
-                        Text={"标题界面"}
+                        Text={Utils.tr("标题界面")}
                     />
                 </uButton>
             </uCanvasPanel>

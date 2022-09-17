@@ -121,7 +121,7 @@ class Menu extends React.Component {
                             Offsets: Utils.ltrb(0, 0, 460, 400)
                         }
                     },
-                    title: "状态"
+                    title: Utils.tr("状态")
                 },
                 React.createElement(
                     'span',
@@ -134,7 +134,7 @@ class Menu extends React.Component {
                             FontObject: F_Sans,
                             Size: 16
                         },
-                        Text: "时间"
+                        Text: Utils.tr("时间")
                     }),
                     React.createElement('uTextBlock', {
                         Slot: {
@@ -196,7 +196,7 @@ class Menu extends React.Component {
                             FontObject: F_Sans,
                             Size: 16
                         },
-                        Text: "飞船"
+                        Text: Utils.tr("飞船")
                     }),
                     this.state.shipDist > 10 && React.createElement(
                         'uSizeBox',
@@ -290,7 +290,7 @@ class Menu extends React.Component {
                                     ColorAndOpacity: {
                                         ColorUseRule: ESlateColorStylingMode.UseColor_Foreground
                                     },
-                                    Text: "自毁指令"
+                                    Text: Utils.tr("自毁指令")
                                 })
                             )
                         )
@@ -345,7 +345,7 @@ class Menu extends React.Component {
                                 TypefaceFontName: "Bold",
                                 Size: 18
                             },
-                            Text: "制作"
+                            Text: Utils.tr("制作")
                         }),
                         React.createElement('uImage', {
                             Slot: {
@@ -411,7 +411,7 @@ class Menu extends React.Component {
                                 Size: 14
                             },
                             ColorAndOpacity: { SpecifiedColor: Utils.color("#888") },
-                            Text: "所需资源"
+                            Text: Utils.tr("所需资源")
                         }),
                         React.createElement('uImage', {
                             Slot: {
@@ -596,7 +596,7 @@ class Menu extends React.Component {
                                         Size: 18
                                     },
                                     ColorAndOpacity: { SpecifiedColor: btn_color },
-                                    Text: max_make ? "制作" : "资源不足"
+                                    Text: max_make ? Utils.tr("制作") : Utils.tr("资源不足")
                                 })
                             )
                         )
@@ -616,7 +616,7 @@ class Menu extends React.Component {
                             FontObject: F_Sans,
                             Size: 18
                         },
-                        Text: "已连接基地"
+                        Text: Utils.tr("已连接基地")
                     })
                 )
             ),
@@ -630,7 +630,7 @@ class Menu extends React.Component {
                             Offsets: Utils.ltrb(0, 0, 460, 400)
                         }
                     },
-                    title: "可加工物品"
+                    title: Utils.tr("可加工物品")
                 },
                 React.createElement('uJavascriptListView', {
                     ref: elem => {

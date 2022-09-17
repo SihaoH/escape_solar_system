@@ -11,8 +11,6 @@
 #include "MainLibrary.h"
 #include "MainPlayerState.h"
 
-#define LOCTEXT_NAMESPACE "MenuLevel"
-
 const int Max_Level = 4;
 
 void UMenuTechHelper::SelectTech(const TArray<ETech>& Props)
@@ -47,7 +45,7 @@ void UMenuTechHelper::SelectTech(const TArray<ETech>& Props)
 
 		FTechDemand LevelDemand = UMainLibrary::GetTechDemand(Level, Val+1);
 		// 已升级过的技能不消耗探索点
-		DemandPoints = FText::Format(LOCTEXT("Points", "探索点数: {0}"), Val >= PlayerState->GetBestLevel(Props) ? LevelDemand.Points : 0);
+		DemandPoints = FText::Format(tr("探索点数: {0}"), Val >= PlayerState->GetBestLevel(Props) ? LevelDemand.Points : 0);
 
 		AEarthBase* EarthBase = AMainLevelScript::GetMainChar()->FindEarthBase();
 		UBackpackComponent* Backpack = EarthBase ? EarthBase->Backpack : nullptr;
@@ -98,71 +96,71 @@ FText UMenuTechHelper::GetTechName(const TArray<ETech>& Props)
 	{
 	case ETech::CharHP:
 	case ETech::CharMass:
-		Name = LOCTEXT("CharHP", "机身强度");
+		Name = tr("机身强度");
 		break;
 	case ETech::CharBackpack:
-		Name = LOCTEXT("CharBackpack", "背包");
+		Name = tr("背包");
 		break;
 	case ETech::CharShieldCold:
-		Name = LOCTEXT("CharShieldCold", "冷防护");
+		Name = tr("冷防护");
 		break;
 	case ETech::CharShieldHeat:
-		Name = LOCTEXT("CharShieldHeat", "热防护");
+		Name = tr("热防护");
 		break;
 	case ETech::CharShieldPress:
-		Name = LOCTEXT("CharShieldPress", "压力防护");
+		Name = tr("压力防护");
 		break;
 	case ETech::CharEnginePower:
 	case ETech::CharEngineMass:
 	case ETech::CharEngineEPR:
 	case ETech::CharEngineEMR:
-		Name = LOCTEXT("CharEnginePower", "化学引擎");
+		Name = tr("化学引擎");
 		break;
 	case ETech::CharEnergy:
-		Name = LOCTEXT("CharEnergy", "化学燃料仓");
+		Name = tr("化学燃料仓");
 		break;
 	case ETech::ShipHP:
 	case ETech::ShipMass:
-		Name = LOCTEXT("ShipHP", "机身强度");
+		Name = tr("机身强度");
 		break;
 	case ETech::ShipBackpack:
-		Name = LOCTEXT("ShipBackpack", "存储仓");
+		Name = tr("存储仓");
 		break;
 	case ETech::ShipShieldCold:
-		Name = LOCTEXT("ShipShieldCold", "冷防护");
+		Name = tr("冷防护");
 		break;
 	case ETech::ShipShieldHeat:
-		Name = LOCTEXT("ShipShieldHeat", "热防护");
+		Name = tr("热防护");
 		break;
 	case ETech::ShipShieldPress:
-		Name = LOCTEXT("ShipShieldPress", "压力防护");
+		Name = tr("压力防护");
 		break;
 	case ETech::ShipEngine0Power:
 	case ETech::ShipEngine0Mass:
 	case ETech::ShipEngine0EPR:
 	case ETech::ShipEngine0EMR:
-		Name = LOCTEXT("ShipEngine0Power", "化学引擎");
+		Name = tr("化学引擎");
 		break;
 	case ETech::ShipEngine1Power:
 	case ETech::ShipEngine1Mass:
 	case ETech::ShipEngine1EPR:
 	case ETech::ShipEngine1EMR:
-		Name = LOCTEXT("ShipEngine1Power", "核裂变引擎");
+		Name = tr("核裂变引擎");
 		break;
 	case ETech::ShipEngine2Power:
 	case ETech::ShipEngine2Mass:
 	case ETech::ShipEngine2EPR:
 	case ETech::ShipEngine2EMR:
-		Name = LOCTEXT("ShipEngine2Power", "核聚变引擎");
+		Name = tr("核聚变引擎");
 		break;
 	case ETech::ShipEnergy0:
-		Name = LOCTEXT("ShipEnergy0", "化学燃料仓");
+		Name = tr("化学燃料仓");
 		break;
 	case ETech::ShipEnergy1:
-		Name = LOCTEXT("ShipEnergy1", "核裂变燃料仓");
+		Name = tr("核裂变燃料仓");
 		break;
 	case ETech::ShipEnergy2:
-		Name = LOCTEXT("ShipEnergy2", "核聚变燃料仓");
+		Name = tr("核聚变燃料仓");
 		break;
 	}
 
@@ -177,71 +175,71 @@ FText UMenuTechHelper::GetTechDesc(const TArray<ETech>& Props)
 	{
 	case ETech::CharHP:
 	case ETech::CharMass:
-		Desc = LOCTEXT("CharHP", "机身强度");
+		Desc = tr("机身强度");
 		break;
 	case ETech::CharBackpack:
-		Desc = LOCTEXT("CharBackpack", "背包");
+		Desc = tr("背包");
 		break;
 	case ETech::CharShieldCold:
-		Desc = LOCTEXT("CharShieldCold", "冷防护");
+		Desc = tr("冷防护");
 		break;
 	case ETech::CharShieldHeat:
-		Desc = LOCTEXT("CharShieldHeat", "热防护");
+		Desc = tr("热防护");
 		break;
 	case ETech::CharShieldPress:
-		Desc = LOCTEXT("CharShieldPress", "压力防护");
+		Desc = tr("压力防护");
 		break;
 	case ETech::CharEnginePower:
 	case ETech::CharEngineMass:
 	case ETech::CharEngineEPR:
 	case ETech::CharEngineEMR:
-		Desc = LOCTEXT("CharEnginePower", "化学引擎");
+		Desc = tr("化学引擎");
 		break;
 	case ETech::CharEnergy:
-		Desc = LOCTEXT("CharEnergy", "化学燃料仓");
+		Desc = tr("化学燃料仓");
 		break;
 	case ETech::ShipHP:
 	case ETech::ShipMass:
-		Desc = LOCTEXT("ShipHP", "机身强度");
+		Desc = tr("机身强度");
 		break;
 	case ETech::ShipBackpack:
-		Desc = LOCTEXT("ShipBackpack", "存储仓");
+		Desc = tr("存储仓");
 		break;
 	case ETech::ShipShieldCold:
-		Desc = LOCTEXT("ShipShieldCold", "冷防护");
+		Desc = tr("冷防护");
 		break;
 	case ETech::ShipShieldHeat:
-		Desc = LOCTEXT("ShipShieldHeat", "热防护");
+		Desc = tr("热防护");
 		break;
 	case ETech::ShipShieldPress:
-		Desc = LOCTEXT("ShipShieldPress", "压力防护");
+		Desc = tr("压力防护");
 		break;
 	case ETech::ShipEngine0Power:
 	case ETech::ShipEngine0Mass:
 	case ETech::ShipEngine0EPR:
 	case ETech::ShipEngine0EMR:
-		Desc = LOCTEXT("ShipEngine0Power", "化学引擎");
+		Desc = tr("化学引擎");
 		break;
 	case ETech::ShipEngine1Power:
 	case ETech::ShipEngine1Mass:
 	case ETech::ShipEngine1EPR:
 	case ETech::ShipEngine1EMR:
-		Desc = LOCTEXT("ShipEngine1Power", "核裂变引擎");
+		Desc = tr("核裂变引擎");
 		break;
 	case ETech::ShipEngine2Power:
 	case ETech::ShipEngine2Mass:
 	case ETech::ShipEngine2EPR:
 	case ETech::ShipEngine2EMR:
-		Desc = LOCTEXT("ShipEngine2Power", "核聚变引擎");
+		Desc = tr("核聚变引擎");
 		break;
 	case ETech::ShipEnergy0:
-		Desc = LOCTEXT("ShipEnergy0", "化学燃料仓");
+		Desc = tr("化学燃料仓");
 		break;
 	case ETech::ShipEnergy1:
-		Desc = LOCTEXT("ShipEnergy1", "核裂变燃料仓");
+		Desc = tr("核裂变燃料仓");
 		break;
 	case ETech::ShipEnergy2:
-		Desc = LOCTEXT("ShipEnergy2", "核聚变燃料仓");
+		Desc = tr("核聚变燃料仓");
 		break;
 	}
 
@@ -383,5 +381,3 @@ inline TArray<class UBackpackComponent*> UMenuTechHelper::GetBackpackList()
 	}
 	return BpList;
 }
-
-#undef LOCTEXT_NAMESPACE

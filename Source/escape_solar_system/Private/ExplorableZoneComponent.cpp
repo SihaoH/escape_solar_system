@@ -4,7 +4,7 @@
 #include "Controllable.h"
 #include "MainPlayerState.h"
 #include "MainLevelScript.h"
-#define LOCTEXT_NAMESPACE "ExplorableZone"
+#include "MainLibrary.h"
 
 UExplorableZoneComponent::UExplorableZoneComponent()
 {
@@ -49,11 +49,9 @@ void UExplorableZoneComponent::HandleBonus()
 {
 	AMainPlayerState::Instance()->ChangeExplorePoints(BonusPoints);
 
-	FText Msg = FText::Format(LOCTEXT("Msg", "到达{0}\n获得 {1} 探索点"), PlaceName, BonusPoints);
+	FText Msg = FText::Format(tr("到达{0}\n获得 {1} 探索点"), PlaceName, BonusPoints);
 	AMainLevelScript::Instance()->ExplorePointsDelegate.Broadcast(Msg);
 
 	IsAvailable = false;
 	Reset();
 }
-
-#undef LOCTEXT_NAMESPACE

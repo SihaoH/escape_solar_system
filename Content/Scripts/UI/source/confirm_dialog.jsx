@@ -89,7 +89,7 @@ class Dialog extends React.Component {
                                     HorizontalAlignment: EHorizontalAlignment.HAlign_Center
                                 }}
                             >
-                                {_.map(["取消", "确定"], (val, idx) => (
+                                {_.map([Utils.tr("取消"), Utils.tr("确定")], (val, idx) => (
                                 <uSizeBox
                                     Slot={{
                                         Padding: Utils.ltrb(10, 0),

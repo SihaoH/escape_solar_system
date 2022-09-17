@@ -33,6 +33,9 @@ public:
 		return false;
 	}
 
+	UFUNCTION(BlueprintPure)
+	static FText Translate(const FString& Str);
+
 	UFUNCTION(BlueprintCallable)
 	static void SendMessage(FText Msg);
 
@@ -49,4 +52,8 @@ private:
 	static UDataTable* DT_ItemInfo;
 	static UDataTable* DT_TechDemand;
 	static UDataTable* DT_TechValue;
+
+	static TMap<FString, FText> TranslationMap;
 };
+
+#define tr(str) UMainLibrary::Translate(TEXT(str))

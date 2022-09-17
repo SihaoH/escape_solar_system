@@ -3,7 +3,6 @@
 #include "MainLibrary.h"
 #include "BackpackComponent.h"
 #include "MainLevelScript.h"
-#define LOCTEXT_NAMESPACE "MainFunctionLibrary"
 
 UDataTable* UMainLibrary::DT_ItemInfo = nullptr;
 
@@ -22,6 +21,16 @@ UMainLibrary::UMainLibrary()
 	check(DT_TechDemand);
 	DT_TechValue = Finder_Value.Object;
 	check(DT_TechValue);
+}
+
+FText UMainLibrary::Translate(const FString& Str)
+{
+	if (TranslationMap.Contains(Str))
+	{
+		return TranslationMap[Str];
+	}
+	ensure(false);
+	return FText::FromString(Str);
 }
 
 void UMainLibrary::SendMessage(FText Msg)
@@ -95,7 +104,7 @@ TPair<bool, FText> UMainLibrary::GetDemandInfo(const TMap<FName, int32>& List, U
 		Arguments.Add(DemandData.Name.ToString());
 		Arguments.Add(HoldCount >= NeedCount ? TEXT("Default") : TEXT("Warning"));
 		Arguments.Add(FString::FromInt(NeedCount));
-		Arguments.Add(Backpack ? FString::FromInt(HoldCount) : LOCTEXT("unknow", "？？？").ToString());
+		Arguments.Add(Backpack ? FString::FromInt(HoldCount) : tr("？？？").ToString());
 		DemandStr += FString::Format(TEXT("{0}  <{1}>×{2}</>  (<img id=\"Storehouse\"/> ×{3})\n"), Arguments);
 		if (HoldCount < NeedCount)
 		{
@@ -105,5 +114,3 @@ TPair<bool, FText> UMainLibrary::GetDemandInfo(const TMap<FName, int32>& List, U
 	DemandStr.RemoveFromEnd(TEXT("\n"));
 	return TPair<bool, FText>(Enough, FText::FromString(DemandStr));
 }
-
-#undef LOCTEXT_NAMESPACE

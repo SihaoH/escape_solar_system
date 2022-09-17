@@ -8,7 +8,7 @@
 #include "BackpackComponent.h"
 #include "BodyComponent.h"
 #include "EngineComponent.h"
-#define LOCTEXT_NAMESPACE "MenuBackpack"
+#include "MainLibrary.h"
 
 void UMenuBackpackHelper::GetListViewItems(UBackpackComponent* InBp, TArray<class UItemDataObject*>& OutItems) const
 {
@@ -120,17 +120,17 @@ void UMenuBackpackHelper::TryDropItem(UBackpackComponent* DstBp, UBackpackCompon
 	}
 	else
 	{
-		Reason = LOCTEXT("Reason", "无法放入");
+		Reason = tr("无法放入");
 		NeedHint = false;
 	}
 }
 
 void UMenuBackpackHelper::GetMenuDisplay(TMap<EItemOptions, FText>& OutList)
 {
-	OutList.Add(EItemOptions::Use, LOCTEXT("Use", "使用"));
-	OutList.Add(EItemOptions::ConsumeToChar, LOCTEXT("ToChar", "为躯体补充"));
-	OutList.Add(EItemOptions::ConsumeToShip, LOCTEXT("ToShip", "为星舰补充"));
-	OutList.Add(EItemOptions::Discard, LOCTEXT("Discard", "丢弃"));
+	OutList.Add(EItemOptions::Use, tr("使用"));
+	OutList.Add(EItemOptions::ConsumeToChar, tr("为躯体补充"));
+	OutList.Add(EItemOptions::ConsumeToShip, tr("为飞船补充"));
+	OutList.Add(EItemOptions::Discard, tr("丢弃"));
 }
 
 void UMenuBackpackHelper::GetMenuOptions(TArray<EItemOptions>& OutList)
@@ -150,5 +150,3 @@ void UMenuBackpackHelper::GetMenuOptions(TArray<EItemOptions>& OutList)
 	}
 	OutList.Add(EItemOptions::Discard);
 }
-
-#undef LOCTEXT_NAMESPACE

@@ -95,7 +95,7 @@ class TalkView extends React.Component {
                         }
                     }}
                     ColorAndOpacity={{ SpecifiedColor: Utils.color("#CCF") }}
-                    Text={ "游戏已暂停" }
+                    Text={ Utils.tr("游戏已暂停") }
                 />
                 <div
                     Slot={{
@@ -107,7 +107,7 @@ class TalkView extends React.Component {
                         bAutoSize: true
                     }}
                 >
-                    {_.map(["继续游戏", "标题页面"/*, "退出游戏"*/], (val, idx) => (
+                    {_.map([Utils.tr("继续游戏"), Utils.tr("标题页面")/*, "退出游戏"*/], (val, idx) => (
                     <uButton
                         Slot={{ Padding: Utils.ltrb(0, 5) }}
                         WidgetStyle={ButtonStyle}

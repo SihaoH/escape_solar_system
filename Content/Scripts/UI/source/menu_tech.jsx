@@ -148,7 +148,7 @@ class TechButton extends React.Component {
                                         }}
                                         Text={btnVal.desc} 
                                     />
-                                    <SplitLine Text={"当前"} />
+                                    <SplitLine Text={ Utils.tr("当前") } />
                                     <uTextBlock
                                         Font={{
                                             FontObject: F_Sans,
@@ -162,7 +162,7 @@ class TechButton extends React.Component {
                                         Text={helper.CurTechInfo} 
                                     />
                                     { cur_lv < max_lv && <div>
-                                    <SplitLine Text={"下一级"} />
+                                    <SplitLine Text={ Utils.tr( Utils.tr("下一级") ) } />
                                     <uTextBlock
                                         Font={{
                                             FontObject: F_Sans,
@@ -175,7 +175,7 @@ class TechButton extends React.Component {
                                         }}
                                         Text={helper.NextTechInfo} 
                                     />
-                                    <SplitLine Text={"升级所需"} />
+                                    <SplitLine Text={ Utils.tr("升级所需") } />
                                     <uTextBlock
                                         Font={{
                                             FontObject: F_Sans,
@@ -214,7 +214,7 @@ class TechButton extends React.Component {
                                         ColorAndOpacity={{
                                             SpecifiedColor: Utils.color(in_base&&helper.CanUpgrade ? "#5F5" : "#F55")
                                         }}
-                                        Text={in_base ? (helper.CanUpgrade ? "长按升级" : "无法升级") : "需在基地升级"} 
+                                        Text={in_base ? (helper.CanUpgrade ? Utils.tr("长按升级") : Utils.tr("无法升级") ) : Utils.tr("需在基地升级") } 
                                     />
                                 </div>
                             </uBorder>
@@ -455,14 +455,14 @@ class MenuTech extends React.Component {
         helper = new MenuTechHelper()
         this.charTech = [
             {
-                tag: "机身",
+                tag: Utils.tr("机身"),
                 btn: [
                     tech_btn([ETech.CharHP, ETech.CharMass]),
                     tech_btn([ETech.CharBackpack]),
                 ]
             },
             {
-                tag: "护盾",
+                tag: Utils.tr("护盾"),
                 btn: [
                     tech_btn([ETech.CharShieldCold]),
                     tech_btn([ETech.CharShieldHeat]),
@@ -470,13 +470,13 @@ class MenuTech extends React.Component {
                 ]
             },
             {
-                tag: "引擎",
+                tag: Utils.tr("引擎"),
                 btn: [
                     tech_btn([ETech.CharEnginePower, ETech.CharEngineMass, ETech.CharEngineEPR, ETech.CharEngineEMR]),
                 ]
             },
             {
-                tag: "燃料仓",
+                tag: Utils.tr("燃料仓"),
                 btn: [
                     tech_btn([ETech.CharEnergy]),
                 ]
@@ -484,14 +484,14 @@ class MenuTech extends React.Component {
         ]
         this.shipTech = [
             {
-                tag: "机身",
+                tag: Utils.tr("机身"),
                 btn: [
                     tech_btn([ETech.ShipHP, ETech.ShipMass], true),
                     tech_btn([ETech.ShipBackpack], true),
                 ]
             },
             {
-                tag: "护盾",
+                tag: Utils.tr("护盾"),
                 btn: [
                     tech_btn([ETech.ShipShieldCold], true),
                     tech_btn([ETech.ShipShieldHeat], true),
@@ -499,7 +499,7 @@ class MenuTech extends React.Component {
                 ]
             },
             {
-                tag: "引擎",
+                tag: Utils.tr("引擎"),
                 btn: [
                     engine_btn([ETech.ShipEngine0Power, ETech.ShipEngine0Mass, ETech.ShipEngine0EPR, ETech.ShipEngine0EMR], 0),
                     engine_btn([ETech.ShipEngine1Power, ETech.ShipEngine1Mass, ETech.ShipEngine1EPR, ETech.ShipEngine1EMR], 1),
@@ -507,7 +507,7 @@ class MenuTech extends React.Component {
                 ]
             },
             {
-                tag: "燃料仓",
+                tag: Utils.tr("燃料仓"),
                 btn: [
                     energy_btn([ETech.ShipEnergy0], 0),
                     energy_btn([ETech.ShipEnergy1], 1),
@@ -538,40 +538,40 @@ class MenuTech extends React.Component {
         if (char) {
             this.setState({
                 charInfo: [
-                    info_row("HP", `${Utils.num2Txt(char.Body.CurrentHP)}/${Utils.num2Txt(char.Body.MaximumHP)}`),
-                    info_row("质量", char.GetMass(), "kg"),
+                    info_row(Utils.tr("HP"), `${Utils.num2Txt(char.Body.CurrentHP)}/${Utils.num2Txt(char.Body.MaximumHP)}`),
+                    info_row(Utils.tr("质量"), char.GetMass(), "kg"),
                     [
-                        info_row("躯体", char.Body.Mass, "kg"),
-                        info_row("背包", char.Backpack.Mass, "kg"),
-                        info_row("引擎", char.Engine.Mass, "kg"),
-                        info_row("燃料", char.Engine.GetEnergyMass(), "kg"),
+                        info_row(Utils.tr("躯体"), char.Body.Mass, "kg"),
+                        info_row(Utils.tr("背包"), char.Backpack.Mass, "kg"),
+                        info_row(Utils.tr("引擎"), char.Engine.Mass, "kg"),
+                        info_row(Utils.tr("燃料"), char.Engine.GetEnergyMass(), "kg"),
                     ],
-                    info_row("引擎类型", "化学动力"),
-                    info_row("引擎推力", char.Engine.Power, "N"),
-                    info_row("燃料能量", `${Utils.num2Txt(char.Engine.CurrentEnergy)}/${Utils.num2Txt(char.Engine.MaximumEnergy)}`),
-                    info_row("耐冷", char.Body.ShieldCold, "℃"),
-                    info_row("耐热", char.Body.ShieldHeat, "℃"),
-                    info_row("耐压", char.Body.ShieldPress, "kPa"),
+                    info_row(Utils.tr("引擎类型"), Utils.tr("化学动力")),
+                    info_row(Utils.tr("引擎推力"), char.Engine.Power, "N"),
+                    info_row(Utils.tr("燃料能量"), `${Utils.num2Txt(char.Engine.CurrentEnergy)}/${Utils.num2Txt(char.Engine.MaximumEnergy)}`),
+                    info_row(Utils.tr("耐冷"), char.Body.ShieldCold, "℃"),
+                    info_row(Utils.tr("耐热"), char.Body.ShieldHeat, "℃"),
+                    info_row(Utils.tr("耐压"), char.Body.ShieldPress, "kPa"),
                 ]
             })
         }
         if (ship) {
             this.setState({
                 shipInfo: [
-                    info_row("HP", `${Utils.num2Txt(ship.Body.CurrentHP)}/${Utils.num2Txt(ship.Body.MaximumHP)}`),
-                    info_row("质量", ship.GetMass(), "kg"),
+                    info_row(Utils.tr("HP"), `${Utils.num2Txt(ship.Body.CurrentHP)}/${Utils.num2Txt(ship.Body.MaximumHP)}`),
+                    info_row(Utils.tr("质量"), ship.GetMass(), "kg"),
                     [
-                        info_row("躯体", ship.Body.Mass, "kg"),
-                        info_row("背包", ship.Backpack.Mass, "kg"),
-                        info_row("引擎", ship.Engine.Mass, "kg"),
-                        info_row("燃料", ship.Engine.GetEnergyMass(), "kg"),
+                        info_row(Utils.tr("躯体"), ship.Body.Mass, "kg"),
+                        info_row(Utils.tr("背包"), ship.Backpack.Mass, "kg"),
+                        info_row(Utils.tr("引擎"), ship.Engine.Mass, "kg"),
+                        info_row(Utils.tr("燃料"), ship.Engine.GetEnergyMass(), "kg"),
                     ],
-                    info_row("引擎类型", ["化学动力", "核裂变动力", "核聚变动力"][ship.EngineType]),
-                    info_row("引擎推力", ship.Engine.Power, "N"),
-                    info_row("燃料能量", `${Utils.num2Txt(ship.Engine.CurrentEnergy)}/${Utils.num2Txt(ship.Engine.MaximumEnergy)}`),
-                    info_row("耐冷", ship.Body.ShieldCold, "℃"),
-                    info_row("耐热", ship.Body.ShieldHeat, "℃"),
-                    info_row("耐压", ship.Body.ShieldPress, "kPa"),
+                    info_row(Utils.tr("引擎类型"), [Utils.tr("化学动力"), Utils.tr("核裂变动力"), Utils.tr("核聚变动力")][ship.EngineType]),
+                    info_row(Utils.tr("引擎推力"), ship.Engine.Power, "N"),
+                    info_row(Utils.tr("燃料能量"), `${Utils.num2Txt(ship.Engine.CurrentEnergy)}/${Utils.num2Txt(ship.Engine.MaximumEnergy)}`),
+                    info_row(Utils.tr("耐冷"), ship.Body.ShieldCold, "℃"),
+                    info_row(Utils.tr("耐热"), ship.Body.ShieldHeat, "℃"),
+                    info_row(Utils.tr("耐压"), ship.Body.ShieldPress, "kPa"),
                 ]
             })
         }
@@ -592,7 +592,7 @@ class MenuTech extends React.Component {
                     }}
                 >
                     <InfoCard
-                        title={"躯体"}
+                        title={Utils.tr("躯体")}
                         info={this.state.charInfo}
                     />
                     <TechView
@@ -604,7 +604,7 @@ class MenuTech extends React.Component {
 
                     {has_ship &&  
                     <InfoCard
-                        title={"飞船"}
+                        title={Utils.tr("飞船")}
                         info={this.state.shipInfo}
                     />}
                     {has_ship &&

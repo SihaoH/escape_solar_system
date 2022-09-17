@@ -13,9 +13,9 @@ const TaggedCard = require('tagged_card')
 const ItemToolTip = require('item_tooltip')
 
 const ETitle = {
-    Char: "躯体",
-    Base: "基地",
-    Ship: "飞船"
+    Char: Utils.tr("躯体"),
+    Base: Utils.tr("基地"),
+    Ship: Utils.tr("飞船")
 }
 let MenuDisplay = null
 
@@ -70,17 +70,17 @@ class BpEntry extends JavascriptWidget {
                 case EItemOptions.Use:
                     break;
                 case EItemOptions.ConsumeToChar:
-                    NumberDialog.open(helper.SelectedItem, "补充给躯体", count => {
+                    NumberDialog.open(helper.SelectedItem, display[idx], count => {
                         helper.ConsumeItem(count, EPawnType.MainChar)
                     })
                     break;
                 case EItemOptions.ConsumeToShip:
-                    NumberDialog.open(helper.SelectedItem, "补充给飞船", count => {
+                    NumberDialog.open(helper.SelectedItem, display[idx], count => {
                         helper.ConsumeItem(count, EPawnType.SpaceShip)
                     })
                     break;
                 case EItemOptions.Discard:
-                    NumberDialog.open(helper.SelectedItem, "丢弃", count => {
+                    NumberDialog.open(helper.SelectedItem, display[idx], count => {
                         helper.DiscardItem(count)
                     })
                     break;
@@ -221,7 +221,7 @@ class BackpackView extends React.Component {
             if (target === this.props.title) {
                 const ret = helper.TryDropItem(BpGetter(target), BpGetter(payload.Owner), payload.Count)
                 if (ret.NeedHint) {
-                    NumberDialog.open(helper.SelectedItem, "放入", count => {
+                    NumberDialog.open(helper.SelectedItem, Utils.tr("放入"), count => {
                         helper.DropItem(count)
                     }, ret.MaxAdd)
                 } else {
@@ -431,7 +431,7 @@ class Menu extends React.Component {
                     }}
                 >
                     <TaggedCard
-                        title={"躯体状态"}
+                        title={Utils.tr("躯体状态")}
                     >
                         <uSizeBox
                             Slot={{
@@ -462,7 +462,7 @@ class Menu extends React.Component {
                         Slot={{
                             Padding: Utils.ltrb(0, 30)
                         }}
-                        title={"飞船状态"}
+                        title={Utils.tr("飞船状态")}
                     >
                         <uSizeBox
                             Slot={{

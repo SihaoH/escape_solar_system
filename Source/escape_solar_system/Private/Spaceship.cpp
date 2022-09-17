@@ -13,7 +13,6 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
 #include <Kismet/GameplayStatics.h>
-#define LOCTEXT_NAMESPACE "Spaceship"
 
 ASpaceship::ASpaceship()
 {
@@ -54,7 +53,7 @@ void ASpaceship::SetPilot(AMainCharacter* Pilot)
 
 FText ASpaceship::GetLabelName() const
 {
-	return LOCTEXT("Spaceship", "飞船");
+	return tr("飞船");
 }
 
 void ASpaceship::ResetProperties()
@@ -304,5 +303,3 @@ void ASpaceship::UpdateMass()
 		Density = CalcDensity(InMass, ShipMesh->Bounds.SphereRadius);
 	}
 }
-
-#undef LOCTEXT_NAMESPACE

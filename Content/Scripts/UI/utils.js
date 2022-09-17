@@ -68,6 +68,10 @@ function setInputMode(cursor) {
     }
 }
 
+function tr(str) {
+    return MainLibrary.Translate(str)
+}
+
 function debug(obj, tag) {
     console.error(tag ? `${tag}: ${JSON.stringify(obj, null, 2)}` : JSON.stringify(obj, null, 2))
 }
@@ -80,5 +84,6 @@ module.exports = {
     num2Txt: num2Txt,
     isDev: isDev,
     setInputMode: setInputMode,
+    tr: tr,
     debug: debug
 }

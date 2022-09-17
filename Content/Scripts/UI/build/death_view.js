@@ -70,7 +70,7 @@ class DeathView extends React.Component {
                 },
                 React.createElement('uTextBlock', {
                     ColorAndOpacity: { ColorUseRule: ESlateColorStylingMode.UseColor_Foreground },
-                    Text: "重生"
+                    Text: Utils.tr("重生")
                 })
             ),
             React.createElement(
@@ -87,7 +87,7 @@ class DeathView extends React.Component {
                 },
                 React.createElement('uTextBlock', {
                     ColorAndOpacity: { ColorUseRule: ESlateColorStylingMode.UseColor_Foreground },
-                    Text: "标题界面"
+                    Text: Utils.tr("标题界面")
                 })
             )
         );

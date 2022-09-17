@@ -13,7 +13,7 @@ class StartView extends React.Component {
     constructor(props) {
         super(props);
 
-        this.options = ["新游戏", "设置", "退出游戏"];
+        this.options = [Utils.tr("新游戏"), Utils.tr("设置"), Utils.tr("退出游戏")];
         if (MainSaveGame.HasAr()) {
             this.options.unshift("继续");
         }
@@ -84,7 +84,7 @@ class StartView extends React.Component {
                     LetterSpacing: 100
                 },
                 ColorAndOpacity: { SpecifiedColor: Utils.color("#CCF") },
-                Text: "逃离：太阳系"
+                Text: Utils.tr("逃离：太阳系")
             }),
             React.createElement(
                 'div',

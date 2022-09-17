@@ -20,8 +20,6 @@
 #include <Camera/CameraComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include <Kismet/KismetSystemLibrary.h>
-#define LOCTEXT_NAMESPACE "MainCharacter"
-
 
 ACameraActor* AMainCharacter::DeathCamera = nullptr;
 
@@ -54,7 +52,7 @@ void AMainCharacter::SetVelocity(const FVector& Velocity)
 
 FText AMainCharacter::GetLabelName() const
 {
-	return LOCTEXT("Body", "躯体");
+	return tr("躯体");
 }
 
 void AMainCharacter::ResetProperties()
@@ -262,7 +260,7 @@ void AMainCharacter::PickupItem()
 		Backpack->AddItem(RowName, AddedCount);
 
 		UMainLibrary::SendMessage(FText::Format(
-			LOCTEXT("Pickup", "拾取了 {0} x{1}"),
+			tr("拾取了 {0} x{1}"),
 			UMainLibrary::GetItemData(RowName).Name, 
 			AddedCount)
 		);
@@ -425,13 +423,13 @@ void AMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 {
 	if (OtherActor->IsA<ASpaceship>())
 	{
-		AMainLevelScript::AddActionPrompt("Drive", LOCTEXT("Drive", "登上飞船"))
+		AMainLevelScript::AddActionPrompt("Drive", tr("登上飞船"))
 			.AddUniqueDynamic(this, &AMainCharacter::DriveShip);
 	}
 	else if (OtherActor->IsA<AEarthBase>())
 	{
 		// _Menu和Menu是一样的按键，但_Menu是特意为了提示用的，实际还是Menu起作用
-		AMainLevelScript::AddActionPrompt("_Menu", LOCTEXT("Menu", "连接基地"));
+		AMainLevelScript::AddActionPrompt("_Menu", tr("连接基地"));
 	}
 }
 
@@ -446,5 +444,3 @@ void AMainCharacter::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 		AMainLevelScript::RemoveActionPrompt("_Menu");
 	}
 }
-
-#undef LOCTEXT_NAMESPACE

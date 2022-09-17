@@ -32,10 +32,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	FText GetShipOperDesc(FName Name);
 
-protected:
-	UFUNCTION(BlueprintPure)
-	void GetDebugInfo(TArray<FText>& OutList) const;
-
 private:
 	TMap<FName, FText> CharOperDesc;
 	TMap<FName, FText> ShipOperDesc;
