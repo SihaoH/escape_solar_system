@@ -10,10 +10,10 @@
 #include "AI/Navigation/PathFollowingAgentInterface.h"
 
 // 如果 Abs(Normal.Z) <= 此阈值，则斜率是垂直的。 解决了有时垂直表面的法线角度略微偏离水平的精度问题。
-const float VERTICAL_SLOPE_NORMAL_Z = 0.001f;
+constexpr float VERTICAL_SLOPE_NORMAL_Z = 0.001f;
 
 // 台阶垂直侧法线的最大Z值
-const float MAX_STEP_SIDE_Z = 0.08f;
+constexpr float MAX_STEP_SIDE_Z = 0.08f;
 
 // Version that does not use inverse sqrt estimate, for higher precision.
 FORCEINLINE FVector GetClampedToMaxSizePrecise(const FVector& V, float MaxSize)
@@ -1026,7 +1026,9 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		RemainingTime -= TimeTick;
 
 		const FVector OldLocation = UpdatedComponent->GetComponentLocation();
-		const FQuat PawnRotation = UpdatedComponent->GetComponentQuat();
+		const FVector DeltaAngular = BaseAngularVelocity * deltaTime;
+		const FRotator PawnRotation = UpdatedComponent->GetComponentRotation().Add(DeltaAngular.Y, DeltaAngular.Z, DeltaAngular.X);
+
 		bJustTeleported = false;
 
 		RestorePreAdditiveRootMotionVelocity();
@@ -1372,7 +1374,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 			const FQuat PawnOldQuat = UpdatedComponent->GetComponentQuat();
 			const FQuat TargetQuat = DeltaQuat * FinalQuat;
 			FRotator TargetRotator(TargetQuat);
-			CharacterOwner->FaceRotation(TargetRotator, 0.f);
+			MoveUpdatedComponent(FVector::ZeroVector, TargetRotator, true);
 			FinalQuat = UpdatedComponent->GetComponentQuat();
 
 			if (PawnOldQuat.Equals(FinalQuat, 1e-6f))
@@ -1402,7 +1404,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 		float HalfHeight, Radius;
 		CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleSize(Radius, HalfHeight);
 
-		FVector const BaseOffset = GetUpVector() * HalfHeight;
+		FVector const BaseOffset = FVector::ZeroVector;	//GetUpVector() * HalfHeight;这里有问题，偏移只能为0
 		FVector const LocalBasePos = OldLocalToWorld.InverseTransformPosition(UpdatedComponent->GetComponentLocation() - BaseOffset);
 		FVector const NewWorldPos = ConstrainLocationToPlane(NewLocalToWorld.TransformPosition(LocalBasePos) + BaseOffset);
 		DeltaPosition = ConstrainDirectionToPlane(NewWorldPos - UpdatedComponent->GetComponentLocation());
@@ -1450,7 +1452,8 @@ bool UGravityMovementComponent::DoJump(bool bReplayingMoves)
 			Velocity = FVector::VectorPlaneProject(Velocity, JumpDir);
 
 			// Perform jump.
-			Velocity += JumpDir * JumpZVelocity;
+
+			Velocity += (JumpDir * JumpZVelocity + MovementBase->GetPhysicsLinearVelocityAtPoint(UpdatedComponent->GetComponentLocation()));
 			SetMovementMode(MOVE_Falling);
 
 			return true;
