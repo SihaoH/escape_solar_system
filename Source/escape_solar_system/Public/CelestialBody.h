@@ -63,7 +63,7 @@ protected:
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> Icon;
 
-	/** 自转的角速度，以角度为单位 */
+	/** 自转的角速度，以角度为单位，单位°/s */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
 	float RotationSpeed = 0.0f;
 

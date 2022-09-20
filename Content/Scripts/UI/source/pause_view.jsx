@@ -6,6 +6,8 @@ const Utils = require('../utils')
 const EAnchors = require('../anchors')
 const {F_Sans, ButtonStyle} = require('../style')
 
+const ConfirmDialog = require('confirm_dialog')
+
 let ThisWidget = null
 
 class MyOverlayer extends JavascriptWidget {
@@ -39,9 +41,13 @@ class TalkView extends React.Component {
             if (idx === 0) {
                 ThisWidget.RemoveFromViewport()
             } else if (idx === 1) {
-                GameplayStatics.OpenLevel(GWorld, World.Load("/Game/MainBP/Maps/StarterMap"))
+                ConfirmDialog.open(Utils.tr("提示"), Utils.tr("未保存的进度将会丢失，是否仍要返回标题页面"), () => {
+                    GameplayStatics.OpenLevel(GWorld, World.Load("/Game/MainBP/Maps/StarterMap"))
+                })
             } else if (idx === 2) {
-                GWorld.QuitGame()
+                ConfirmDialog.open(Utils.tr("提示"), Utils.tr("未保存的进度将会丢失，是否仍要退出游戏"), () => {
+                    GWorld.QuitGame()
+                })
             }
         }
     }
@@ -80,7 +86,7 @@ class TalkView extends React.Component {
                         LayoutData: {
                             Anchors: EAnchors.Center,
                             Alignment: { X: 0.5, Y: 1.0 },
-                            Offsets: Utils.ltrb(0, -50, 0, 0)
+                            Offsets: Utils.ltrb(0, -150, 0, 0)
                         },
                         bAutoSize: true
                     }}
@@ -102,12 +108,12 @@ class TalkView extends React.Component {
                         LayoutData: {
                             Anchors: EAnchors.Center,
                             Alignment: { X: 0.5, Y: 0 },
-                            Offsets: Utils.ltrb(0, 50, 0, 0)
+                            Offsets: Utils.ltrb(0, -50, 0, 0)
                         },
                         bAutoSize: true
                     }}
                 >
-                    {_.map([Utils.tr("继续游戏"), Utils.tr("标题页面")/*, "退出游戏"*/], (val, idx) => (
+                    {_.map([Utils.tr("继续游戏"), Utils.tr("标题页面"), Utils.tr("退出游戏")], (val, idx) => (
                     <uButton
                         Slot={{ Padding: Utils.ltrb(0, 5) }}
                         WidgetStyle={ButtonStyle}

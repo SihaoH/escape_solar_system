@@ -85,7 +85,7 @@ class Dialog extends React.Component {
                                     TypefaceFontName: "Bold",
                                     Size: 16
                                 },
-                                WrapTextAt: 300,
+                                WrapTextAt: 420,
                                 ColorAndOpacity: {
                                     SpecifiedColor: Utils.color("#FFF")
                                 },
@@ -165,6 +165,6 @@ module.exports = {
                 widget = null;
             }
         }));
-        widget.AddToViewport();
+        widget.AddToViewport(999);
     }
 };

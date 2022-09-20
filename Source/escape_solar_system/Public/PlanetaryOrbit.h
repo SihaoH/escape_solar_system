@@ -20,7 +20,7 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	/** 公转的角速度，以角度为单位 */
+	/** 公转的角速度，以角度为单位，单位°/s */
 	UPROPERTY(Category = Planet, EditAnywhere, BlueprintReadWrite)
 	float RevolutionSpeed = 0.0f;
 

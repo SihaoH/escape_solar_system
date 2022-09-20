@@ -74,7 +74,7 @@ class Dialog extends React.Component {
                                     TypefaceFontName: "Bold",
                                     Size: 16,
                                 }}
-                                WrapTextAt={300}
+                                WrapTextAt={420}
                                 ColorAndOpacity={{
                                     SpecifiedColor: Utils.color("#FFF")
                                 }}
@@ -131,7 +131,7 @@ class Dialog extends React.Component {
                                     </uButton>
                                 </uSizeBox>
                                 ))}
-                            </span>                            
+                            </span>
                         </div>
                     </uBorder>
                     </uSizeBox>
@@ -156,6 +156,6 @@ module.exports = {
                 }}
             />
         )
-        widget.AddToViewport()
+        widget.AddToViewport(999)
     }
 }

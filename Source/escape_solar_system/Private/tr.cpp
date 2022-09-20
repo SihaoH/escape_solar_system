@@ -50,6 +50,8 @@ TMap<FString, FText> UMainLibrary::TranslationMap = {
 	ELEMENT("ShipDrive", "脱离飞船"),
 
 	// 以下来自UI界面
+	ELEMENT("confirm", "确定"),
+	ELEMENT("cancel", "取消"),
 	ELEMENT("temperature", "温度"),
 	ELEMENT("fluid pressure", "流体压力"),
 	ELEMENT("mass", "质量"),
@@ -88,6 +90,13 @@ TMap<FString, FText> UMainLibrary::TranslationMap = {
 	ELEMENT("header page", "标题页面"),
 	ELEMENT("quit the game", "退出游戏"),
 	ELEMENT("rebirth", "重生"),
+	ELEMENT("new game", "新游戏"),
+	ELEMENT("continue", "继续"),
+	ELEMENT("settings", "设置"),
+	ELEMENT("notice", "提示"),
+	ELEMENT("overwrite archive", "开始新游戏会覆盖已有存档"),
+	ELEMENT("confirm quit", "未保存的进度将会丢失，是否仍要退出游戏"),
+	ELEMENT("confirm header", "未保存的进度将会丢失，是否仍要返回标题页面"),
 };
 
 #undef LOCTEXT_NAMESPACE

@@ -15,7 +15,7 @@ class StartView extends React.Component {
 
         this.options = [Utils.tr("新游戏"), Utils.tr("设置"), Utils.tr("退出游戏")]
         if (MainSaveGame.HasAr()) {
-            this.options.unshift("继续")
+            this.options.unshift(Utils.tr("继续"))
         }
 
         this.openMainLv = (need_load) => {
@@ -31,7 +31,7 @@ class StartView extends React.Component {
             if (idx === 0) { // 继续
                 this.openMainLv(true)
             } else if (idx === 1) { // 新游戏
-                ConfirmDialog.open("提示", "开始新游戏会覆盖已有存档", () => {
+                ConfirmDialog.open(Utils.tr("提示"), Utils.tr("开始新游戏会覆盖已有存档"), () => {
                     this.openMainLv(false)
                 })
             } else if (idx === 2) { // 设置
