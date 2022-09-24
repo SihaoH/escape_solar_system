@@ -201,6 +201,27 @@ void ASpaceship::GravityActed_Implementation(FVector Direction, float Accel)
 	ShipMesh->AddForce(GravityDirection * GravityAccel, NAME_None, true);
 }
 
+void ASpaceship::GravityActedGlobally_Implementation(FVector Direction, float Accel)
+{
+	ShipMesh->AddForce(Direction * Accel, NAME_None, true);
+}
+
+void ASpaceship::BuoyancyActed_Implementation(FVector Force)
+{
+	ShipMesh->AddForce(Force, NAME_None, true);
+}
+
+void ASpaceship::DampingChanged_Implementation(float Linear, float Angular)
+{
+	FBodyInstance* BI = ShipMesh->GetBodyInstance();
+	if (BI)
+	{
+		BI->LinearDamping = Linear;
+		BI->AngularDamping = Angular;
+		BI->UpdateDampingProperties();
+	}
+}
+
 void ASpaceship::Turn(float Value)
 {
 	OriginComponent->AddRelativeRotation(FRotator(0, Value, 0));

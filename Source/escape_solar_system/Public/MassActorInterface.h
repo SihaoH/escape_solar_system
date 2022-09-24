@@ -25,11 +25,15 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void GravityActed(FVector Direction, float Accel);
 
+	/** 来自中心太阳的重力作用，每帧触发 */
+	UFUNCTION(BlueprintNativeEvent)
+	void GravityActedGlobally(FVector Direction, float Accel);
+
 	/** 浮力作用，每帧触发 */
 	UFUNCTION(BlueprintNativeEvent)
 	void BuoyancyActed(FVector Force);
 
-	/** 浮力作用，每帧触发 */
+	/** 阻力作用，每帧触发 */
 	UFUNCTION(BlueprintNativeEvent)
 	void DampingChanged(float Linear, float Angular);
 

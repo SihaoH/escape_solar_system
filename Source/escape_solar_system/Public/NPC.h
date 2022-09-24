@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MassActorInterface.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/DefaultPawn.h"
 #include "NPC.generated.h"
@@ -23,7 +24,7 @@ struct FTalkData : public FTableRowBase
 };
 
 UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API ANPC : public ADefaultPawn
+class ESCAPE_SOLAR_SYSTEM_API ANPC : public ADefaultPawn, public IMassActorInterface
 {
 	GENERATED_BODY()
 
@@ -42,6 +43,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
+	virtual void GravityActedGlobally_Implementation(FVector Direction, float Accel) override;
+	virtual void BuoyancyActed_Implementation(FVector Force) override;
+	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

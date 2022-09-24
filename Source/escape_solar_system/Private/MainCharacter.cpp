@@ -133,7 +133,11 @@ FVector AMainCharacter::GetVelocity() const
 
 float AMainCharacter::GetGravityAccel() const
 {
-	return Movement->GravityAccel;
+	if (GetPlanetOwner())
+	{
+		return Movement->GravityAccel;
+	}
+	return SunGravityAccel;
 }
 
 void AMainCharacter::Serialize(FArchive& Ar)
@@ -226,6 +230,12 @@ void AMainCharacter::GravityActed_Implementation(FVector Direction, float Accel)
 {
 	Movement->GravityDirection = Direction;
 	Movement->GravityAccel = Accel;
+}
+
+void AMainCharacter::GravityActedGlobally_Implementation(FVector Direction, float Accel)
+{
+	Movement->AddForce(Direction * Accel * Movement->Mass);
+	SunGravityAccel = Accel;
 }
 
 void AMainCharacter::BuoyancyActed_Implementation(FVector Force)

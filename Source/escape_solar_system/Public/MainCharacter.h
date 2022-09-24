@@ -61,6 +61,7 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Thrusting(FVector Force) override;
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
+	virtual void GravityActedGlobally_Implementation(FVector Direction, float Accel) override;
 	virtual void BuoyancyActed_Implementation(FVector Force) override;
 	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
 
@@ -113,6 +114,8 @@ private:
 
 private:
 	friend class UMenuTechHelper;
+
+	float SunGravityAccel = 0.f;
 
 	UPROPERTY(SaveGame)
 	FTransform SavedTransform;

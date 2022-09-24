@@ -59,7 +59,7 @@ private:
 	// 上一个流体区域，用于嵌套的情况
 	UFluidZoneComponent* PreFluidZone = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UMeshPostProcessComponent* PostProcess = nullptr;
 
 	/** 密度，用于计算浮力，标准水的密度为1000 kg/m³ */
@@ -84,7 +84,7 @@ private:
 
 	/** 压力 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float Pressure = 25.f;
+	float Pressure = 100.f;
 
 	/** 压力的混合距离比率，即进入到流体内部一定范围后，压力逐渐达到100% */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

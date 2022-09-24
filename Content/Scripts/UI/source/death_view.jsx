@@ -85,7 +85,7 @@ class DeathView extends React.Component {
                 >
                     <uTextBlock
                         ColorAndOpacity={{ ColorUseRule: ESlateColorStylingMode.UseColor_Foreground }}
-                        Text={Utils.tr("标题界面")}
+                        Text={Utils.tr("标题页面")}
                     />
                 </uButton>
             </uCanvasPanel>

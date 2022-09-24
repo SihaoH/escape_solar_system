@@ -48,6 +48,11 @@ TMap<FString, FText> UMainLibrary::TranslationMap = {
 	ELEMENT("ShipLookUp", "上下转动机身"),
 	ELEMENT("ShipLock", "锁定并显示星球信息"),
 	ELEMENT("ShipDrive", "脱离飞船"),
+	ELEMENT("Overheat", "{0}过热，HP {1}"),
+	ELEMENT("Overcold", "{0}过冷，HP {1}"),
+	ELEMENT("Overpress", "{0}过压，HP {1}"),
+	ELEMENT("hit", "{0}受击，HP {1}"),
+	ELEMENT("Space", "太空"),
 
 	// 以下来自UI界面
 	ELEMENT("confirm", "确定"),

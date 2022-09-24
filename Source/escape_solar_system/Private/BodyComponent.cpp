@@ -1,6 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "BodyComponent.h"
+#include "CelestialBody.h"
 #include "MassActorInterface.h"
 #include "FluidZoneComponent.h"
 #include "Controllable.h"
@@ -67,31 +68,38 @@ void UBodyComponent::CheckEnvironment()
 	{
 		Delta = -(CurrentTemp - ShieldHeat);
 		ChangeHP(Delta);
-		UMainLibrary::SendMessage(FText::Format(INVTEXT("{0}过热，HP {1}"), OwnerName, Delta));
+		UMainLibrary::SendMessage(FText::Format(tr("{0}过热，HP {1}"), OwnerName, Delta));
 	}
 	else if (CurrentTemp < ShieldCold)
 	{
 		Delta = -(ShieldCold - CurrentTemp);
 		ChangeHP(Delta);
-		UMainLibrary::SendMessage(FText::Format(INVTEXT("{0}过冷，HP {1}"), OwnerName, Delta));
+		UMainLibrary::SendMessage(FText::Format(tr("{0}过冷，HP {1}"), OwnerName, Delta));
 	}
 
 	if (CurrentPress > ShieldPress)
 	{
 		Delta = -(CurrentPress - ShieldPress);
 		ChangeHP(-(CurrentPress - ShieldPress));
-		UMainLibrary::SendMessage(FText::Format(INVTEXT("{0}压力过大，HP {1}"), OwnerName, Delta));
+		UMainLibrary::SendMessage(FText::Format(tr("{0}过压，HP {1}"), OwnerName, Delta));
 	}
 }
 
 void UBodyComponent::OnComponentHitted(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	const float HitSpeed = (HitComponent->GetComponentVelocity() - OtherActor->GetVelocity()).Size();
-	if (HitSpeed > 1000)
+	FVector OtherVelocity = OtherActor->GetVelocity();
+	if (auto CelestialBody = Cast<ACelestialBody>(OtherActor))
+	{
+		OtherVelocity = CelestialBody->GetStaticMeshComponent()->GetPhysicsLinearVelocityAtPoint(GetOwner()->GetActorLocation());
+	}
+	constexpr float Threshold = 1000.f;
+	const float HitSpeed = (HitComponent->GetComponentVelocity() - OtherVelocity).Size() - Threshold;
+	if (HitSpeed > 0)
 	{
 		int32 Delta = -HitSpeed / 100;
 		ChangeHP(Delta);
-		UMainLibrary::SendMessage(FText::Format(INVTEXT("受到打击，HP {0}"), Delta));
+		const FText OwnerName = Cast<IControllable>(GetOwner())->GetLabelName();
+		UMainLibrary::SendMessage(FText::Format(tr("{0}受击，HP {1}"), OwnerName, Delta));
 	}
 }
 

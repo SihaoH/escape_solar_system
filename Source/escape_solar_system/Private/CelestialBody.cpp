@@ -16,6 +16,7 @@ ACelestialBody::ACelestialBody()
 	GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 
 	GravityZone = CreateDefaultSubobject<USphereComponent>(TEXT("GravityZone"));
+	GravityZone->SetGenerateOverlapEvents(true);
 	// 必须附着在RootComponent上，否则无法获取到重叠物品
 	GravityZone->SetupAttachment(GetRootComponent());
 	GravityZone->OnComponentBeginOverlap.AddDynamic(this, &ACelestialBody::OnGravityZoneBeginOverlap);
@@ -61,8 +62,9 @@ void ACelestialBody::CalcGravityResult(AActor* Target, FVector& Direction, float
 	const FVector SelfLocation = GetActorLocation();
 	const FVector TargetLocation = Target->GetActorLocation();
 	Direction = (SelfLocation - TargetLocation).GetSafeNormal();
-	float Distance = FVector::Dist(SelfLocation, TargetLocation) - SelfRadius;
-	Accel = SurfaceGravity * FMath::Max((1 - Distance / 3 / SelfRadius), 0.f);
+	float Mass = SurfaceGravity * FMath::Square(SelfRadius);
+	float Distance = FVector::Dist(SelfLocation, TargetLocation);
+	Accel = Mass / FMath::Square(Distance);
 }
 
 void ACelestialBody::Serialize(FArchive& Ar)
@@ -155,7 +157,7 @@ void ACelestialBody::UpdateInfoWidget()
 
 void ACelestialBody::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
+	if (OtherActor != this && OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{
 		Cast<IMassActorInterface>(OtherActor)->PlanetOwner = this;
 	}

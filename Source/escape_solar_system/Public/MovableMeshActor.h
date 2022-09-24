@@ -22,6 +22,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
+	virtual void GravityActedGlobally_Implementation(FVector Direction, float Accel) override;
 	virtual void BuoyancyActed_Implementation(FVector Force) override;
 	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
 };

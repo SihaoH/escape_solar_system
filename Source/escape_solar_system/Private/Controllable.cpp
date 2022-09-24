@@ -3,6 +3,7 @@
 #include "Controllable.h"
 #include "CelestialBody.h"
 #include "MassActorInterface.h"
+#include "MainLibrary.h"
 #include "GameFramework/Pawn.h"
 #include <Kismet/GameplayStatics.h>
 
@@ -22,13 +23,12 @@ float IControllable::GetGravityAccel() const
 
 void IControllable::GetLocationInfo(FText& Planet, FVector& Loction) const
 {
-	Planet = INVTEXT("太空");
+	Planet = tr("太空");
 	Loction = Cast<AActor>(this)->GetActorLocation();
-	auto PlanetActor = Cast<IMassActorInterface>(this)->GetPlanetOwner();
-	if (PlanetActor)
+	if (auto PlanetActor = Cast<IMassActorInterface>(this)->GetPlanetOwner())
 	{
 		Planet = PlanetActor->GetLabelName();
-		Loction = Loction - PlanetActor->GetActorLocation();
+		Loction = PlanetActor->GetTransform().InverseTransformPosition(Loction);
 	}
 }
 

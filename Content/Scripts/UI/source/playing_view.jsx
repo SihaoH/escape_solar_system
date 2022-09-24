@@ -54,7 +54,7 @@ class PlayingView extends React.Component {
                 { icon: "T_Temperature32x32", text: `${Utils.tr("温度")}: ${Utils.num2Txt(player.Body.CurrentTemp)} ℃`, color: player.Body.CurrentTemp > player.Body.ShieldHeat ? Utils.color("#f00") : player.Body.CurrentTemp < player.Body.ShieldCold ? Utils.color("#00f") : Utils.color("#fff") },
                 { icon: "T_Pressure32x32", text: `${Utils.tr("流体压力")}: ${Utils.num2Txt(player.Body.CurrentPress)} kPa`, color: player.Body.CurrentPress > player.Body.ShieldPress ? Utils.color("#f00") : Utils.color("#fff") },
                 { icon: "T_Mass32x32", text: `${Utils.tr("质量")}: ${Utils.num2Txt(player.GetMass())} kg`, color: Utils.color("#fff") },
-                { icon: "T_Gravity32x32", text: `${Utils.tr("重力")}: ${Utils.num2Txt(player.GetGravityAccel())} m/s²`, color: Utils.color("#fff") },
+                { icon: "T_Gravity32x32", text: `${Utils.tr("重力")}: ${Utils.num2Txt(player.GetGravityAccel() / 100, 1)} m/s²`, color: Utils.color("#fff") },
                 { icon: "T_Thrust32x32", text: `${Utils.tr("推力MAX")}: ${Utils.num2Txt(player.Engine.Power)} N`, color: Utils.color("#fff") },
             ]})
         }, 200)

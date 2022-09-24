@@ -49,6 +49,9 @@ protected:
 	virtual void UnControlled() override;
 	virtual void Thrusting(FVector Force) override;
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
+	virtual void GravityActedGlobally_Implementation(FVector Direction, float Accel) override;
+	virtual void BuoyancyActed_Implementation(FVector Force) override;
+	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
 
 	void Turn(float Value);
 	void LookUp(float Value);
