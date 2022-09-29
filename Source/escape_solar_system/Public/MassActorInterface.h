@@ -33,7 +33,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void BuoyancyActed(FVector Force);
 
-	/** 阻力作用，每帧触发 */
+	/** 阻力作用，进入范围时触发 */
 	UFUNCTION(BlueprintNativeEvent)
 	void DampingChanged(float Linear, float Angular);
 

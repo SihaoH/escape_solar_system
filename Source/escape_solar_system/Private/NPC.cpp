@@ -1,20 +1,27 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
-
 #include "NPC.h"
+#include <Components/SphereComponent.h>
+#include <GameFramework/PawnMovementComponent.h>
+#include <GameFramework/FloatingPawnMovement.h>
+#include <GameFramework/PlayerInput.h>
 
 ANPC::ANPC()
 {
 	//PrimaryActorTick.bCanEverTick = true;
-	GetMeshComponent()->SetSimulatePhysics(true);
-	GetMeshComponent()->SetEnableGravity(false);
-	GetMeshComponent()->SetGenerateOverlapEvents(true);
-	GetMeshComponent()->SetCollisionProfileName("BlockAllDynamic");
+	MeshComponent = CreateOptionalDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	MeshComponent->SetEnableGravity(false);
+	MeshComponent->SetGenerateOverlapEvents(true);
+	MeshComponent->SetCollisionProfileName("BlockAllDynamic");
+	SetRootComponent(MeshComponent);
+
+	MovementComponent = CreateDefaultSubobject<UPawnMovementComponent, UFloatingPawnMovement>(TEXT("MovementComponent"));
+	MovementComponent->UpdatedComponent = MeshComponent;
 }
 
 void ANPC::SetHighlight(bool bValue)
 {
-	GetMeshComponent()->SetRenderCustomDepth(bValue);
+	MeshComponent->SetRenderCustomDepth(bValue);
 }
 
 FText ANPC::GetText(FName Index) const
@@ -32,28 +39,32 @@ void ANPC::GetOptions(FName Index, TMap<FName, FText>& OutOptions) const
 
 void ANPC::BeginPlay()
 {
-	Super::BeginPlay();
-	Density = CalcDensity(GetMeshComponent()->BodyInstance.GetMassOverride(), GetMeshComponent()->Bounds.SphereRadius);
+	Super::BeginPlay(); // AActor::BeginPlay()会判断附着的父对象是否模拟物理，如果不一致，就解除附着
+	// 所以模拟物理要在BeginPlay之后开启，而且也不能用UPrimitiveComponent::SetSimulatePhysics开启，因为也会像BeginPlay那样做
+	MeshComponent->GetBodyInstance()->bSimulatePhysics = true;
+	MeshComponent->GetBodyInstance()->UpdateInstanceSimulatePhysics();
+
+	Density = CalcDensity(MeshComponent->BodyInstance.GetMassOverride(), MeshComponent->Bounds.SphereRadius);
 }
 
 void ANPC::GravityActed_Implementation(FVector Direction, float Accel)
 {
-	GetMeshComponent()->AddForce(Direction * Accel, NAME_None, true);
+	MeshComponent->AddForce(Direction * Accel, NAME_None, true);
 }
 
 void ANPC::GravityActedGlobally_Implementation(FVector Direction, float Accel)
 {
-	GetMeshComponent()->AddForce(Direction * Accel, NAME_None, true);
+	MeshComponent->AddForce(Direction * Accel, NAME_None, true);
 }
 
 void ANPC::BuoyancyActed_Implementation(FVector Force)
 {
-	GetMeshComponent()->AddForce(Force, NAME_None, true);
+	MeshComponent->AddForce(Force, NAME_None, true);
 }
 
 void ANPC::DampingChanged_Implementation(float Linear, float Angular)
 {
-	FBodyInstance* BI = GetMeshComponent()->GetBodyInstance();
+	FBodyInstance* BI = MeshComponent->GetBodyInstance();
 	if (BI)
 	{
 		BI->LinearDamping = Linear;

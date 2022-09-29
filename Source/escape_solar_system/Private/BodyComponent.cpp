@@ -88,15 +88,18 @@ void UBodyComponent::CheckEnvironment()
 void UBodyComponent::OnComponentHitted(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	FVector OtherVelocity = OtherActor->GetVelocity();
-	if (auto CelestialBody = Cast<ACelestialBody>(OtherActor))
+	if (GetOwner()->GetAttachParentActor() == OtherActor)
 	{
-		OtherVelocity = CelestialBody->GetStaticMeshComponent()->GetPhysicsLinearVelocityAtPoint(GetOwner()->GetActorLocation());
+		OtherVelocity = FVector::ZeroVector;
 	}
 	constexpr float Threshold = 1000.f;
 	const float HitSpeed = (HitComponent->GetComponentVelocity() - OtherVelocity).Size() - Threshold;
-	if (HitSpeed > 0)
+
+	// 伤害值，每100cm/s扣10点血
+	constexpr float DamageVal = 100.f / 10.f;
+	if (HitSpeed / DamageVal > 0)
 	{
-		int32 Delta = -HitSpeed / 100;
+		int32 Delta = -HitSpeed / DamageVal;
 		ChangeHP(Delta);
 		const FText OwnerName = Cast<IControllable>(GetOwner())->GetLabelName();
 		UMainLibrary::SendMessage(FText::Format(tr("{0}受击，HP {1}"), OwnerName, Delta));

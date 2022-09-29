@@ -76,9 +76,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float GravityAccel = 0.f;
 
-	/** 基底（角色所站立的星球）的自转角速度，在起跳时获取，为了让角色起跳后能保持跟星球同样的角速度 */
-	FVector BaseAngularVelocity = FVector::ZeroVector;
-
 	// When moving debug lines are shown - velocity, acceleration
 	UPROPERTY(Category = "Debug", EditAnywhere)
 	bool bShowDebugLines = false;

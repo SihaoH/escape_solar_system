@@ -157,14 +157,25 @@ void ACelestialBody::UpdateInfoWidget()
 
 void ACelestialBody::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor != this && OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
+	if (OtherActor != this)
 	{
-		Cast<IMassActorInterface>(OtherActor)->PlanetOwner = this;
+		auto BI = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent())->GetBodyInstance();
+		bool bSimulate = BI->bSimulatePhysics;
+		BI->bSimulatePhysics = false;
+		OtherActor->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+		BI->bSimulatePhysics = bSimulate;
+		BI->UpdateInstanceSimulatePhysics();
+
+		if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
+		{
+			Cast<IMassActorInterface>(OtherActor)->PlanetOwner = this;
+		}
 	}
 }
 
 void ACelestialBody::OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	OtherActor->DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, false));
 	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{
 		Cast<IMassActorInterface>(OtherActor)->PlanetOwner = nullptr;

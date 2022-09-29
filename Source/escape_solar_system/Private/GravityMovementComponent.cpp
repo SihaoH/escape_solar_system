@@ -1,6 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "GravityMovementComponent.h"
+#include "CelestialBody.h"
 #include "GameFramework/PhysicsVolume.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/NavMovementComponent.h"
@@ -1026,8 +1027,7 @@ void UGravityMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 		RemainingTime -= TimeTick;
 
 		const FVector OldLocation = UpdatedComponent->GetComponentLocation();
-		const FVector DeltaAngular = BaseAngularVelocity * deltaTime;
-		const FRotator PawnRotation = UpdatedComponent->GetComponentRotation().Add(DeltaAngular.Y, DeltaAngular.Z, DeltaAngular.X);
+		const FQuat PawnRotation = UpdatedComponent->GetComponentQuat();
 
 		bJustTeleported = false;
 
@@ -1339,6 +1339,12 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 		return;
 	}
 
+	// 如果是已附着在基底上，就不需要调整位置和旋转了
+	if (CharacterOwner->GetAttachParentActor() == MovementBase->GetOwner())
+	{
+		return;
+	}
+
 	// Ignore collision with bases during these movements.
 	TGuardValue<EMoveComponentFlags> ScopedFlagRestore(MoveComponentFlags, MoveComponentFlags | MOVECOMP_IgnoreBases);
 
@@ -1353,7 +1359,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 	}
 
 	// Find change in rotation
-	const bool bRotationChanged = !OldBaseQuat.Equals(NewBaseQuat, 1e-8f);
+	const bool bRotationChanged = !OldBaseQuat.Equals(NewBaseQuat, SMALL_NUMBER);
 	if (bRotationChanged)
 	{
 		DeltaQuat = NewBaseQuat * OldBaseQuat.Inverse();
@@ -1407,7 +1413,7 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 		FVector const BaseOffset = FVector::ZeroVector;	//GetUpVector() * HalfHeight;这里有问题，偏移只能为0
 		FVector const LocalBasePos = OldLocalToWorld.InverseTransformPosition(UpdatedComponent->GetComponentLocation() - BaseOffset);
 		FVector const NewWorldPos = ConstrainLocationToPlane(NewLocalToWorld.TransformPosition(LocalBasePos) + BaseOffset);
-		DeltaPosition = ConstrainDirectionToPlane(NewWorldPos - UpdatedComponent->GetComponentLocation());
+		//DeltaPosition = ConstrainDirectionToPlane(NewWorldPos - UpdatedComponent->GetComponentLocation());
 
 		// move attached actor
 		if (bFastAttachedMove)
@@ -1443,17 +1449,16 @@ bool UGravityMovementComponent::DoJump(bool bReplayingMoves)
 		if (!bConstrainToPlane || FMath::Abs(PlaneConstraintNormal | JumpDir) < 0.5f)
 		{
 			UPrimitiveComponent* MovementBase = CharacterOwner->GetMovementBase();
+			FVector BaseLinearV = FVector::ZeroVector;
 			if (IsValid(MovementBase))
 			{
-				BaseAngularVelocity = MovementBase->GetPhysicsAngularVelocityInDegrees();
+				BaseLinearV = MovementBase->GetPhysicsLinearVelocityAtPoint(UpdatedComponent->GetComponentLocation());
 			}
-
 			// Set to zero the vertical component of velocity.
-			Velocity = FVector::VectorPlaneProject(Velocity, JumpDir);
+			//Velocity = FVector::VectorPlaneProject(Velocity, JumpDir);
 
 			// Perform jump.
-
-			Velocity += (JumpDir * JumpZVelocity + MovementBase->GetPhysicsLinearVelocityAtPoint(UpdatedComponent->GetComponentLocation()));
+			Velocity += (JumpDir * JumpZVelocity - BaseLinearV);
 			SetMovementMode(MOVE_Falling);
 
 			return true;

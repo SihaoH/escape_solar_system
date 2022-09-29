@@ -77,7 +77,6 @@ void UFluidZoneComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 					float Accel = 0;
 					AttachedPlanet->CalcGravityResult(Actor, Direction, Accel);
 					Accel *= (Density / MassActor->Density) * -1;
-
 					IMassActorInterface::Execute_BuoyancyActed(Actor, Direction * Accel);
 				}
 			}

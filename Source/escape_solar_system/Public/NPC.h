@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "MassActorInterface.h"
 #include "Engine/DataTable.h"
-#include "GameFramework/DefaultPawn.h"
+#include "GameFramework/Pawn.h"
 #include "NPC.generated.h"
 
 /** 对话数据 */
@@ -24,7 +24,7 @@ struct FTalkData : public FTableRowBase
 };
 
 UCLASS()
-class ESCAPE_SOLAR_SYSTEM_API ANPC : public ADefaultPawn, public IMassActorInterface
+class ESCAPE_SOLAR_SYSTEM_API ANPC : public APawn, public IMassActorInterface
 {
 	GENERATED_BODY()
 
@@ -47,6 +47,13 @@ protected:
 	virtual void GravityActedGlobally_Implementation(FVector Direction, float Accel) override;
 	virtual void BuoyancyActed_Implementation(FVector Force) override;
 	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
+
+private:
+	UPROPERTY(Category = Pawn, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> MeshComponent;
+
+	UPROPERTY(Category = Pawn, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPawnMovementComponent> MovementComponent;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
