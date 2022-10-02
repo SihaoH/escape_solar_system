@@ -58,7 +58,7 @@ class PlayingView extends React.Component {
                 { icon: "T_Gravity32x32", text: `${Utils.tr("重力")}: ${Utils.num2Txt(player.GetGravityAccel() / 100, 1)} m/s²`, color: Utils.color("#fff") },
                 { icon: "T_Thrust32x32", text: `${Utils.tr("推力MAX")}: ${Utils.num2Txt(player.Engine.Power)} N`, color: Utils.color("#fff") },
             ]})
-        }, 200)
+        }, 50)
         MainLevelScript.Instance().ActionAddedDelegate.Add((Key, Tag, Interval) => {
             this.setState({ actionPrompt: { key: Key, tag: Tag, interval: Interval } })
         })

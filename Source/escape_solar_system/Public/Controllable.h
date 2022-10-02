@@ -54,7 +54,7 @@ FORCEINLINE TargetClass* IControllable::FindByLineTrace(float Distance)
 	const APlayerController* Controller = UGameplayStatics::GetPlayerController(Self->GetWorld(), 0);
 	const APlayerCameraManager* CameraManager = Controller->PlayerCameraManager;
 	const FVector Start = CameraManager->GetCameraLocation();
-	const FVector End = Start + CameraManager->GetTransformComponent()->GetForwardVector() * Distance; //最长到64km
+	const FVector End = Start + CameraManager->GetTransformComponent()->GetForwardVector() * Distance;
 	FHitResult OutHit;
 	TargetClass* HitTarget = nullptr;
 	if (UKismetSystemLibrary::LineTraceSingle(

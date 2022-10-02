@@ -17,8 +17,6 @@ const FontColor = {
     SpecifiedColor: Utils.rgba(0.1, 0.5, 1.0)
 }
 
-let LookedWidget = null
-let LockedWidget = null
 let IsVaild = true
 
 class LookedIndicator extends React.Component {
@@ -27,14 +25,7 @@ class LookedIndicator extends React.Component {
     }
     render() {
         return (
-            <span
-                ref={elem => {
-                    if (elem && LookedWidget !== elem.ueobj.Slot) {
-                        LookedWidget = elem.ueobj.Slot
-                    }
-                }}
-                {...this.props}
-            >
+            <span {...this.props} >
                 <uSizeBox
                     Slot={{ VerticalAlignment: EVerticalAlignment.VAlign_Center }}
                     WidthOverride={64}
@@ -75,14 +66,7 @@ class LockedIndicator extends React.Component {
     }
     render() {
         return (
-            <span
-                ref={elem => {
-                    if (elem && LockedWidget !== elem.ueobj.Slot) {
-                        LockedWidget = elem.ueobj.Slot
-                    }
-                }}
-                {...this.props}
-            >
+            <span {...this.props} >
                 <uSizeBox
                     Slot={{ VerticalAlignment: EVerticalAlignment.VAlign_Center }}
                     WidthOverride={64}
@@ -132,8 +116,8 @@ class View extends React.Component {
         this.state = {
             lookedBody: null,
             lockedBody: null,
-            lookedAngle: -1,
-            lockedAngle: -1,
+            lookedLayout: { Position: {X: 0, Y: 0}, Angle: -1 },
+            lockedLayout: { Position: {X: 0, Y: 0}, Angle: -1 },
             lockedInfo: { Dist: 0, Speed: 0 }
         }
 
@@ -149,15 +133,13 @@ class View extends React.Component {
 
         let self = this
         function tick() {
-            if (LookedWidget && self.state.lookedBody) {
+            if (self.state.lookedBody) {
                 let layout = self.helper.GetWidgetPosition(self.state.lookedBody)
-                LookedWidget.SetPosition( layout.Position )
-                self.setState({ lookedAngle: layout.Angle })
+                self.setState({ lookedLayout: layout })
             }
-            if (LockedWidget && self.state.lockedBody) {
+            if (self.state.lockedBody) {
                 let layout = self.helper.GetWidgetPosition(self.state.lockedBody)
-                LockedWidget.SetPosition( layout.Position )
-                self.setState({ lockedAngle: layout.Angle, lockedInfo: self.helper.GetLockInfo(self.state.lockedBody) })
+                self.setState({ lockedLayout: layout, lockedInfo: self.helper.GetLockInfo(self.state.lockedBody) })
             }
             if (IsVaild) process.nextTick(tick)
         }
@@ -166,8 +148,6 @@ class View extends React.Component {
 
     componentWillUnmount() {
         IsVaild = false
-        LookedWidget = null
-        LockedWidget = null
         clearInterval(this.updateTimer)
     }
 
@@ -177,26 +157,28 @@ class View extends React.Component {
                 {this.state.lookedBody && (this.state.lookedBody !== this.state.lockedBody) &&
                 <LookedIndicator
                     Slot={{
+                        Position: this.state.lookedLayout.Position,
                         LayoutData: {
                             Anchors: EAnchors.TopLeft,
                             Alignment: { X: 0.5, Y: 0.5 },
                         },
                         bAutoSize: true
                     }}
-                    angle={this.state.lookedAngle}
+                    angle={this.state.lookedLayout.Angle}
                     owner={this.state.lookedBody}
                 />
                 }
                 {this.state.lockedBody &&
                 <LockedIndicator
                     Slot={{
+                        Position: this.state.lockedLayout.Position,
                         LayoutData: {
                             Anchors: EAnchors.TopLeft,
                             Alignment: { X: 0.5, Y: 0.5 },
                         },
                         bAutoSize: true
                     }}
-                    angle={this.state.lockedAngle}
+                    angle={this.state.lockedLayout.Angle}
                     owner={this.state.lockedBody}
                     info={this.state.lockedInfo}
                 />
