@@ -2,6 +2,7 @@ const React = require('react')
 const AD = require('animation-driver')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
+const {F_Sans} = require('../style')
 
 const barLayout = { 
     LayoutData: { 
@@ -11,7 +12,7 @@ const barLayout = {
 }
 
 const font = {
-    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+    FontObject: F_Sans,
     TypefaceFontName: "Bold",
     Size: 16,
     OutlineSettings: {

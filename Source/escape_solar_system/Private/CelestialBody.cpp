@@ -2,10 +2,9 @@
 
 #include "CelestialBody.h"
 #include "MassActorInterface.h"
-#include "../UI/PlanetInfo.h"
-#include "Kismet/GameplayStatics.h"
-#include "Components/SphereComponent.h"
-#include "Components/WidgetComponent.h"
+#include <Kismet/GameplayStatics.h>
+#include <Components/SphereComponent.h>
+
 
 ACelestialBody::ACelestialBody()
 {
@@ -21,13 +20,6 @@ ACelestialBody::ACelestialBody()
 	GravityZone->SetupAttachment(GetRootComponent());
 	GravityZone->OnComponentBeginOverlap.AddDynamic(this, &ACelestialBody::OnGravityZoneBeginOverlap);
 	GravityZone->OnComponentEndOverlap.AddDynamic(this, &ACelestialBody::OnGravityZoneEndOverlap);
-
-	InfoWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InfoWidget"));
-	// 必须附着在RootComponent上，否则会显示在世界的中心，而不是该星球的中心
-	InfoWidget->SetupAttachment(GetRootComponent());
-	InfoWidget->SetWidgetSpace(EWidgetSpace::Screen);
-	InfoWidget->SetDrawSize({ 0, 0 });
-	InfoWidget->SetWidgetClass(LoadClass<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/WB_PlanetInfo.WB_PlanetInfo_C'")));
 }
 
 /** 
@@ -45,16 +37,6 @@ FVector ACelestialBody::GetVelocity() const
 		Velocity = BodyInst->GetUnrealWorldVelocity();
 	}
 	return Velocity;
-}
-
-void ACelestialBody::SetLooked(bool Looked)
-{
-	InfoWidgetObject->SetLooked(Looked);
-}
-
-void ACelestialBody::SetLocked(bool Locked)
-{
-	InfoWidgetObject->SetLocked(Locked);
 }
 
 void ACelestialBody::CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const
@@ -96,10 +78,6 @@ void ACelestialBody::BeginPlay()
 	{
 		DistanceRadius = FVector::Dist(GetAttachParentActor()->GetActorLocation(), GetActorLocation());
 	}
-
-	InfoWidgetObject = Cast<UPlanetInfo>(InfoWidget->GetUserWidgetObject());
-	InfoWidgetObject->SetName(Name, Icon);
-	GetWorldTimerManager().SetTimer(InfoTimer, this, &ACelestialBody::UpdateInfoWidget, 0.1f, true, 0.f);
 }
 
 void ACelestialBody::Tick(float DeltaTime)
@@ -136,22 +114,6 @@ void ACelestialBody::PerformGravity(float DeltaTime)
 
 			IMassActorInterface::Execute_GravityActed(Actor, Direction, Accel);
 		}
-	}
-}
-
-void ACelestialBody::UpdateInfoWidget()
-{
-	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	if (Player)
-	{
-		float Distance = FVector::Dist(Player->GetActorLocation(), GetActorLocation()) - SelfRadius;
-		if (PreDistance != 0)
-		{
-			float Delta = (Distance - PreDistance) / 0.1;
-			InfoWidgetObject->SetSpeed(Delta);
-			InfoWidgetObject->SetDistance(Distance);
-		}
-		PreDistance = Distance;
 	}
 }
 

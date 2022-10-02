@@ -60,6 +60,16 @@ AEarthBase* AMainLevelScript::GetEarthBase()
 	return ThisInstance->EarthBase;
 }
 
+void AMainLevelScript::LookCelestialBody(ACelestialBody* Body)
+{
+	ThisInstance->CelestialBodyLookedDelegate.Broadcast(Body);
+}
+
+void AMainLevelScript::LockCelestialBody(ACelestialBody* Body)
+{
+	ThisInstance->CelestialBodyLockedDelegate.Broadcast(Body);
+}
+
 FActionDoneSignature& AMainLevelScript::AddActionPrompt(FName Action, FText Tag, float Interval)
 {
 	ThisInstance->SetActionPrompt({ Action, Tag, Interval });

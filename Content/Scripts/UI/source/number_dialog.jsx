@@ -4,7 +4,7 @@ const React = require('react')
 const ReactUMG = require('react-umg')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
-const {T_Rect, ButtonStyle, SpinBoxProps} = require('../style')
+const {F_Sans, T_Rect, ButtonStyle, SpinBoxProps} = require('../style')
 
 const T_Close = Texture2D.Load("/Game/UI/Icon/T_Close32x32")
 
@@ -81,7 +81,7 @@ class Dialog extends React.Component {
                                                 HorizontalAlignment: EHorizontalAlignment.HAlign_Center
                                             }}
                                             Font={{
-                                                FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                                FontObject: F_Sans,
                                                 TypefaceFontName: "Bold",
                                                 Size: 14,
                                             }}
@@ -173,7 +173,7 @@ class Dialog extends React.Component {
                                             bAutoSize: true
                                         }}
                                         Font={{
-                                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                            FontObject: F_Sans,
                                             Size: 16,
                                         }}
                                         ColorAndOpacity={{

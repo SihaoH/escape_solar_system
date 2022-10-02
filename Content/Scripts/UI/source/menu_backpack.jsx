@@ -5,6 +5,7 @@ const React = require('react')
 const ReactUMG = require('react-umg')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
+const {F_Sans} = require('../style')
 
 const PointBar = require('./point_bar')
 const ContextMenu = require('context_menu')
@@ -166,7 +167,7 @@ class BpEntryContent extends React.Component {
                                     Size: { SizeRule: ESlateSizeRule.Fill }
                                 }}
                                 Font={{
-                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    FontObject: F_Sans,
                                     TypefaceFontName: "Bold",
                                     Size: 14,
                                 }}
@@ -180,7 +181,7 @@ class BpEntryContent extends React.Component {
                                     Padding: Utils.ltrb(20, 0),
                                 }}
                                 Font={{
-                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    FontObject: F_Sans,
                                     TypefaceFontName: "Bold",
                                     Size: 14,
                                 }}
@@ -265,7 +266,7 @@ class BackpackView extends React.Component {
                 >
                     <PointBar
                         fontStyle={{
-                            FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                            FontObject: F_Sans,
                             Size: 12,
                             OutlineSettings: {
                                 OutlineSize: 1,

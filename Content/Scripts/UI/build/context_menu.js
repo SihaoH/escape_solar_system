@@ -4,7 +4,7 @@ const React = require('react');
 const ReactUMG = require('react-umg');
 const Utils = require('../utils');
 const EAnchors = require('../anchors');
-const { ButtonStyle } = require('../style');
+const { F_Sans, ButtonStyle } = require('../style');
 
 class ContextMenu extends React.Component {
     constructor(props) {
@@ -86,7 +86,7 @@ class ContextMenu extends React.Component {
                                 },
                                 React.createElement('uTextBlock', {
                                     Font: {
-                                        FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                        FontObject: F_Sans,
                                         Size: 14
                                     },
                                     ColorAndOpacity: {

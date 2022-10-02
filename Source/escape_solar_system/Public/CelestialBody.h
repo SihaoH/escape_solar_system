@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/StaticMeshActor.h"
+#include <Engine/StaticMeshActor.h>
+#include <Components/WidgetComponent.h>
 #include "CelestialBody.generated.h"
 
 UENUM(BlueprintType)
@@ -27,12 +28,11 @@ public:
 	ACelestialBody();
 	virtual FVector GetVelocity() const override;
 
-	void SetLooked(bool Looked);
-	void SetLocked(bool Locked);
 	float GetSurfaceGravity() const { return SurfaceGravity; }
 	void CalcGravityResult(AActor* Target, FVector& Direction, float& Accel) const;
 	FORCEINLINE FText GetLabelName() const { return Name; }
 	FORCEINLINE ECelestialBodyType GetCelestialType() const { return Type; }
+	FORCEINLINE float GetSelfRadius() const { return SelfRadius; }
 
 protected:
 	virtual void Serialize(FArchive& Ar) override;
@@ -41,7 +41,6 @@ protected:
 
 	virtual void PerformRotation(float DeltaTime);
 	virtual void PerformGravity(float DeltaTime);
-	void UpdateInfoWidget();
 
 private:
 	UFUNCTION()
@@ -76,9 +75,7 @@ protected:
 	float SelfRadius = -1.f;
 
 private:
-	FTimerHandle InfoTimer;
-	float PreDistance = 0.f;
-	float RelativeSpeed = 0.f;
+	friend class UNavWidgetComponent;
 
 	UPROPERTY(SaveGame)
 	FTransform SavedTransform;
@@ -89,8 +86,4 @@ private:
 
 	UPROPERTY(Category = "Planet", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* GravityZone = nullptr;
-
-	UPROPERTY(Category = "Planet", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* InfoWidget = nullptr;
-	class UPlanetInfo* InfoWidgetObject = nullptr;
 };

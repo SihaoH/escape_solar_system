@@ -3,7 +3,7 @@ const React = require('react')
 const ReactUMG = require('react-umg')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
-const {T_Rect, ButtonStyle} = require('../style')
+const {F_Sans, T_Rect, ButtonStyle} = require('../style')
 
 
 class Dialog extends React.Component {
@@ -53,7 +53,7 @@ class Dialog extends React.Component {
                             >
                                 <uTextBlock
                                     Font={{
-                                        FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                        FontObject: F_Sans,
                                         TypefaceFontName: "Bold",
                                         Size: 16,
                                     }}
@@ -70,7 +70,7 @@ class Dialog extends React.Component {
                                     HorizontalAlignment: EHorizontalAlignment.HAlign_Center
                                 }}
                                 Font={{
-                                    FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                    FontObject: F_Sans,
                                     TypefaceFontName: "Bold",
                                     Size: 16,
                                 }}
@@ -120,7 +120,7 @@ class Dialog extends React.Component {
                                                 bAutoSize: true
                                             }}
                                             Font={{
-                                                FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                                FontObject: F_Sans,
                                                 Size: 16,
                                             }}
                                             ColorAndOpacity={{

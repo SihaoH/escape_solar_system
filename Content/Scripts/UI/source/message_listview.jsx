@@ -5,6 +5,7 @@ const React = require('react')
 const ReactUMG = require('react-umg')
 const Utils = require('../utils')
 const EAnchors = require('../anchors')
+const {F_Sans} = require('../style')
 
 let lastEnter = false
 
@@ -54,7 +55,7 @@ class MyEntry extends React.Component {
                         SpecifiedColor: Utils.color("#00BFFF")
                     }}
                     Font={{
-                        FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                        FontObject: F_Sans,
                         TypefaceFontName: "Bold",
                         Size: 14,
                         OutlineSettings: {
@@ -139,7 +140,7 @@ class MessageListView extends React.Component {
                         }}
                         WidgetStyle={{
                             Font: {
-                                FontObject: Font.Load('/Game/UI/Font/SourceHanSansSC'),
+                                FontObject: F_Sans,
                                 Size: 12
                             },
                             FocusedForegroundColor: {

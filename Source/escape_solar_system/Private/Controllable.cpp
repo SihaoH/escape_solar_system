@@ -4,6 +4,7 @@
 #include "CelestialBody.h"
 #include "MassActorInterface.h"
 #include "MainLibrary.h"
+#include "MainLevelScript.h"
 #include "GameFramework/Pawn.h"
 #include <Kismet/GameplayStatics.h>
 
@@ -13,8 +14,8 @@ UControllable::UControllable(const FObjectInitializer& ObjectInitializer)
 }
 
 
-class ACelestialBody* IControllable::LookedPlanet = nullptr;
-class ACelestialBody* IControllable::LockedPlanet = nullptr;
+class ACelestialBody* IControllable::LookedCelestialBody = nullptr;
+class ACelestialBody* IControllable::LockedCelestialBody = nullptr;
 
 float IControllable::GetGravityAccel() const
 {
@@ -68,49 +69,36 @@ void IControllable::LookPlanet()
 	const APlayerController* Controller = UGameplayStatics::GetPlayerController(Self->GetWorld(), 0);
 	if (Controller->GetPawn() == Self)
 	{
-		ACelestialBody* NewLookedPlanet = FindByLineTrace<ACelestialBody>(6400000.f);
-		if (NewLookedPlanet != LookedPlanet)
+		ACelestialBody* Body = FindByLineTrace<ACelestialBody>(6400000.f);
+		if (Body != LookedCelestialBody)
 		{
-			if (LookedPlanet)
-			{
-				LookedPlanet->SetLooked(false);
-			}
-			if (NewLookedPlanet)
-			{
-				NewLookedPlanet->SetLooked(true);
-			}
-			LookedPlanet = NewLookedPlanet;
+			LookedCelestialBody = Body;
+			AMainLevelScript::LookCelestialBody(LookedCelestialBody);
 		}
 	}
 }
 
 void IControllable::LockPlanet()
 {
-	if (LookedPlanet != nullptr)
+	if (LookedCelestialBody != nullptr)
 	{
-		if (LockedPlanet != LookedPlanet)
+		if (LockedCelestialBody != LookedCelestialBody)
 		{
 			// 锁定注视的星球
-			LookedPlanet->SetLocked(true);
-			if (LockedPlanet)
-			{
-				LockedPlanet->SetLocked(false);
-				LockedPlanet->SetLooked(false);
-			}
-			LockedPlanet = LookedPlanet;
+			LockedCelestialBody = LookedCelestialBody;
 		}
 		else
 		{
 			// 解锁注视的星球
-			LookedPlanet->SetLocked(false);
-			LockedPlanet = nullptr;
+			LockedCelestialBody = nullptr;
 		}
+		AMainLevelScript::LockCelestialBody(LockedCelestialBody);
 	}
 }
 
 void IControllable::ClearUp()
 {
-	LookedPlanet = nullptr;
-	LockedPlanet = nullptr;
+	LookedCelestialBody = nullptr;
+	LockedCelestialBody = nullptr;
 }
 

@@ -13,6 +13,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTalkOpenedSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnteredSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, Msg);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FExplorePointsSignature, FText, Msg);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCelestialBodyLookedSignature, class ACelestialBody*, Body);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCelestialBodyLockedSignature, class ACelestialBody*, Body);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FActionAddedSignature, FKey, Key, FText, Tag, float, Interval);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionRemovedSignature);
@@ -54,6 +56,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	static class AEarthBase* GetEarthBase();
 
+	static void LookCelestialBody(class ACelestialBody* Body);
+	static void LockCelestialBody(class ACelestialBody* Body);
+
 	static FActionDoneSignature& AddActionPrompt(FName Action, FText Tag, float Interval = 0);
 	static void RemoveActionPrompt(FName Action);
 
@@ -78,6 +83,12 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FExplorePointsSignature ExplorePointsDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FCelestialBodyLookedSignature CelestialBodyLookedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FCelestialBodyLockedSignature CelestialBodyLockedDelegate;
 
 	UPROPERTY(BlueprintAssignable)
 	FActionAddedSignature ActionAddedDelegate;

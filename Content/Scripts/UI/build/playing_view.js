@@ -9,6 +9,7 @@ const { F_Sans, T_Rect } = require('../style');
 const PointBar = require('./point_bar');
 const MessageListView = require('./message_listview');
 const EngineToward = require('./engine_toward');
+const CelestialIndicator = require('./celestial_indicator');
 
 const T_Keycap = Texture2D.Load('/Game/UI/Icon/T_Keycap64x64');
 
@@ -371,7 +372,7 @@ class PlayingView extends React.Component {
                             Alignment: { X: 1.0, Y: 1.0 },
                             Offsets: Utils.ltrb(-50, -50, 0, 0)
                         },
-                        AutoSize: true
+                        bAutoSize: true
                     },
                     Padding: Utils.ltrb(10, 10),
                     Background: {
@@ -396,7 +397,15 @@ class PlayingView extends React.Component {
                         , Text: this.state.locationInfo
                     })
                 )
-            )
+            ),
+            '/* \u661F\u7403\u4FE1\u606F */',
+            React.createElement(CelestialIndicator, {
+                Slot: {
+                    LayoutData: {
+                        Anchors: EAnchors.FillAll
+                    }
+                }
+            })
         );
     }
 }
