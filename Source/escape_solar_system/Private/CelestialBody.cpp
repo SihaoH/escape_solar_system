@@ -4,7 +4,9 @@
 #include "MassActorInterface.h"
 #include <Kismet/GameplayStatics.h>
 #include <Components/SphereComponent.h>
+#include <Components/LineBatchComponent.h>
 
+bool bShowTrace = false;
 
 ACelestialBody::ACelestialBody()
 {
@@ -86,6 +88,7 @@ void ACelestialBody::Tick(float DeltaTime)
 
 	PerformRotation(DeltaTime);
 	PerformGravity(DeltaTime);
+	PerformTrace(DeltaTime);
 }
 
 void ACelestialBody::PerformRotation(float DeltaTime)
@@ -119,7 +122,7 @@ void ACelestialBody::PerformGravity(float DeltaTime)
 
 void ACelestialBody::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor != this)
+	if (OtherActor != this && !OtherActor->IsA<ACelestialBody>())
 	{
 		auto BI = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent())->GetBodyInstance();
 		bool bSimulate = BI->bSimulatePhysics;
@@ -142,5 +145,36 @@ void ACelestialBody::OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComp
 	{
 		Cast<IMassActorInterface>(OtherActor)->PlanetOwner = nullptr;
 		IMassActorInterface::Execute_GravityActed(OtherActor, FVector::ZeroVector, 0.f);
+	}
+}
+
+void ACelestialBody::PerformTrace(float DeltaTime)
+{
+	if (!bShowTrace)
+	{
+		if (!LastLocation.IsNearlyZero())
+		{
+			LastLocation = FVector::ZeroVector;
+			if (ULineBatchComponent* const LineBatcher = GetWorld()->PersistentLineBatcher)
+			{
+				LineBatcher->Flush();
+			}
+		}
+		return;
+	}
+
+	const FVector Current = GetActorLocation();
+	if (LastLocation.IsNearlyZero())
+	{
+		LastLocation = Current;
+		return;
+	}
+	if (FVector::Dist(Current, LastLocation) > 100)
+	{
+		if (ULineBatchComponent* const LineBatcher = GetWorld()->PersistentLineBatcher)
+		{
+			LineBatcher->DrawLine(LastLocation, Current, FColor::White, 1, 800.f, 1800.f);
+		}
+		LastLocation = Current;
 	}
 }

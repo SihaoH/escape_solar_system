@@ -49,6 +49,8 @@ private:
 	UFUNCTION()
 	virtual void OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	void PerformTrace(float DeltaTime);
+
 protected:
 	/** 星球类型 */
 	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
@@ -75,7 +77,7 @@ protected:
 	float SelfRadius = -1.f;
 
 private:
-	friend class UNavWidgetComponent;
+	FVector LastLocation = FVector::ZeroVector;
 
 	UPROPERTY(SaveGame)
 	FTransform SavedTransform;
