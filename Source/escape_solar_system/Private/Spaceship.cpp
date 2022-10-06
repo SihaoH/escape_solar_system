@@ -8,6 +8,7 @@
 #include "EngineComponent.h"
 #include "MainPlayerState.h"
 #include "MainLibrary.h"
+#include "MainLevelScript.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/BoxComponent.h>
 #include <GameFramework/SpringArmComponent.h>
@@ -49,11 +50,6 @@ ASpaceship::ASpaceship()
 void ASpaceship::SetPilot(AMainCharacter* Pilot)
 {
 	CurrentPilot = Pilot;
-}
-
-FText ASpaceship::GetLabelName() const
-{
-	return tr("飞船");
 }
 
 void ASpaceship::ResetProperties()
@@ -149,7 +145,7 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction("Hold", IE_Pressed, this, &ASpaceship::UnFreeLook);
 	PlayerInputComponent->BindAction("Hold", IE_Released, this, &ASpaceship::FreeLook);
 	PlayerInputComponent->BindAction("Drive", IE_Pressed, this, &ASpaceship::UnDrive);
-	PlayerInputComponent->BindAction("Lock", IE_Pressed, this, &IControllable::LockPlanet);
+	PlayerInputComponent->BindAction("Lock", IE_Pressed, this, &IControllable::LockCelestialBody);
 
 	PlayerInputComponent->BindAxis("Turn", this, &ASpaceship::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &ASpaceship::LookUp);
@@ -173,7 +169,7 @@ void ASpaceship::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	LookPlanet();
+	CheckCelestialBody();
 	PerformTurn(DeltaTime);
 	PerformAdjust(DeltaTime);
 	PerformFOV(DeltaTime);

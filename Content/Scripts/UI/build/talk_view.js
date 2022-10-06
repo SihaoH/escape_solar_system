@@ -48,7 +48,6 @@ class TalkView extends React.Component {
         this.state = { currentIndex: "0000" };
 
         this.NPC = MainLevelScript.GetMainChar().GetTalkableNPC();
-        //this.NPC = GWorld.GetAllActorsOfClass(NPC).OutActors[0]
     }
 
     componentDidMount() {
@@ -58,12 +57,12 @@ class TalkView extends React.Component {
         Event.on("MouseClick", () => {
             // 点击背景，只响应只有下一句或结束对话的情况，更多选项需要用户点击按钮选择
             const options = this.NPC.GetOptions(this.state.currentIndex).OutOptions;
-            const count = Object.keys(options).length;
+            const count = options.length;
             if (count === 1) {
                 // 默认下一句
-                const next_idx = Object.keys(options)[0];
-                if (!options[next_idx]) {
-                    this.setState({ currentIndex: next_idx });
+                const next_opt = options[0];
+                if (!next_opt.text) {
+                    this.setState({ currentIndex: next_opt.Row });
                 }
             } else if (count < 1) {
                 // 没有下一句，结束对话
@@ -80,7 +79,7 @@ class TalkView extends React.Component {
 
     render() {
         const options = this.NPC.GetOptions(this.state.currentIndex).OutOptions;
-        const show_opt = Object.keys(options).length > 1 || Object.keys(options).length === 1 && Object.values(options)[0];
+        const show_opt = options.length > 1 || options.length === 1 && options[0].text;
         return React.createElement(
             'uMyOverlayer',
             null,
@@ -99,7 +98,7 @@ class TalkView extends React.Component {
                             bAutoSize: true
                         }
                     },
-                    show_opt && _.map(options, (val, key) => React.createElement(
+                    show_opt && _.map(options, val => React.createElement(
                         'uButton',
                         {
                             Slot: { Padding: Utils.ltrb(0, 5) },
@@ -109,7 +108,7 @@ class TalkView extends React.Component {
                                 } }),
                             IsFocusable: false,
                             OnPressed: () => {
-                                this.setState({ currentIndex: key });
+                                this.setState({ currentIndex: val.Row });
                             }
                         },
                         React.createElement(
@@ -139,7 +138,7 @@ class TalkView extends React.Component {
                                 ColorAndOpacity: {
                                     ColorUseRule: ESlateColorStylingMode.UseColor_Foreground
                                 },
-                                Text: val
+                                Text: val.text
                             })
                         )
                     ))

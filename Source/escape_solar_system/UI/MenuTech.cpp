@@ -10,6 +10,7 @@
 #include "BackpackComponent.h"
 #include "MainLibrary.h"
 #include "MainPlayerState.h"
+#include "MainLevelScript.h"
 
 const int Max_Level = 4;
 

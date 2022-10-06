@@ -6,21 +6,14 @@
 #include "Engine/LevelScriptActor.h"
 #include "MainLevelScript.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPausedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMenuOpenedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathOpenedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTalkOpenedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnteredSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractionSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCinematicsSignature, FString, File);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, Msg);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FExplorePointsSignature, FText, Msg);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCelestialBodyLookedSignature, class ACelestialBody*, Body);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCelestialBodyLockedSignature, class ACelestialBody*, Body);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCelestialBodySignature, class ACelestialBody*, Body);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FActionAddedSignature, FKey, Key, FText, Tag, float, Interval);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionRemovedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionPressedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionReleasedSignature);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionDoneSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionSignature);
 
 
 UCLASS()
@@ -34,7 +27,7 @@ public:
 		FName Name;
 		FText Tag;
 		float Interval = 0;
-		FActionDoneSignature ActionDoneDelegate;
+		FActionSignature ActionDoneDelegate;
 	};
 
 public:
@@ -59,24 +52,30 @@ public:
 	static void LookCelestialBody(class ACelestialBody* Body);
 	static void LockCelestialBody(class ACelestialBody* Body);
 
-	static FActionDoneSignature& AddActionPrompt(FName Action, FText Tag, float Interval = 0);
+	static FActionSignature& AddActionPrompt(FName Action, FText Tag, float Interval = 0);
 	static void RemoveActionPrompt(FName Action);
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FPausedSignature PausedDelegate;
+	FCinematicsSignature CinematicsDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FMenuOpenedSignature MenuOpenedDelegate;
+	FInteractionSignature PlayingDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FDeathOpenedSignature DeathOpenedDelegate;
+	FInteractionSignature PausedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FInteractionSignature MenuOpenedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FInteractionSignature DeathOpenedDelegate;
 	
 	UPROPERTY(BlueprintAssignable)
-	FTalkOpenedSignature TalkOpenedDelegate;
+	FInteractionSignature TalkOpenedDelegate;
 	
 	UPROPERTY(BlueprintAssignable)
-	FEnteredSignature EnteredDelegate;
+	FInteractionSignature EnteredDelegate;
 
 	UPROPERTY(BlueprintAssignable)
 	FMessagedSignature MessagedDelegate;
@@ -85,22 +84,22 @@ public:
 	FExplorePointsSignature ExplorePointsDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FCelestialBodyLookedSignature CelestialBodyLookedDelegate;
+	FCelestialBodySignature CelestialBodyLookedDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FCelestialBodyLockedSignature CelestialBodyLockedDelegate;
+	FCelestialBodySignature CelestialBodyLockedDelegate;
 
 	UPROPERTY(BlueprintAssignable)
 	FActionAddedSignature ActionAddedDelegate;
 	
 	UPROPERTY(BlueprintAssignable)
-	FActionRemovedSignature ActionRemovedDelegate;
+	FActionSignature ActionRemovedDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FActionPressedSignature ActionPressedDelegate;
+	FActionSignature ActionPressedDelegate;
 
 	UPROPERTY(BlueprintAssignable)
-	FActionReleasedSignature ActionReleasedDelegate;
+	FActionSignature ActionReleasedDelegate;
 
 protected:
 	virtual void BeginPlay() override;
@@ -114,15 +113,19 @@ private:
 	void OnEntered();
 	void OnActionPressed();
 	void OnActionReleased();
+	UFUNCTION()
+	void OnSequenceFinshed();
 
 	UFUNCTION(BlueprintCallable)
 	static void ActionDone();
 
 private:
 	static AMainLevelScript* ThisInstance;
+	
 	TArray<ActionInfo> ActionStack;
 	class APlayerController* MainController = nullptr;
 	class AMainCharacter* MainChar = nullptr;
 	class ASpaceship* Spaceship = nullptr;
 	class AEarthBase* EarthBase = nullptr;
+	class ALevelSequenceActor* LevelSequence = nullptr;
 };

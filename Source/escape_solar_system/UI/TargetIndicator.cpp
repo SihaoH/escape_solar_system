@@ -1,32 +1,37 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
-#include "CelestialIndicator.h"
+#include "TargetIndicator.h"
 #include "CelestialBody.h"
 #include "MainLevelScript.h"
 #include <Kismet/GameplayStatics.h>
 
-void UCelestialIndicatorHelper::GetLockInfo(const ACelestialBody* Body, float& Dist, float& Speed)
+void UTargetIndicatorHelper::GetLockInfo(const AActor* Target, float& Dist, float& Speed)
 {
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GWorld, 0);
-	if (Body && Player)
+	if (Target && Player)
 	{
-		const double DistValue = FVector::Dist(Body->GetActorLocation(), Player->GetActorLocation());
-		Dist = (DistValue - Body->GetSelfRadius()) / 100.f;
+		const double DistValue = FVector::Dist(Target->GetActorLocation(), Player->GetActorLocation());
+		float TargetRadius = 0.f;
+		if (auto Body = Cast<ACelestialBody>(Target))
+		{
+			TargetRadius = Body->GetSelfRadius();
+		}
+		Dist = (DistValue - TargetRadius) / 100.f;
 		Speed = (DistValue - LastDist) / GWorld->GetDeltaSeconds() / 100.f;
 
 		LastDist = DistValue;
 	}
 }
 
-void UCelestialIndicatorHelper::GetWidgetPosition(const ACelestialBody* Body, FVector2D& Position, int32& Angle)
+void UTargetIndicatorHelper::GetWidgetPosition(const AActor* Target, FVector2D& Position, int32& Angle)
 {
 	Angle = -1;
 	Position = FVector2D::ZeroVector;
 	const auto CameraMgr = UGameplayStatics::GetPlayerCameraManager(GWorld, 0);
-	if (Body && CameraMgr)
+	if (Target && CameraMgr)
 	{
 		const FVector PlayerLoc = CameraMgr->GetCameraLocation();
-		const FVector BodyLoc = Body->GetActorLocation();
+		const FVector BodyLoc = Target->GetActorLocation();
 
 		const FVector SelfDir = (BodyLoc - PlayerLoc).GetSafeNormal();
 		const FVector CameraDir = CameraMgr->GetCameraRotation().Vector();

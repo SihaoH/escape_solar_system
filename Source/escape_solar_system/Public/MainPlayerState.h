@@ -27,6 +27,7 @@ public:
 	void UpdateBestLevel(const TArray<ETech>& Props, int32 Val);
 	int32 GetBestLevel(const TArray<ETech>& Props);
 
+	int32 GetDeathCount() const { return DeathCount; }
 	void IncreaseDeathCount() { DeathCount += 1; }
 
 	float GetTotalTime() const { return TotalTime; }

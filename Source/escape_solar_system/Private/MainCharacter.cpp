@@ -120,6 +120,11 @@ AEarthBase* AMainCharacter::FindEarthBase() const
 	return nullptr;
 }
 
+float AMainCharacter::GetMass() const
+{
+	return Movement->Mass;
+}
+
 FVector AMainCharacter::GetVelocity() const
 {
 	FVector Velocity = FVector::ZeroVector;
@@ -190,7 +195,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("Lock", IE_Pressed, this, &IControllable::LockPlanet);
+	PlayerInputComponent->BindAction("Lock", IE_Pressed, this, &IControllable::LockCelestialBody);
 
 	PlayerInputComponent->BindAxis("Turn", this, &AMainCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &AMainCharacter::LookUp);
@@ -216,7 +221,7 @@ void AMainCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateMass();
-	LookPlanet();
+	CheckCelestialBody();
 	CheckPickup();
 	CheckNPC();
 }

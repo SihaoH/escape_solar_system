@@ -1,3 +1,7 @@
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 function ltrb(l, t, r, b) {
     if (t === undefined) { t = l }
     if (r === undefined) { r = l }
@@ -77,6 +81,7 @@ function debug(obj, tag) {
 }
 
 module.exports = {
+    delay: delay,
     ltrb: ltrb,
     rgba: rgba,
     color: color,

@@ -2,9 +2,13 @@
 
 #include "MainLevelScript.h"
 #include "MainCharacter.h"
+#include "EarthBaseActor.h"
 #include "Controllable.h"
+#include "MainPlayerState.h"
 #include "MainSaveGame.h"
 #include <JavascriptComponent.h>
+#include <LevelSequence/Public/LevelSequencePlayer.h>
+#include <LevelSequence/Public/LevelSequenceActor.h>
 #include <Kismet/GameplayStatics.h>
 #include <GameFramework/InputSettings.h>
 #include <Blueprint/UserWidget.h>
@@ -70,7 +74,7 @@ void AMainLevelScript::LockCelestialBody(ACelestialBody* Body)
 	ThisInstance->CelestialBodyLockedDelegate.Broadcast(Body);
 }
 
-FActionDoneSignature& AMainLevelScript::AddActionPrompt(FName Action, FText Tag, float Interval)
+FActionSignature& AMainLevelScript::AddActionPrompt(FName Action, FText Tag, float Interval)
 {
 	ThisInstance->SetActionPrompt({ Action, Tag, Interval });
 	ThisInstance->ActionStack.Add({ Action, Tag, Interval });
@@ -102,8 +106,6 @@ void AMainLevelScript::BeginPlay()
 	check(ThisInstance == this);
 	Super::BeginPlay();
 
-	UMainSaveGame::SaveTimestamp = FDateTime::UtcNow().ToUnixTimestamp();
-
 	UJavascriptComponent* Comp = NewObject<UJavascriptComponent>(this, TEXT("MainScript"));
 	Comp->ScriptSourceFile = "main.js";
 	Comp->RegisterComponent();
@@ -111,6 +113,29 @@ void AMainLevelScript::BeginPlay()
 	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScript::OnPaused);
 	InputComponent->BindAction("Menu", IE_Pressed, this, &AMainLevelScript::OnMenuOpened);
 	InputComponent->BindAction("Enter", IE_Pressed, this, &AMainLevelScript::OnEntered);
+
+	// 第一次进入游戏，播放开场动画
+	if (AMainPlayerState::Instance()->GetTotalTime() < 1.f)
+	{
+		ULevelSequence* SequenceAsset = Cast<ULevelSequence>(FStringAssetReference("LevelSequence'/Game/Cinematics/LS1.LS1'").TryLoad());
+		ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), SequenceAsset, FMovieSceneSequencePlaybackSettings(), LevelSequence);
+		SequencePlayer->OnFinished.AddDynamic(this, &AMainLevelScript::OnSequenceFinshed);
+		SequencePlayer->Play();
+		// TODO 改成外部配置
+		CinematicsDelegate.Broadcast(TEXT("cinematics_1"));
+	}
+	else
+	{
+		GetEarthBase()->CreateMainChar();
+		PlayingDelegate.Broadcast();
+	}
+
+	// 加载游戏存档
+	UMainSaveGame::SaveTimestamp = FDateTime::UtcNow().ToUnixTimestamp();
+	if (UMainSaveGame::IsNeedLoad())
+	{
+		UMainSaveGame::LoadAr();
+	}
 }
 
 void AMainLevelScript::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -150,8 +175,15 @@ void AMainLevelScript::SetActionPrompt(const ActionInfo& Info)
 
 void AMainLevelScript::OnPaused()
 {
-	// 弹出暂停界面
-	PausedDelegate.Broadcast();
+	if (LevelSequence)
+	{
+		OnSequenceFinshed();
+	}
+	else
+	{
+		// 弹出暂停界面
+		PausedDelegate.Broadcast();
+	}
 }
 
 void AMainLevelScript::OnMenuOpened()
@@ -172,6 +204,19 @@ void AMainLevelScript::OnActionPressed()
 void AMainLevelScript::OnActionReleased()
 {
 	ActionReleasedDelegate.Broadcast();
+}
+
+void AMainLevelScript::OnSequenceFinshed()
+{
+	if (LevelSequence)
+	{
+		LevelSequence->Destroy();
+		LevelSequence = nullptr;
+
+		CinematicsDelegate.Broadcast(TEXT(""));
+		GetEarthBase()->CreateMainChar();
+		PlayingDelegate.Broadcast();
+	}
 }
 
 void AMainLevelScript::ActionDone()

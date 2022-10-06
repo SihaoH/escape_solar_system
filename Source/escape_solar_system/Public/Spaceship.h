@@ -20,9 +20,10 @@ public:
 	ASpaceship();
 
 	void SetPilot(class AMainCharacter* Pilot);
-	virtual FText GetLabelName() const override;
+	virtual FText GetLabelName() const override { return Name; }
 	void ResetProperties();
 
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE class AMainCharacter* GetPilot() const { return CurrentPilot; }
 
 	UFUNCTION(BlueprintCallable)
@@ -35,7 +36,7 @@ public:
 	virtual float GetGravityAccel() const override;
 
 	UFUNCTION(BlueprintPure)
-	void GetLocationInfo(FText& Planet, FVector& Loction) const override { IControllable::GetLocationInfo(Planet, Loction); }
+	void GetLocationInfo(FText& Site, FVector& Loction) const override { IControllable::GetLocationInfo(Site, Loction); }
 
 	UFUNCTION()
 	void OnHpChanged(float Delta);
@@ -48,6 +49,7 @@ protected:
 	virtual void Controlled() override;
 	virtual void UnControlled() override;
 	virtual void Thrusting(FVector Force) override;
+	virtual class UCameraComponent* GetCameraComponent() override { return FollowCamera; }
 	virtual void GravityActed_Implementation(FVector Direction, float Accel) override;
 	virtual void GravityActedGlobally_Implementation(FVector Direction, float Accel) override;
 	virtual void BuoyancyActed_Implementation(FVector Force) override;
@@ -69,6 +71,12 @@ protected:
 	void UpdateMass();
 
 public:
+	/** 飞船名称，因为需要[目标指示器]，所添加这两个属性和天体保持一致 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UTexture2D> Icon;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	class UBackpackComponent* Backpack = nullptr;
 

@@ -115,14 +115,17 @@ class LockedIndicator extends React.Component {
 class View extends React.Component {
     constructor(props) {
         super(props);
-        this.helper = new CelestialIndicatorHelper();
+        this.helper = new TargetIndicatorHelper();
 
         this.state = {
             lookedBody: null,
             lockedBody: null,
+            spaceship: null,
             lookedLayout: { Position: { X: 0, Y: 0 }, Angle: -1 },
             lockedLayout: { Position: { X: 0, Y: 0 }, Angle: -1 },
-            lockedInfo: { Dist: 0, Speed: 0 }
+            shipLayout: { Position: { X: 0, Y: 0 }, Angle: -1 },
+            lockedInfo: { Dist: 0, Speed: 0 },
+            shipInfo: { Dist: 0, Speed: 0 }
         };
 
         MainLevelScript.Instance().CelestialBodyLookedDelegate.Add(Body => {
@@ -139,13 +142,25 @@ class View extends React.Component {
         let self = this;
         function tick() {
             if (self.state.lookedBody) {
-                let layout = self.helper.GetWidgetPosition(self.state.lookedBody);
-                self.setState({ lookedLayout: layout });
+                self.setState({ lookedLayout: self.helper.GetWidgetPosition(self.state.lookedBody) });
             }
             if (self.state.lockedBody) {
-                let layout = self.helper.GetWidgetPosition(self.state.lockedBody);
-                self.setState({ lockedLayout: layout, lockedInfo: self.helper.GetLockInfo(self.state.lockedBody) });
+                self.setState({
+                    lockedLayout: self.helper.GetWidgetPosition(self.state.lockedBody),
+                    lockedInfo: self.helper.GetLockInfo(self.state.lockedBody)
+                });
             }
+
+            if (self.state.spaceship !== MainLevelScript.GetSpaceship()) {
+                self.setState({ spaceship: MainLevelScript.GetSpaceship() });
+            }
+            if (self.state.spaceship) {
+                self.setState({
+                    shipLayout: self.helper.GetWidgetPosition(self.state.spaceship),
+                    shipInfo: self.helper.GetLockInfo(self.state.lockedBody)
+                });
+            }
+
             if (IsVaild) process.nextTick(tick);
         }
         tick();
@@ -169,8 +184,8 @@ class View extends React.Component {
                     },
                     bAutoSize: true
                 },
-                angle: this.state.lookedLayout.Angle,
-                owner: this.state.lookedBody
+                owner: this.state.lookedBody,
+                angle: this.state.lookedLayout.Angle
             }),
             this.state.lockedBody && React.createElement(LockedIndicator, {
                 Slot: {
@@ -181,9 +196,22 @@ class View extends React.Component {
                     },
                     bAutoSize: true
                 },
-                angle: this.state.lockedLayout.Angle,
                 owner: this.state.lockedBody,
+                angle: this.state.lockedLayout.Angle,
                 info: this.state.lockedInfo
+            }),
+            this.state.spaceship && !this.state.spaceship.GetPilot() && React.createElement(LockedIndicator, {
+                Slot: {
+                    Position: this.state.shipLayout.Position,
+                    LayoutData: {
+                        Anchors: EAnchors.TopLeft,
+                        Alignment: { X: 0.5, Y: 0.5 }
+                    },
+                    bAutoSize: true
+                },
+                owner: this.state.spaceship,
+                angle: this.state.shipLayout.Angle,
+                info: this.state.shipInfo
             })
         );
     }

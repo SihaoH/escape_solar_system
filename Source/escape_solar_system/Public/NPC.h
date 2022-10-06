@@ -8,19 +8,33 @@
 #include "GameFramework/Pawn.h"
 #include "NPC.generated.h"
 
+USTRUCT(BlueprintType)
+struct FOptionData
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** 升级所需的点数 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName Row;
+
+	/** 升级所需的物品 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText Text;
+};
+
 /** 对话数据 */
 USTRUCT(BlueprintType)
 struct FTalkData : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
-	// 对白文本
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	/** 对白文本 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
 	FText Text;
 
-	// 对话选项，有三种情况：1.选项有文本，需要玩家点击选择 2.选项只有一个且无文本，自动跳到对应的行 3.无选项，即结束对话
+	/** 对话选项，有三种情况：1.选项有文本，需要玩家点击选择 2.选项只有一个且无文本，自动跳到对应的行 3.无选项，即结束对话 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<FName, FText> Options;
+	TArray<FOptionData> Options;
 };
 
 UCLASS()
@@ -39,7 +53,7 @@ public:
 	FText GetText(FName Index) const;
 
 	UFUNCTION(BlueprintPure)
-	void GetOptions(FName Index, TMap<FName, FText>& OutOptions) const;
+	void GetOptions(FName Index, TArray<FOptionData>& OutOptions) const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -47,6 +61,9 @@ protected:
 	virtual void GravityActedGlobally_Implementation(FVector Direction, float Accel) override;
 	virtual void BuoyancyActed_Implementation(FVector Force) override;
 	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
+
+private:
+	FORCEINLINE FFormatNamedArguments GetVariableArguments() const;
 
 private:
 	UPROPERTY(Category = Pawn, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

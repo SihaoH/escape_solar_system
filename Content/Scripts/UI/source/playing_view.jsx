@@ -9,9 +9,11 @@ const {F_Sans, T_Rect} = require('../style')
 const PointBar = require('./point_bar')
 const MessageListView = require('./message_listview')
 const EngineToward = require('./engine_toward')
-const CelestialIndicator = require('./celestial_indicator')
+const TargetIndicator = require('./target_indicator')
 
 const T_Keycap = Texture2D.Load('/Game/UI/Icon/T_Keycap64x64')
+
+let ThisWidget = null
 
 class PlayingView extends React.Component {
     constructor(props) {
@@ -49,7 +51,7 @@ class PlayingView extends React.Component {
             this.setState({enginInfo: { max: player.Engine.Power, upDown: player.Engine.UpForce, frontBack: player.Engine.ForwardForce }})
 
             let loc_info = player.GetLocationInfo()
-            this.setState({locationInfo: `${loc_info.Planet} (${(loc_info.Loction.X/100).toFixed(0)}, ${(loc_info.Loction.Y/100).toFixed(0)}, ${(loc_info.Loction.Z/100).toFixed(0)})` })
+            this.setState({locationInfo: `${loc_info.Site} (${(loc_info.Loction.X/100).toFixed(0)}, ${(loc_info.Loction.Y/100).toFixed(0)}, ${(loc_info.Loction.Z/100).toFixed(0)})` })
 
             this.setState({basicInfo: [
                 { icon: "T_Temperature32x32", text: `${Utils.tr("温度")}: ${Utils.num2Txt(player.Body.CurrentTemp)} ℃`, color: player.Body.CurrentTemp > player.Body.ShieldHeat ? Utils.color("#f00") : player.Body.CurrentTemp < player.Body.ShieldCold ? Utils.color("#00f") : Utils.color("#fff") },
@@ -86,7 +88,9 @@ class PlayingView extends React.Component {
             }
         })
         MainLevelScript.Instance().ActionReleasedDelegate.Add(() => {
-            this.uActionBg.SetRenderTranslation({ X: 0, Y: this.uActionBg.GetCachedGeometry().GetLocalSize().Y })
+            if (this.uActionBg) {
+                this.uActionBg.SetRenderTranslation({ X: 0, Y: this.uActionBg.GetCachedGeometry().GetLocalSize().Y })
+            }
             if (this.actionAnime) {
                 this.actionAnime.destroy()
                 this.actionAnime = null
@@ -120,10 +124,8 @@ class PlayingView extends React.Component {
         ]
     }
 
-    componentDidMount() {
-    }
-
     componentWillUnmount() {
+        ThisWidget = null
         clearInterval(this.timer)
     }
 
@@ -410,7 +412,7 @@ class PlayingView extends React.Component {
                 </uBorder>
 
                 /* 星球信息 */
-                <CelestialIndicator
+                <TargetIndicator
                     Slot={{
                         LayoutData: {
                             Anchors: EAnchors.FillAll,
@@ -422,4 +424,9 @@ class PlayingView extends React.Component {
     }
 }
 
-module.exports = ReactUMG.wrap(<PlayingView/>)
+module.exports = function() {
+    if (!ThisWidget) {
+        ThisWidget = ReactUMG.wrap(<PlayingView/>)
+    }
+    return ThisWidget
+}

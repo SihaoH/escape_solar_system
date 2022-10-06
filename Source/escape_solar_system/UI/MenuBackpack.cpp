@@ -9,6 +9,7 @@
 #include "BodyComponent.h"
 #include "EngineComponent.h"
 #include "MainLibrary.h"
+#include "MainLevelScript.h"
 
 void UMenuBackpackHelper::GetListViewItems(UBackpackComponent* InBp, TArray<class UItemDataObject*>& OutItems) const
 {

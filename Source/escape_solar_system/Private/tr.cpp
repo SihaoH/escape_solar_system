@@ -55,8 +55,10 @@ TMap<FString, FText> UMainLibrary::TranslationMap = {
 	ELEMENT("Space", "太空"),
 
 	// 以下来自UI界面
+	ELEMENT("Escape: Solar System", "逃离：太阳系"),
 	ELEMENT("confirm", "确定"),
 	ELEMENT("cancel", "取消"),
+	ELEMENT("make", "制作"),
 	ELEMENT("temperature", "温度"),
 	ELEMENT("fluid pressure", "流体压力"),
 	ELEMENT("mass", "质量"),

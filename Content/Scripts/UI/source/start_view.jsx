@@ -31,9 +31,13 @@ class StartView extends React.Component {
             if (idx === 0) { // 继续
                 this.openMainLv(true)
             } else if (idx === 1) { // 新游戏
-                ConfirmDialog.open(Utils.tr("提示"), Utils.tr("开始新游戏会覆盖已有存档"), () => {
+                if (MainSaveGame.HasAr()) {
+                    ConfirmDialog.open(Utils.tr("提示"), Utils.tr("开始新游戏会覆盖已有存档"), () => {
+                        this.openMainLv(false)
+                    })
+                } else {
                     this.openMainLv(false)
-                })
+                }
             } else if (idx === 2) { // 设置
                 // TODO
             } else if (idx === 3) { // 退出游戏
@@ -77,7 +81,11 @@ class StartView extends React.Component {
                         FontObject: F_Sans,
                         TypefaceFontName: "Bold",
                         Size: 96,
-                        LetterSpacing: 100
+                        LetterSpacing: 100,
+                        OutlineSettings: {
+                            OutlineSize: 4,
+                            OutlineColor: Utils.rgba(0, 0, 0, 0.6)
+                        }
                     }}
                     ColorAndOpacity={{ SpecifiedColor: Utils.color("#CCF") }}
                     Text={ Utils.tr("逃离：太阳系") }
@@ -98,7 +106,7 @@ class StartView extends React.Component {
                         WidgetStyle={ButtonStyle}
                         IsFocusable={false}
                         OnReleased={() => {
-                            this.handleAction(idx)
+                            this.handleAction(idx + (this.options.length > 3 ? 0 : 1))
                         }}
                     >
                         <uTextBlock

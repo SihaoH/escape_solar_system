@@ -4,6 +4,7 @@
 #include "MainLevelScript.h"
 #include "BackpackComponent.h"
 #include "MainCharacter.h"
+#include "NPC.h"
 #include "Spaceship.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/SphereComponent.h>
@@ -21,12 +22,19 @@ AEarthBase::AEarthBase()
 	// FClassFinder只能在构造函数中调用
 	BP_MainCharClass = ConstructorHelpers::FClassFinder<AMainCharacter>(TEXT("Blueprint'/Game/MainBP/Blueprints/BP_MainCharacter.BP_MainCharacter_C'")).Class;
 	BP_SpaceshipClass = ConstructorHelpers::FClassFinder<ASpaceship>(TEXT("Blueprint'/Game/MainBP/Blueprints/BP_Spaceship.BP_Spaceship_C'")).Class;
+	BP_GuideNPCClass = ConstructorHelpers::FClassFinder<ANPC>(TEXT("Blueprint'/Game/MainBP/Blueprints/BP_GuideNPC.BP_GuideNPC_C'")).Class;
 }
 
 void AEarthBase::CreateMainChar()
 {
 	check(!AMainLevelScript::GetMainChar());
 	GetWorld()->SpawnActor<AMainCharacter>(BP_MainCharClass, GetActorLocation(), GetActorRotation());
+	if (GuideNPC == nullptr)
+	{
+		GuideNPC = GetWorld()->SpawnActor<ANPC>(BP_GuideNPCClass, GetActorLocation(), GetActorRotation());
+		AMainLevelScript::GetMainChar()->SetTalkableNPC(GuideNPC);
+		AMainLevelScript::Instance()->TalkOpenedDelegate.Broadcast();
+	}
 }
 
 void AEarthBase::CreateSpaceship()

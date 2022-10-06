@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Interface.h"
+#include <UObject/Interface.h>
+#include <Camera/CameraComponent.h>
 #include "Controllable.generated.h"
 
 UINTERFACE(NotBlueprintable, meta = (CannotImplementInterfaceInBlueprint))
@@ -22,10 +23,7 @@ class ESCAPE_SOLAR_SYSTEM_API IControllable
 public:
 	virtual FText GetLabelName() const = 0;
 	virtual float GetGravityAccel() const;
-	virtual void GetLocationInfo(FText& Planet, FVector& Loction) const;
-
-	/** 获取可显示的坐标值（单位m） */
-	virtual void GetLocation(int& X, int& Y, int& Z);
+	virtual void GetLocationInfo(FText& Site, FVector& Loction) const;
 
 	template <typename TargetClass>
 	FORCEINLINE TargetClass* FindByLineTrace(float Distance);
@@ -33,10 +31,11 @@ public:
 	virtual void Controlled() {};
 	virtual void UnControlled() {};
 	virtual void Thrusting(FVector Force) {};
+	virtual class UCameraComponent* GetCameraComponent() = 0;
 
 	void ChangePawn(class APawn* NewPawn);
-	void LookPlanet();
-	void LockPlanet();
+	void CheckCelestialBody();
+	void LockCelestialBody();
 
 	static void ClearUp();
 
@@ -51,10 +50,9 @@ template<typename TargetClass>
 FORCEINLINE TargetClass* IControllable::FindByLineTrace(float Distance)
 {
 	AActor* Self = Cast<AActor>(this);
-	const APlayerController* Controller = UGameplayStatics::GetPlayerController(Self->GetWorld(), 0);
-	const APlayerCameraManager* CameraManager = Controller->PlayerCameraManager;
-	const FVector Start = CameraManager->GetCameraLocation();
-	const FVector End = Start + CameraManager->GetTransformComponent()->GetForwardVector() * Distance;
+	const UCameraComponent* Camera = GetCameraComponent();
+	const FVector Start = Camera->GetComponentLocation();
+	const FVector End = Start + Camera->GetForwardVector() * Distance;
 	FHitResult OutHit;
 	TargetClass* HitTarget = nullptr;
 	if (UKismetSystemLibrary::LineTraceSingle(

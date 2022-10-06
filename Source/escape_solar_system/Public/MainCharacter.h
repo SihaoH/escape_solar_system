@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "GravityMovementComponent.h"
-#include "MainLevelScript.h"
 #include "MassActorInterface.h"
 #include "Controllable.h"
 #include "CoreMinimal.h"
@@ -37,9 +35,10 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	class ANPC* GetTalkableNPC() const { return TalkableNPC; }
+	void SetTalkableNPC(class ANPC* NPC) { TalkableNPC = NPC; }
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE float GetMass() const { return Movement->Mass; }
+	FORCEINLINE float GetMass() const;
 
 	virtual FVector GetVelocity() const override;
 
@@ -50,12 +49,13 @@ public:
 	virtual float GetGravityAccel() const override;
 
 	UFUNCTION(BlueprintPure)
-	void GetLocationInfo(FText& Planet, FVector& Loction) const override { IControllable::GetLocationInfo(Planet, Loction); }
+	void GetLocationInfo(FText& Site, FVector& Loction) const override { IControllable::GetLocationInfo(Site, Loction); }
 
 protected:
 	virtual void Serialize(FArchive& Ar) override;
 	virtual void Controlled() override;
 	virtual void UnControlled() override;
+	virtual class UCameraComponent* GetCameraComponent() override { return FollowCamera; }
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

@@ -9,9 +9,11 @@ const { F_Sans, T_Rect } = require('../style');
 const PointBar = require('./point_bar');
 const MessageListView = require('./message_listview');
 const EngineToward = require('./engine_toward');
-const CelestialIndicator = require('./celestial_indicator');
+const TargetIndicator = require('./target_indicator');
 
 const T_Keycap = Texture2D.Load('/Game/UI/Icon/T_Keycap64x64');
+
+let ThisWidget = null;
 
 class PlayingView extends React.Component {
     constructor(props) {
@@ -49,10 +51,10 @@ class PlayingView extends React.Component {
             this.setState({ enginInfo: { max: player.Engine.Power, upDown: player.Engine.UpForce, frontBack: player.Engine.ForwardForce } });
 
             let loc_info = player.GetLocationInfo();
-            this.setState({ locationInfo: `${loc_info.Planet} (${(loc_info.Loction.X / 100).toFixed(0)}, ${(loc_info.Loction.Y / 100).toFixed(0)}, ${(loc_info.Loction.Z / 100).toFixed(0)})` });
+            this.setState({ locationInfo: `${loc_info.Site} (${(loc_info.Loction.X / 100).toFixed(0)}, ${(loc_info.Loction.Y / 100).toFixed(0)}, ${(loc_info.Loction.Z / 100).toFixed(0)})` });
 
             this.setState({ basicInfo: [{ icon: "T_Temperature32x32", text: `${Utils.tr("温度")}: ${Utils.num2Txt(player.Body.CurrentTemp)} ℃`, color: player.Body.CurrentTemp > player.Body.ShieldHeat ? Utils.color("#f00") : player.Body.CurrentTemp < player.Body.ShieldCold ? Utils.color("#00f") : Utils.color("#fff") }, { icon: "T_Pressure32x32", text: `${Utils.tr("流体压力")}: ${Utils.num2Txt(player.Body.CurrentPress)} kPa`, color: player.Body.CurrentPress > player.Body.ShieldPress ? Utils.color("#f00") : Utils.color("#fff") }, { icon: "T_Mass32x32", text: `${Utils.tr("质量")}: ${Utils.num2Txt(player.GetMass())} kg`, color: Utils.color("#fff") }, { icon: "T_Gravity32x32", text: `${Utils.tr("重力")}: ${Utils.num2Txt(player.GetGravityAccel() / 100, 1)} m/s²`, color: Utils.color("#fff") }, { icon: "T_Thrust32x32", text: `${Utils.tr("推力MAX")}: ${Utils.num2Txt(player.Engine.Power)} N`, color: Utils.color("#fff") }] });
-        }, 200);
+        }, 50);
         MainLevelScript.Instance().ActionAddedDelegate.Add((Key, Tag, Interval) => {
             this.setState({ actionPrompt: { key: Key, tag: Tag, interval: Interval } });
         });
@@ -79,7 +81,9 @@ class PlayingView extends React.Component {
             }
         });
         MainLevelScript.Instance().ActionReleasedDelegate.Add(() => {
-            this.uActionBg.SetRenderTranslation({ X: 0, Y: this.uActionBg.GetCachedGeometry().GetLocalSize().Y });
+            if (this.uActionBg) {
+                this.uActionBg.SetRenderTranslation({ X: 0, Y: this.uActionBg.GetCachedGeometry().GetLocalSize().Y });
+            }
             if (this.actionAnime) {
                 this.actionAnime.destroy();
                 this.actionAnime = null;
@@ -96,9 +100,8 @@ class PlayingView extends React.Component {
         this.shipKeys = [{ keys: this.helper.GetAxisKeys("MoveForward"), desc: this.helper.GetShipOperDesc("MoveForward") }, { keys: this.helper.GetAxisKeys("MoveRight"), desc: this.helper.GetShipOperDesc("MoveRight") }, { keys: this.helper.GetAxisKeys("MoveUp"), desc: this.helper.GetShipOperDesc("MoveUp") }, { keys: this.helper.GetActionKeys("Hold"), desc: this.helper.GetShipOperDesc("Hold") }, { keys: this.helper.GetAxisKeys("Turn"), desc: this.helper.GetShipOperDesc("Turn") }, { keys: this.helper.GetAxisKeys("LookUp"), desc: this.helper.GetShipOperDesc("LookUp") }, { keys: this.helper.GetActionKeys("Lock"), desc: this.helper.GetShipOperDesc("Lock") }, { keys: this.helper.GetActionKeys("Drive"), desc: this.helper.GetShipOperDesc("Drive") }];
     }
 
-    componentDidMount() {}
-
     componentWillUnmount() {
+        ThisWidget = null;
         clearInterval(this.timer);
     }
 
@@ -399,7 +402,7 @@ class PlayingView extends React.Component {
                 )
             ),
             '/* \u661F\u7403\u4FE1\u606F */',
-            React.createElement(CelestialIndicator, {
+            React.createElement(TargetIndicator, {
                 Slot: {
                     LayoutData: {
                         Anchors: EAnchors.FillAll
@@ -410,4 +413,9 @@ class PlayingView extends React.Component {
     }
 }
 
-module.exports = ReactUMG.wrap(React.createElement(PlayingView, null));
+module.exports = function () {
+    if (!ThisWidget) {
+        ThisWidget = ReactUMG.wrap(React.createElement(PlayingView, null));
+    }
+    return ThisWidget;
+};

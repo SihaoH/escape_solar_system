@@ -1,6 +1,7 @@
 ﻿// Copyright 2020 H₂S. All Rights Reserved.
 
 #include "NPC.h"
+#include "MainPlayerState.h"
 #include <Components/SphereComponent.h>
 #include <GameFramework/PawnMovementComponent.h>
 #include <GameFramework/FloatingPawnMovement.h>
@@ -29,10 +30,10 @@ FText ANPC::GetText(FName Index) const
 	if (Index.IsNone()) {
 		return FText();
 	}
-	return TalkData->FindRow<FTalkData>(Index, FString())->Text;
+	return FText::Format(TalkData->FindRow<FTalkData>(Index, FString())->Text, GetVariableArguments());
 }
 
-void ANPC::GetOptions(FName Index, TMap<FName, FText>& OutOptions) const
+void ANPC::GetOptions(FName Index, TArray<FOptionData>& OutOptions) const
 {
 	OutOptions = TalkData->FindRow<FTalkData>(Index, FString())->Options;
 }
@@ -71,4 +72,11 @@ void ANPC::DampingChanged_Implementation(float Linear, float Angular)
 		BI->AngularDamping = Angular;
 		BI->UpdateDampingProperties();
 	}
+}
+
+FFormatNamedArguments ANPC::GetVariableArguments() const
+{
+	FFormatNamedArguments Args;
+	Args.Add(TEXT("DeathCount"), FText::AsNumber(AMainPlayerState::Instance()->GetDeathCount() + 789));
+	return Args;
 }

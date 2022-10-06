@@ -35,8 +35,10 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	TSubclassOf<AMainCharacter> BP_MainCharClass;
-	TSubclassOf<ASpaceship> BP_SpaceshipClass;
+	TSubclassOf<class AMainCharacter> BP_MainCharClass;
+	TSubclassOf<class ASpaceship> BP_SpaceshipClass;
+	TSubclassOf<class ANPC> BP_GuideNPCClass;
+	TObjectPtr<class ANPC> GuideNPC;
 
 	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* StaticMesh = nullptr;
