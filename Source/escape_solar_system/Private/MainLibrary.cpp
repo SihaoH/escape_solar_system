@@ -8,6 +8,7 @@ UDataTable* UMainLibrary::DT_ItemInfo = nullptr;
 
 UDataTable* UMainLibrary::DT_TechDemand = nullptr;
 UDataTable* UMainLibrary::DT_TechValue = nullptr;
+TMap<FString, FText> UMainLibrary::TranslationMap;
 
 UMainLibrary::UMainLibrary()
 {
@@ -21,6 +22,18 @@ UMainLibrary::UMainLibrary()
 	check(DT_TechDemand);
 	DT_TechValue = Finder_Value.Object;
 	check(DT_TechValue);
+
+	ConstructorHelpers::FObjectFinder<UDataTable> Finder_Tr(TEXT("DataTable'/Game/DataTable/DT_Tr.DT_Tr'"));
+	auto DT_Tr = Finder_Tr.Object;
+	if (DT_Tr)
+	{
+		TArray<FTranslatedData*> TrList;
+		DT_Tr->GetAllRows<FTranslatedData>(FString(), TrList);
+		for (auto Item : TrList)
+		{
+			TranslationMap.Add(Item->Source, Item->Text);
+		}
+	}
 }
 
 FText UMainLibrary::Translate(const FString& Str)

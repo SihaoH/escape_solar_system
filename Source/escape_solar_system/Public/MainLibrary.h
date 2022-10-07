@@ -8,6 +8,21 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MainLibrary.generated.h"
 
+/** 翻译数据 */
+USTRUCT(BlueprintType)
+struct FTranslatedData : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** 原文 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString Source;
+
+	/** 翻译后文本 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+	FText Text;
+};
+
 UENUM(BlueprintType)
 enum class EPawnType : uint8
 {

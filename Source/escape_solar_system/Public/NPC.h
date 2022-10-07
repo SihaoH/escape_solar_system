@@ -48,7 +48,7 @@ struct FSpeakData : public FTableRowBase
 	FText Text;
 
 	/** 发言显示时长 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Time = 3.f;
 };
 
