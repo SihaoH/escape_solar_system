@@ -53,27 +53,27 @@ private:
 
 protected:
 	/** 星球类型 */
-	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "天体", EditAnywhere, BlueprintReadWrite)
 	ECelestialBodyType Type = ECelestialBodyType::Planet;
 
 	/** 星球名称 */
-	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "天体", EditAnywhere, BlueprintReadWrite)
 	FText Name;
 
 	/** 星球图标 */
-	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "天体", EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> Icon;
 
 	/** 自转的角速度，以角度为单位，单位°/s */
-	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "天体", EditAnywhere, BlueprintReadWrite)
 	float RotationSpeed = 0.0f;
 
 	/** 星球的表面重力加速度，单位cm/s² */
-	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "天体", EditAnywhere, BlueprintReadWrite)
 	float SurfaceGravity = 1.0f;
 
 	/** 星球的半径，单位cm，会决定对物体的引力；如不指定，则自动获取网格体的大小，可能会以最高峰为准 */
-	UPROPERTY(Category = "Planet", EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "天体", EditAnywhere, BlueprintReadWrite)
 	float SelfRadius = -1.f;
 
 private:
@@ -83,9 +83,9 @@ private:
 	FTransform SavedTransform;
 
 	/** 和旋转中心的距离 */
-	UPROPERTY(Category = "Planet", VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "天体", VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float DistanceRadius = 0.0f;
 
-	UPROPERTY(Category = "Planet", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* GravityZone = nullptr;
+	UPROPERTY(Category = "天体", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USphereComponent> GravityZone;
 };

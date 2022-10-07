@@ -37,6 +37,21 @@ struct FTalkData : public FTableRowBase
 	TArray<FOptionData> Options;
 };
 
+/** 自发言数据 */
+USTRUCT(BlueprintType)
+struct FSpeakData : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** 发言文本 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+	FText Text;
+
+	/** 发言显示时长 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+	float Time = 3.f;
+};
+
 UCLASS()
 class ESCAPE_SOLAR_SYSTEM_API ANPC : public APawn, public IMassActorInterface
 {
@@ -63,19 +78,37 @@ protected:
 	virtual void DampingChanged_Implementation(float Linear, float Angular) override;
 
 private:
+	UFUNCTION()
+	void OnSpeakZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnSpeakZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	void SpeakNext();
+	
 	FORCEINLINE FFormatNamedArguments GetVariableArguments() const;
 
-private:
-	UPROPERTY(Category = Pawn, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+protected:
+	UPROPERTY(Category = "NPC", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
 
-	UPROPERTY(Category = Pawn, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "NPC", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USphereComponent> SpeakZone;
+
+	UPROPERTY(Category = "NPC", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UPawnMovementComponent> MovementComponent;
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bSimulatePhysics = false;
+	FTimerHandle SpeakTimer;
+	TArray<FSpeakData*> SpeakList;
+
+	UPROPERTY(Category = "NPC", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FText Name;
 
-	UPROPERTY(EditAnywhere, meta = (RequiredAssetDataTags = "RowStructure=TalkData"))
+	UPROPERTY(Category = "NPC", EditAnywhere, meta = (RequiredAssetDataTags = "RowStructure=TalkData"))
 	TObjectPtr<class UDataTable> TalkData;
+
+	UPROPERTY(Category = "NPC", EditAnywhere, meta = (RequiredAssetDataTags = "RowStructure=SpeakData"))
+	TObjectPtr<class UDataTable> SpeakData;
 };

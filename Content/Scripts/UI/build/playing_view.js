@@ -26,7 +26,8 @@ class PlayingView extends React.Component {
             actionPrompt: null,
             locationInfo: "",
             enginInfo: { max: 0, upDown: 0, frontBack: 0 },
-            basicInfo: []
+            basicInfo: [],
+            speakData: null
         };
 
         this.timer = setInterval(() => {
@@ -55,6 +56,12 @@ class PlayingView extends React.Component {
 
             this.setState({ basicInfo: [{ icon: "T_Temperature32x32", text: `${Utils.tr("温度")}: ${Utils.num2Txt(player.Body.CurrentTemp)} ℃`, color: player.Body.CurrentTemp > player.Body.ShieldHeat ? Utils.color("#f00") : player.Body.CurrentTemp < player.Body.ShieldCold ? Utils.color("#00f") : Utils.color("#fff") }, { icon: "T_Pressure32x32", text: `${Utils.tr("流体压力")}: ${Utils.num2Txt(player.Body.CurrentPress)} kPa`, color: player.Body.CurrentPress > player.Body.ShieldPress ? Utils.color("#f00") : Utils.color("#fff") }, { icon: "T_Mass32x32", text: `${Utils.tr("质量")}: ${Utils.num2Txt(player.GetMass())} kg`, color: Utils.color("#fff") }, { icon: "T_Gravity32x32", text: `${Utils.tr("重力")}: ${Utils.num2Txt(player.GetGravityAccel() / 100, 1)} m/s²`, color: Utils.color("#fff") }, { icon: "T_Thrust32x32", text: `${Utils.tr("推力MAX")}: ${Utils.num2Txt(player.Engine.Power)} N`, color: Utils.color("#fff") }] });
         }, 50);
+        MainLevelScript.Instance().NPCSpeakDelegate.Add((Name, Text, Time) => {
+            this.setState({ speakData: { name: Name, text: Text } });
+            setTimeout(() => {
+                this.setState({ speakData: null });
+            }, Time * 1000);
+        });
         MainLevelScript.Instance().ActionAddedDelegate.Add((Key, Tag, Interval) => {
             this.setState({ actionPrompt: { key: Key, tag: Tag, interval: Interval } });
         });
@@ -377,7 +384,7 @@ class PlayingView extends React.Component {
                         },
                         bAutoSize: true
                     },
-                    Padding: Utils.ltrb(10, 10),
+                    Padding: Utils.ltrb(10),
                     Background: {
                         TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.2) }
                     }
@@ -408,7 +415,40 @@ class PlayingView extends React.Component {
                         Anchors: EAnchors.FillAll
                     }
                 }
-            })
+            }),
+            '/* NPC\u81EA\u53D1\u8A00 */',
+            this.state.speakData && React.createElement(
+                'uBorder',
+                {
+                    Slot: {
+                        LayoutData: {
+                            Anchors: EAnchors.Bottom,
+                            Alignment: { X: 0.5, Y: 1.0 },
+                            Offsets: Utils.ltrb(0, -150, 0, 0)
+                        },
+                        bAutoSize: true
+                    },
+                    Padding: Utils.ltrb(10),
+                    Background: {
+                        TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.2) }
+                    }
+                },
+                React.createElement('uTextBlock', {
+                    Slot: { VerticalAlignment: EVerticalAlignment.VAlign_Center },
+                    Font: {
+                        FontObject: F_Sans,
+                        TypefaceFontName: "Bold",
+                        Size: 16,
+                        OutlineSettings: {
+                            OutlineSize: 1,
+                            OutlineColor: Utils.rgba(0, 0, 0, 0.6)
+                        }
+                    },
+                    WrapTextAt: 1200,
+                    ColorAndOpacity: { SpecifiedColor: Utils.color("#fff") },
+                    Text: `${this.state.speakData.name}: ${this.state.speakData.text}`
+                })
+            )
         );
     }
 }

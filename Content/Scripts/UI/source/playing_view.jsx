@@ -26,7 +26,8 @@ class PlayingView extends React.Component {
             actionPrompt: null,
             locationInfo: "",
             enginInfo: { max: 0, upDown: 0, frontBack: 0 },
-            basicInfo: []
+            basicInfo: [],
+            speakData: null,
         }
 
         this.timer = setInterval(() => {
@@ -61,6 +62,10 @@ class PlayingView extends React.Component {
                 { icon: "T_Thrust32x32", text: `${Utils.tr("推力MAX")}: ${Utils.num2Txt(player.Engine.Power)} N`, color: Utils.color("#fff") },
             ]})
         }, 50)
+        MainLevelScript.Instance().NPCSpeakDelegate.Add((Name, Text, Time) => {
+            this.setState({ speakData: {name: Name, text: Text} })
+            setTimeout(() => { this.setState({ speakData: null }) }, Time * 1000)
+        })
         MainLevelScript.Instance().ActionAddedDelegate.Add((Key, Tag, Interval) => {
             this.setState({ actionPrompt: { key: Key, tag: Tag, interval: Interval } })
         })
@@ -388,7 +393,7 @@ class PlayingView extends React.Component {
                         },
                         bAutoSize: true
                     }}
-                    Padding={ Utils.ltrb(10, 10) }
+                    Padding={ Utils.ltrb(10) }
                     Background={{
                         TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.2) }
                     }}
@@ -419,6 +424,39 @@ class PlayingView extends React.Component {
                         }
                     }}
                 />
+
+                /* NPC自发言 */
+                { this.state.speakData &&
+                <uBorder
+                    Slot={{
+                        LayoutData: {
+                            Anchors: EAnchors.Bottom,
+                            Alignment: { X: 0.5, Y: 1.0 },
+                            Offsets: Utils.ltrb(0, -150, 0, 0)
+                        },
+                        bAutoSize: true
+                    }}
+                    Padding={ Utils.ltrb(10) }
+                    Background={{
+                        TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.2) }
+                    }}
+                >
+                    <uTextBlock
+                        Slot={{ VerticalAlignment: EVerticalAlignment.VAlign_Center }}
+                        Font={{
+                            FontObject: F_Sans,
+                            TypefaceFontName: "Bold",
+                            Size: 16,
+                            OutlineSettings: {
+                                OutlineSize: 1,
+                                OutlineColor: Utils.rgba(0, 0, 0, 0.6)
+                            }
+                        }}
+                        WrapTextAt={1200}
+                        ColorAndOpacity={{ SpecifiedColor: Utils.color("#fff") }}
+                        Text={ `${this.state.speakData.name}: ${this.state.speakData.text}` }
+                    />
+                </uBorder>}
             </uCanvasPanel>
         )
     }

@@ -12,6 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, Msg);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FExplorePointsSignature, FText, Msg);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCelestialBodySignature, class ACelestialBody*, Body);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FNPCSpeakSignature, FText, Name, FText, Text, float, Time);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FActionAddedSignature, FKey, Key, FText, Tag, float, Interval);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FActionSignature);
 
@@ -88,6 +89,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FCelestialBodySignature CelestialBodyLockedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FNPCSpeakSignature NPCSpeakDelegate;
 
 	UPROPERTY(BlueprintAssignable)
 	FActionAddedSignature ActionAddedDelegate;

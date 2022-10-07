@@ -63,30 +63,30 @@ private:
 	UMeshPostProcessComponent* PostProcess = nullptr;
 
 	/** 密度，用于计算浮力，标准水的密度为1000 kg/m³ */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float Density = 1000.f;
 
 	/** 流体对物体产生的线性阻尼 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float LinerDamping = 0.01;
 
 	/** 流体对物体产生的角(旋转)阻尼 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float AngularDamping = 0.01;
 
 	/** 温度 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float Temperature = 25.f;
 
 	/** 热传递效率，即温度每秒的变化百分比 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float Efficiency = 0.5f;
 
 	/** 压力 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float Pressure = 100.f;
 
 	/** 压力的混合距离比率，即进入到流体内部一定范围后，压力逐渐达到100% */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float BlendDistance = 0.5f;
 };

@@ -36,12 +36,12 @@ private:
 	UPROPERTY(SaveGame)
 	bool IsAvailable = true;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "奖励点区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FText PlaceName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "奖励点区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float RequiredTime = 5.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "奖励点区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 BonusPoints = 100;
 };
