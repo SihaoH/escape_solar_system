@@ -6,18 +6,21 @@
 #include "MainCharacter.h"
 #include "NPC.h"
 #include "Spaceship.h"
-#include <Components/StaticMeshComponent.h>
+#include <Components/BoxComponent.h>
 #include <Components/SphereComponent.h>
 
 AEarthBase::AEarthBase()
 {
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	ScopeTigger = CreateDefaultSubobject<USphereComponent>(TEXT("ScopeTigger"));
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	CharScope = CreateDefaultSubobject<UBoxComponent>(TEXT("CharScope"));
+	ShipScope = CreateDefaultSubobject<USphereComponent>(TEXT("ShipScope"));
 	Backpack = CreateDefaultSubobject<UBackpackComponent>(TEXT("Backpack"));
 
-	RootComponent = StaticMesh;
-	ScopeTigger->SetupAttachment(GetRootComponent());
-	ScopeTigger->SetSphereRadius(1000.f);
+	CharScope->SetupAttachment(GetRootComponent());
+	ShipScope->SetupAttachment(GetRootComponent());
+
+	ShipScope->OnComponentBeginOverlap.AddDynamic(this, &AEarthBase::OnShipScopeBeginOverlap);
+	ShipScope->OnComponentEndOverlap.AddDynamic(this, &AEarthBase::OnShipScopeEndOverlap);
 
 	// FClassFinder只能在构造函数中调用
 	BP_MainCharClass = ConstructorHelpers::FClassFinder<AMainCharacter>(TEXT("Blueprint'/Game/MainBP/Blueprints/BP_MainCharacter.BP_MainCharacter_C'")).Class;
@@ -28,10 +31,13 @@ AEarthBase::AEarthBase()
 void AEarthBase::CreateMainChar()
 {
 	check(!AMainLevelScript::GetMainChar());
-	GetWorld()->SpawnActor<AMainCharacter>(BP_MainCharClass, GetActorLocation(), GetActorRotation());
+	const auto SelfTransform = GetActorTransform();
+	GetWorld()->SpawnActor<AMainCharacter>(BP_MainCharClass,
+		SelfTransform.TransformPosition(CharBirthplace.GetLocation()),
+		SelfTransform.TransformRotation(CharBirthplace.GetRotation()).Rotator());
 	if (GuideNPC == nullptr)
 	{
-		GuideNPC = GetWorld()->SpawnActor<ANPC>(BP_GuideNPCClass, GetActorLocation(), GetActorRotation());
+		GuideNPC = GetWorld()->SpawnActor<ANPC>(BP_GuideNPCClass, GetActorTransform());
 		AMainLevelScript::GetMainChar()->SetTalkableNPC(GuideNPC);
 		AMainLevelScript::Instance()->TalkOpenedDelegate.Broadcast();
 	}
@@ -40,13 +46,16 @@ void AEarthBase::CreateMainChar()
 void AEarthBase::CreateSpaceship()
 {
 	check(!AMainLevelScript::GetSpaceship());
-	GetWorld()->SpawnActor<ASpaceship>(BP_SpaceshipClass, GetActorLocation(), GetActorRotation());
+	const auto SelfTransform = GetActorTransform();
+	GetWorld()->SpawnActor<ASpaceship>(BP_SpaceshipClass,
+		SelfTransform.TransformPosition(ShipBirthplace.GetLocation()),
+		SelfTransform.TransformRotation(ShipBirthplace.GetRotation()).Rotator());
 }
 
 AMainCharacter* AEarthBase::FindMainChar() const
 {
 	TArray<AActor*> NearbyActors;
-	ScopeTigger->GetOverlappingActors(NearbyActors, AMainCharacter::StaticClass());
+	CharScope->GetOverlappingActors(NearbyActors, AMainCharacter::StaticClass());
 	if (NearbyActors.Num() > 0)
 	{
 		return Cast<AMainCharacter>(NearbyActors[0]);
@@ -57,7 +66,7 @@ AMainCharacter* AEarthBase::FindMainChar() const
 ASpaceship* AEarthBase::FindSpaceship() const
 {
 	TArray<AActor*> NearbyActors;
-	ScopeTigger->GetOverlappingActors(NearbyActors, ASpaceship::StaticClass());
+	ShipScope->GetOverlappingActors(NearbyActors, ASpaceship::StaticClass());
 	if (NearbyActors.Num() > 0)
 	{
 		return Cast<ASpaceship>(NearbyActors[0]);
@@ -69,4 +78,20 @@ void AEarthBase::BeginPlay()
 {
 	Super::BeginPlay();
 	AMainLevelScript::SetEarthBase(this);
+}
+
+void AEarthBase::OnShipScopeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->IsA<ASpaceship>())
+	{
+		OnShipEnter();
+	}
+}
+
+void AEarthBase::OnShipScopeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor->IsA<ASpaceship>())
+	{
+		OnShipLeave();
+	}
 }

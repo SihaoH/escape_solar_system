@@ -147,7 +147,7 @@ class View extends React.Component {
             if (self.state.lockedBody) {
                 self.setState({
                     lockedLayout: self.helper.GetWidgetPosition(self.state.lockedBody),
-                    lockedInfo: self.helper.GetLockInfo(self.state.lockedBody)
+                    lockedInfo: self.helper.GetLockInfo(self.state.lockedBody, self.state.lockedInfo.Dist)
                 });
             }
 
@@ -157,7 +157,7 @@ class View extends React.Component {
             if (self.state.spaceship) {
                 self.setState({
                     shipLayout: self.helper.GetWidgetPosition(self.state.spaceship),
-                    shipInfo: self.helper.GetLockInfo(self.state.lockedBody)
+                    shipInfo: self.helper.GetLockInfo(self.state.spaceship, self.state.shipInfo.Dist)
                 });
             }
 

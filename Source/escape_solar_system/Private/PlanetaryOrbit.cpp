@@ -13,8 +13,8 @@ void APlanetaryOrbit::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (CentralActor && RevolutionSpeed != 0)
 	{
-		SetActorLocation(CentralActor->GetActorLocation());
-		GetRootComponent()->AddLocalRotation(FRotator(0.f, RevolutionSpeed * DeltaTime, 0.f));
+		SetActorLocation(CentralActor->GetActorLocation(), false, nullptr, ETeleportType::TeleportPhysics);
+		GetRootComponent()->AddLocalRotation(FRotator(0.f, RevolutionSpeed * DeltaTime, 0.f), false, nullptr, ETeleportType::TeleportPhysics);
 	}
 }
 

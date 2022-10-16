@@ -7,7 +7,6 @@ const EAnchors = require('../anchors')
 const {F_Sans, T_Rect} = require('../style')
 
 const PointBar = require('./point_bar')
-const MessageListView = require('./message_listview')
 const EngineToward = require('./engine_toward')
 const TargetIndicator = require('./target_indicator')
 
@@ -100,12 +99,6 @@ class PlayingView extends React.Component {
                 this.actionAnime.destroy()
                 this.actionAnime = null
             }
-        })
-        MainLevelScript.Instance().MessagedDelegate.Add((Msg) => {
-            this.msgListView.AppendMsg(Msg)
-        })
-        MainLevelScript.Instance().EnteredDelegate.Add(() => {
-            this.msgListView.toggleReview()
         })
 
         this.charKeys = [
@@ -366,22 +359,6 @@ class PlayingView extends React.Component {
                         />
                     </span>
                 </uCanvasPanel>}
-
-                /* 信息框 */
-                <MessageListView
-                    ref={(elem) => {
-                        if (elem) {
-                            this.msgListView = elem
-                        }
-                    }}
-                    Slot={{
-                        LayoutData: {
-                            Anchors: EAnchors.Right,
-                            Alignment: { X: 1.0, Y: 0.5 },
-                            Offsets: Utils.ltrb(-20, 0, 400, 300)
-                        }
-                    }}
-                />
 
                 /* 位置信息 */
                 <uBorder

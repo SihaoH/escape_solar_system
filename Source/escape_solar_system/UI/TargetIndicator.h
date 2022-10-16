@@ -21,7 +21,4 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	void GetWidgetPosition(const class AActor* Target, FVector2D& Position, int32& Angle);
-
-private:
-	float LastDist = 0.f;
 };

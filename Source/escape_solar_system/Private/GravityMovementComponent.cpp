@@ -1339,12 +1339,6 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 		return;
 	}
 
-	// 如果是已附着在基底上，就不需要调整位置和旋转了
-	if (CharacterOwner->GetAttachParentActor() == MovementBase->GetOwner())
-	{
-		return;
-	}
-
 	// Ignore collision with bases during these movements.
 	TGuardValue<EMoveComponentFlags> ScopedFlagRestore(MoveComponentFlags, MoveComponentFlags | MOVECOMP_IgnoreBases);
 
@@ -1359,14 +1353,37 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 	}
 
 	// Find change in rotation
-	const bool bRotationChanged = !OldBaseQuat.Equals(NewBaseQuat, SMALL_NUMBER);
-	if (bRotationChanged)
+	bool bRotationChanged = false;
+	bool bLoactionChanged = false;
+
+	// 如果是已附着在基底上，就看相对变化
+	const AActor* AttachParent = CharacterOwner->GetAttachParentActor();
+	if (AttachParent == MovementBase->GetOwner() || AttachParent == MovementBase->GetOwner()->GetAttachParentActor())
 	{
-		DeltaQuat = NewBaseQuat * OldBaseQuat.Inverse();
+		const FTransform NewParentTransform = AttachParent->GetTransform();
+		const FQuat _OldBaseQuat = OldParentTransform.InverseTransformRotation(OldBaseQuat);
+		const FVector _OldBaseLocation = OldParentTransform.InverseTransformPosition(OldBaseLocation);
+		const FQuat _NewBaseQuat = NewParentTransform.InverseTransformRotation(NewBaseQuat);
+		const FVector _NewBaseLocation = NewParentTransform.InverseTransformPosition(NewBaseLocation);
+		bRotationChanged = !_OldBaseQuat.Equals(_NewBaseQuat, DOUBLE_DELTA);
+		bLoactionChanged = !_OldBaseLocation.Equals(_NewBaseLocation, KINDA_SMALL_NUMBER);
+		if (bRotationChanged)
+		{
+			DeltaQuat = _NewBaseQuat * _OldBaseQuat.Inverse();
+		}
+	}
+	else
+	{
+		bRotationChanged = !OldBaseQuat.Equals(NewBaseQuat, DOUBLE_DELTA);
+		bLoactionChanged = !OldBaseLocation.Equals(NewBaseLocation, KINDA_SMALL_NUMBER);
+		if (bRotationChanged)
+		{
+			DeltaQuat = NewBaseQuat * OldBaseQuat.Inverse();
+		}
 	}
 
 	// only if base moved
-	if (bRotationChanged || (OldBaseLocation != NewBaseLocation))
+	if (bRotationChanged || bLoactionChanged)
 	{
 		// Calculate new transform matrix of base actor (ignoring scale).
 		const FQuatRotationTranslationMatrix OldLocalToWorld(OldBaseQuat, OldBaseLocation);
@@ -1436,6 +1453,15 @@ void UGravityMovementComponent::UpdateBasedMovement(float DeltaSeconds)
 		{
 			CharacterOwner->GetMesh()->ApplyDeltaToAllPhysicsTransforms(DeltaPosition, DeltaQuat);
 		}
+	}
+}
+
+void UGravityMovementComponent::SaveBaseLocation()
+{
+	Super::SaveBaseLocation();
+	if (const AActor* AttachParent = CharacterOwner->GetAttachParentActor())
+	{
+		OldParentTransform = AttachParent->GetTransform();
 	}
 }
 

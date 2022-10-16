@@ -27,12 +27,24 @@ public:
 	UFUNCTION(BlueprintPure)
 	class ASpaceship* FindSpaceship() const;
 
-public:
-	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBackpackComponent* Backpack = nullptr;
-
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnShipEnter();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnShipLeave();
+
+private:
+	UFUNCTION()
+	virtual void OnShipScopeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void OnShipScopeEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+public:
+	UPROPERTY(Category = "基地", VisibleAnywhere, BlueprintReadOnly)
+	class UBackpackComponent* Backpack = nullptr;
 
 private:
 	TSubclassOf<class AMainCharacter> BP_MainCharClass;
@@ -40,9 +52,17 @@ private:
 	TSubclassOf<class ANPC> BP_GuideNPCClass;
 	TObjectPtr<class ANPC> GuideNPC;
 
-	UPROPERTY(Category = PickableItemActor, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent* StaticMesh = nullptr;
+	UPROPERTY(Category = "基地", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBoxComponent* CharScope = nullptr;
 
-	UPROPERTY(Category = EarthBase, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* ScopeTigger = nullptr;
+	UPROPERTY(Category = "基地", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* ShipScope = nullptr;
+
+	/** 主角的出生点 */
+	UPROPERTY(Category = "基地", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FTransform CharBirthplace;
+
+	/** 飞船的出生点 */
+	UPROPERTY(Category = "基地", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FTransform ShipBirthplace;
 };

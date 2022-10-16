@@ -13,7 +13,7 @@ ACelestialBody::ACelestialBody()
 	PrimaryActorTick.bCanEverTick = true;
 	// 这项很重要，在关卡开始时，已经放置在碰撞区域内的，可以发出一次BeginOverlap事件
 	bGenerateOverlapEventsDuringLevelStreaming = true;
-	RootComponent = GetStaticMeshComponent();
+	GetStaticMeshComponent()->SetEnableGravity(false);
 	GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 
 	GravityZone = CreateDefaultSubobject<USphereComponent>(TEXT("GravityZone"));
@@ -95,7 +95,7 @@ void ACelestialBody::PerformRotation(float DeltaTime)
 {
 	if (RotationSpeed != 0)
 	{
-		AddActorLocalRotation(FRotator(0, RotationSpeed * DeltaTime, 0));
+		AddActorLocalRotation(FRotator(0, RotationSpeed * DeltaTime, 0), false, nullptr, ETeleportType::TeleportPhysics);
 	}
 }
 
@@ -122,7 +122,7 @@ void ACelestialBody::PerformGravity(float DeltaTime)
 
 void ACelestialBody::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor != this && !OtherActor->IsA<ACelestialBody>())
+	if (OtherActor != this && OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{
 		auto BI = Cast<UPrimitiveComponent>(OtherActor->GetRootComponent())->GetBodyInstance();
 		bool bSimulate = BI->bSimulatePhysics;
@@ -131,18 +131,15 @@ void ACelestialBody::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedCo
 		BI->bSimulatePhysics = bSimulate;
 		BI->UpdateInstanceSimulatePhysics();
 
-		if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
-		{
-			Cast<IMassActorInterface>(OtherActor)->PlanetOwner = this;
-		}
+		Cast<IMassActorInterface>(OtherActor)->PlanetOwner = this;
 	}
 }
 
 void ACelestialBody::OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	OtherActor->DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, false));
 	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
 	{
+		OtherActor->DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, false));
 		Cast<IMassActorInterface>(OtherActor)->PlanetOwner = nullptr;
 		IMassActorInterface::Execute_GravityActed(OtherActor, FVector::ZeroVector, 0.f);
 	}

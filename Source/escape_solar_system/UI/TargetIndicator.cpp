@@ -16,10 +16,8 @@ void UTargetIndicatorHelper::GetLockInfo(const AActor* Target, float& Dist, floa
 		{
 			TargetRadius = Body->GetSelfRadius();
 		}
-		Dist = (DistValue - TargetRadius) / 100.f;
-		Speed = (DistValue - LastDist) / GWorld->GetDeltaSeconds() / 100.f;
-
-		LastDist = DistValue;
+		Speed = (DistValue - Dist*100.f) / GWorld->GetDeltaSeconds() / 100.f;
+		Dist = DistValue / 100;
 	}
 }
 

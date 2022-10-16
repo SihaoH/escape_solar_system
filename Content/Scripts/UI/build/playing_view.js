@@ -7,7 +7,6 @@ const EAnchors = require('../anchors');
 const { F_Sans, T_Rect } = require('../style');
 
 const PointBar = require('./point_bar');
-const MessageListView = require('./message_listview');
 const EngineToward = require('./engine_toward');
 const TargetIndicator = require('./target_indicator');
 
@@ -95,12 +94,6 @@ class PlayingView extends React.Component {
                 this.actionAnime.destroy();
                 this.actionAnime = null;
             }
-        });
-        MainLevelScript.Instance().MessagedDelegate.Add(Msg => {
-            this.msgListView.AppendMsg(Msg);
-        });
-        MainLevelScript.Instance().EnteredDelegate.Add(() => {
-            this.msgListView.toggleReview();
         });
 
         this.charKeys = [{ keys: this.helper.GetAxisKeys("MoveForward"), desc: this.helper.GetCharOperDesc("MoveForward") }, { keys: this.helper.GetAxisKeys("MoveRight"), desc: this.helper.GetCharOperDesc("MoveRight") }, { keys: this.helper.GetAxisKeys("MoveUp"), desc: this.helper.GetCharOperDesc("MoveUp") }, { keys: this.helper.GetActionKeys("Jump"), desc: this.helper.GetCharOperDesc("Jump") }, { keys: this.helper.GetAxisKeys("Turn"), desc: this.helper.GetCharOperDesc("Turn") }, { keys: this.helper.GetAxisKeys("LookUp"), desc: this.helper.GetCharOperDesc("LookUp") }, { keys: this.helper.GetActionKeys("Lock"), desc: this.helper.GetCharOperDesc("Lock") }];
@@ -357,21 +350,6 @@ class PlayingView extends React.Component {
                     })
                 )
             ),
-            '/* \u4FE1\u606F\u6846 */',
-            React.createElement(MessageListView, {
-                ref: elem => {
-                    if (elem) {
-                        this.msgListView = elem;
-                    }
-                },
-                Slot: {
-                    LayoutData: {
-                        Anchors: EAnchors.Right,
-                        Alignment: { X: 1.0, Y: 0.5 },
-                        Offsets: Utils.ltrb(-20, 0, 400, 300)
-                    }
-                }
-            }),
             '/* \u4F4D\u7F6E\u4FE1\u606F */',
             React.createElement(
                 'uBorder',

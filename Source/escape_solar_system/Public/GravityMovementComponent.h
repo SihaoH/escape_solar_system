@@ -21,6 +21,7 @@ public:
 	virtual void PhysFalling(float deltaTime, int32 Iterations) override;
 	virtual FVector GetFallingLateralAcceleration(float DeltaTime) override;
 	virtual void UpdateBasedMovement(float DeltaSeconds) override;
+	virtual void SaveBaseLocation() override;
 	virtual bool DoJump(bool bReplayingMoves) override;
 	virtual FVector GetImpartedMovementBaseVelocity() const override;
 	virtual void JumpOff(AActor* MovementBaseActor) override;
@@ -67,6 +68,9 @@ protected:
 	virtual FVector ConstrainInputAcceleration(const FVector& InputAcceleration) const override;
 	virtual FVector ScaleInputAcceleration(const FVector& InputAcceleration) const override;
 	// End UCharacterMovementComponent overrides
+
+protected:
+	FTransform OldParentTransform = FTransform::Identity;
 
 	/** 自定义方向，值为单位向量 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

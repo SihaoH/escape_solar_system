@@ -6,6 +6,8 @@ const Utils = require('../utils')
 const EAnchors = require('../anchors')
 const {F_Sans} = require('../style')
 
+const MessageListView = require('./message_listview')
+
 
 class PromptView extends React.Component {
     constructor(props) {
@@ -13,6 +15,13 @@ class PromptView extends React.Component {
         this.state = {
             bannerText: ""
         }
+
+        MainLevelScript.Instance().MessagedDelegate.Add((Msg) => {
+            this.msgListView.AppendMsg(Msg)
+        })
+        MainLevelScript.Instance().EnteredDelegate.Add(() => {
+            this.msgListView.toggleReview()
+        })
 
         MainLevelScript.Instance().ExplorePointsDelegate.Add(Msg => {
             this.setState({bannerText: Msg})
@@ -40,6 +49,7 @@ class PromptView extends React.Component {
     render() {
         return (
             <uCanvasPanel>
+                /* 横幅提示 */
                 <uBorder
                     ref={elem => {
                         if (elem && !this.uBanner) {
@@ -80,6 +90,22 @@ class PromptView extends React.Component {
                         />
                     </uBorder>
                 </uBorder>
+
+                /* 信息框 */
+                <MessageListView
+                    ref={(elem) => {
+                        if (elem) {
+                            this.msgListView = elem
+                        }
+                    }}
+                    Slot={{
+                        LayoutData: {
+                            Anchors: EAnchors.Right,
+                            Alignment: { X: 1.0, Y: 0.5 },
+                            Offsets: Utils.ltrb(-20, 0, 400, 300)
+                        }
+                    }}
+                />
             </uCanvasPanel>
         )
     }
