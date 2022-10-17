@@ -103,7 +103,7 @@ public:
 	class UEngineComponent* Engine = nullptr;
 
 private:
-	static class ACameraActor* DeathCamera;
+	static TObjectPtr<class ACameraActor> DeathCamera;
 	class UGravityMovementComponent* Movement = nullptr;
 	class ASpaceship* CurrentVehicle = nullptr;
 	class ANPC* TalkableNPC = nullptr;

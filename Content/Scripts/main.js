@@ -30,7 +30,7 @@ MainLevelScript.Instance().PausedDelegate.Add(()=> {
 MainLevelScript.Instance().MenuOpenedDelegate.Add(()=> {
     let menu_view = require(JSX("menu_view"))()
     if (!menu_view.IsInViewport()) {
-        menu_view.AddToViewport(995)
+        menu_view.AddToViewport()
     }
 })
 

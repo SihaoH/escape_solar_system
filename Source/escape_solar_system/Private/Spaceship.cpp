@@ -157,9 +157,14 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void ASpaceship::BeginPlay()
 {
-	Super::BeginPlay();
-	AMainLevelScript::SetSpaceship(this);
+	const bool bSimulatePhysics = ShipMesh->GetBodyInstance()->bSimulatePhysics;
+	ShipMesh->GetBodyInstance()->bSimulatePhysics = false;
+	Super::BeginPlay(); // AActor::BeginPlay()会判断附着的父对象是否模拟物理，如果不一致，就解除附着
+	// 所以模拟物理要在BeginPlay之后开启，而且也不能用UPrimitiveComponent::SetSimulatePhysics开启，因为也会像BeginPlay那样做
+	ShipMesh->GetBodyInstance()->bSimulatePhysics = bSimulatePhysics;
+	ShipMesh->GetBodyInstance()->UpdateInstanceSimulatePhysics();
 
+	AMainLevelScript::SetSpaceship(this);
 	ResetProperties();
 	Body->ChangeHP(Body->GetMaximumHP());
 	Engine->ChangeEnergy(Engine->GetMaximumEnergy());
@@ -260,10 +265,8 @@ void ASpaceship::MoveForward(float Value)
 
 void ASpaceship::MoveRight(float Value)
 {
-	if (Engine->GetCurrentEnergy() <= 0 || bFreeLook)
-	{
-		return;
-	}
+	if (Engine->GetCurrentEnergy() <= 0 || bFreeLook) return;
+
 	OriginComponent->AddRelativeRotation(FRotator(0, 0, Value * 0.2));
 }
 
@@ -279,6 +282,8 @@ void ASpaceship::PerformTurn(float DeltaTime)
 	FRotator DeltaRotation = OriginComponent->GetRelativeRotation() * DeltaTime;
 	if (!DeltaRotation.IsNearlyZero(1.e-6f))
 	{
+		ShipMesh->SetAllPhysicsAngularVelocityInRadians(FVector::ZeroVector);
+		ShipMesh->GetBodyInstance()->ClearTorques();
 		OriginComponent->AddRelativeRotation(DeltaRotation*-1);
 		AddActorLocalRotation(DeltaRotation, true);
 	}
@@ -290,17 +295,22 @@ void ASpaceship::PerformTurn(float DeltaTime)
 */
 void ASpaceship::PerformAdjust(float DeltaTime)
 {
-	GetPlayerState();
+	if (Engine->GetCurrentEnergy() <= 0 || !bFreeLook) return;
+
 	if (!GravityDirection.IsZero() && IsPawnControlled())
 	{
 		const FVector DesiredUp = GravityDirection * -1.f;
-		const FMatrix RotationMatrix = FRotationMatrix::MakeFromZX(DesiredUp, ShipMesh->GetForwardVector());
-		const FRotator TargetRotator = FMath::RInterpTo(
-			ShipMesh->GetComponentRotation(),
-			RotationMatrix.Rotator(),
-			DeltaTime,
-			GravityAccel*0.001f);
-		ShipMesh->SetWorldRotation(TargetRotator, true);
+		// 夹角不相等才调整
+		if ((DesiredUp | ShipMesh->GetForwardVector()) < THRESH_NORMALS_ARE_PARALLEL)
+		{
+			const FMatrix RotationMatrix = FRotationMatrix::MakeFromZX(DesiredUp, ShipMesh->GetForwardVector());
+			const FQuat TargetQuat = FMath::QInterpTo(
+				ShipMesh->GetComponentQuat(),
+				RotationMatrix.ToQuat(),
+				DeltaTime,
+				GravityAccel * 0.001f);
+			ShipMesh->MoveComponent(FVector::ZeroVector, TargetQuat, true);
+		}
 	}
 }
 
@@ -316,7 +326,8 @@ void ASpaceship::UpdateMass()
 	const float InMass = Body->GetMass() + Engine->GetTotalMass() + (CurrentPilot ? CurrentPilot->GetMass() : 0);
 	if (GetMass() != InMass)
 	{
+		constexpr float Radius = 100.f;
 		ShipMesh->SetMassOverrideInKg(NAME_None, InMass);
-		Density = CalcDensity(InMass, ShipMesh->Bounds.SphereRadius);
+		Density = CalcDensity(InMass, Radius);
 	}
 }

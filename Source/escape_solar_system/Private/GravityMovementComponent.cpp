@@ -1478,6 +1478,7 @@ bool UGravityMovementComponent::DoJump(bool bReplayingMoves)
 			FVector BaseLinearV = FVector::ZeroVector;
 			if (IsValid(MovementBase))
 			{
+				// CelestialBody的移动是传送形式的，即没有运动速度
 				BaseLinearV = MovementBase->GetPhysicsLinearVelocityAtPoint(UpdatedComponent->GetComponentLocation());
 			}
 			// Set to zero the vertical component of velocity.

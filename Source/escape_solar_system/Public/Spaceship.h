@@ -72,35 +72,38 @@ protected:
 
 public:
 	/** 飞船名称，因为需要[目标指示器]，所添加这两个属性和天体保持一致 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "飞船", EditAnywhere, BlueprintReadWrite)
 	FText Name;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Category = "飞船", EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> Icon;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
+	UPROPERTY(Category = "飞船", VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	class UBackpackComponent* Backpack = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
+	UPROPERTY(Category = "飞船", VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	class UBodyComponent* Body = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, SaveGame)
+	UPROPERTY(Category = "飞船", VisibleAnywhere, BlueprintReadOnly, SaveGame)
 	class UEngineComponent* Engine = nullptr;
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "飞船", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* ShipMesh = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "飞船", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* ContactTrigger = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "飞船", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* OriginComponent = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "飞船", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "飞船", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera = nullptr;
+
+	UPROPERTY(Category = "飞船", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<class UStaticMeshComponent*> Brackets;
 
 protected:
 	/** 重力加速度，单位cm/s² */

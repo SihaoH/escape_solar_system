@@ -21,7 +21,7 @@
 #include <Kismet/GameplayStatics.h>
 #include <Kismet/KismetSystemLibrary.h>
 
-ACameraActor* AMainCharacter::DeathCamera = nullptr;
+TObjectPtr<class ACameraActor> AMainCharacter::DeathCamera = nullptr;
 
 AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGravityMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -47,7 +47,6 @@ AMainCharacter::AMainCharacter(const FObjectInitializer& ObjectInitializer)
 void AMainCharacter::SetVelocity(const FVector& Velocity)
 {
 	Movement->Velocity = Velocity;
-	// TODO APlayerController::OnPossess的ClientRestart()调用会把速度置0（UMovementComponent::StopMovementImmediately）
 }
 
 FText AMainCharacter::GetLabelName() const
@@ -166,19 +165,23 @@ void AMainCharacter::Serialize(FArchive& Ar)
 
 void AMainCharacter::Controlled()
 {
-	if (CurrentVehicle)
-	{
-		const FVector TargetLocation = CurrentVehicle->GetActorLocation() + CurrentVehicle->GetRootComponent()->GetRightVector() * 200;
-		const FRotator TargetRotation = CurrentVehicle->GetActorRotation();
-		const FVector TargetVelocity = CurrentVehicle->GetVelocity();
+	// APlayerController::OnPossess的ClientRestart()调用会把速度置0（UMovementComponent::StopMovementImmediately）
+	// 所以要在下一帧执行
+	GetWorldTimerManager().SetTimerForNextTick([this] {
+		if (CurrentVehicle)
+		{
+			const FVector TargetLocation = CurrentVehicle->GetActorLocation() + CurrentVehicle->GetRootComponent()->GetRightVector() * 300.f;
+			const FRotator TargetRotation = CurrentVehicle->GetActorRotation();
+			const FVector TargetVelocity = CurrentVehicle->GetVelocity();
 
-		FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
-		TeleportTo(TargetLocation, TargetRotation);
-		SetVelocity(TargetVelocity);
-	}
-	SetActorHiddenInGame(false);
-	SetActorEnableCollision(true);
-	CurrentVehicle = nullptr;
+			FollowCamera->SetRelativeRotation(FRotator::ZeroRotator);
+			TeleportTo(TargetLocation, TargetRotation);
+			SetVelocity(TargetVelocity);
+		}
+		SetActorHiddenInGame(false);
+		SetActorEnableCollision(true);
+		CurrentVehicle = nullptr;
+	});
 }
 
 void AMainCharacter::UnControlled()
