@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include <Components/BoxComponent.h>
+#include <Components/SphereComponent.h>
 #include "EarthBaseActor.generated.h"
 
 /**
@@ -26,6 +28,9 @@ public:
 	class AMainCharacter* FindMainChar() const;
 	UFUNCTION(BlueprintPure)
 	class ASpaceship* FindSpaceship() const;
+
+	FORCEINLINE UShapeComponent* GetCharScope() const { return CharScope; }
+	FORCEINLINE UShapeComponent* GetShipScope() const { return ShipScope; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -53,10 +58,10 @@ private:
 	TObjectPtr<class ANPC> GuideNPC;
 
 	UPROPERTY(Category = "基地", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UBoxComponent* CharScope = nullptr;
+	UBoxComponent* CharScope = nullptr;
 
 	UPROPERTY(Category = "基地", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class USphereComponent* ShipScope = nullptr;
+	USphereComponent* ShipScope = nullptr;
 
 	/** 主角的出生点 */
 	UPROPERTY(Category = "基地", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

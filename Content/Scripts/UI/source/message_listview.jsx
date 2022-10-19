@@ -106,7 +106,10 @@ class MessageListView extends React.Component {
 
     render() {
         return (
-            <div {...this.props}>
+            <div
+                {...this.props}
+                Visibility={this.state.review ? ESlateVisibility.Visible : ESlateVisibility.HitTestInvisible}
+            >
                 <uJavascriptListView
                     ref={elem=>{
                         if (elem && !this.uListView) {

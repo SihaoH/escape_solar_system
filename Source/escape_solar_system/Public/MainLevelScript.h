@@ -105,6 +105,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FActionSignature ActionReleasedDelegate;
 
+	UPROPERTY(BlueprintAssignable)
+	FActionSignature DestroyPressedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FActionSignature DestroyReleasedDelegate;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -117,6 +123,8 @@ private:
 	void OnEntered();
 	void OnActionPressed();
 	void OnActionReleased();
+	void OnDestroyPressed();
+	void OnDestroyReleased();
 	UFUNCTION()
 	void OnSequenceFinshed();
 

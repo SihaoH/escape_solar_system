@@ -48,8 +48,8 @@ class PointBar extends React.Component {
         super(props);
 
         let { colorWhenAdded, colorWhenReduced, curVal, maxVal } = this.props;
-        this.colorWhenAdded = colorWhenAdded || Utils.color("#0F0");
-        this.colorWhenReduced = colorWhenReduced || Utils.color("#F00");
+        this.colorWhenAdded = colorWhenAdded || Utils.rgba(1, 1, 1, 0.7);
+        this.colorWhenReduced = colorWhenReduced || Utils.rgba(1, 0, 0, 0.8);
         this.initVal = curVal / maxVal;
         this.ad = AD();
         this.adRunning = false;

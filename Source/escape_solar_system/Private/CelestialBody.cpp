@@ -137,7 +137,8 @@ void ACelestialBody::OnGravityZoneBeginOverlap(UPrimitiveComponent* OverlappedCo
 
 void ACelestialBody::OnGravityZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()))
+	if (OtherActor->GetClass()->ImplementsInterface(UMassActorInterface::StaticClass()) && 
+		Cast<IMassActorInterface>(OtherActor)->PlanetOwner == this)
 	{
 		OtherActor->DetachFromActor(FDetachmentTransformRules(EDetachmentRule::KeepWorld, false));
 		Cast<IMassActorInterface>(OtherActor)->PlanetOwner = nullptr;

@@ -75,7 +75,7 @@ void AMainCharacter::Destroy()
 	AMainLevelScript::SetMainChar(nullptr);
 
 	// Actor销毁后，画面虽然还留在该Actor上，但视角（旋转）会归零，所以要创建一个保留死亡视角的摄像机
-	if (DeathCamera)
+	if (!DeathCamera.IsNull() && DeathCamera->IsValidLowLevelFast())
 	{
 		DeathCamera->TeleportTo(FollowCamera->GetComponentLocation(), FollowCamera->GetComponentRotation());
 	}
@@ -444,7 +444,7 @@ void AMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		AMainLevelScript::AddActionPrompt("Drive", tr("登上飞船"))
 			.AddUniqueDynamic(this, &AMainCharacter::DriveShip);
 	}
-	else if (OtherActor->IsA<AEarthBase>())
+	else if (OtherActor->IsA<AEarthBase>() && Cast<AEarthBase>(OtherActor)->GetCharScope() == OtherComp)
 	{
 		// _Menu和Menu是一样的按键，但_Menu是特意为了提示用的，实际还是Menu起作用
 		AMainLevelScript::AddActionPrompt("_Menu", tr("连接基地"));

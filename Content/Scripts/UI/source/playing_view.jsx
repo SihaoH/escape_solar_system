@@ -20,9 +20,10 @@ class PlayingView extends React.Component {
         this.helper = new PlayingViewHelper()
 
         this.state = {
-            HP: { cur: 0, max: 1},
-            MP: { cur: 0, max: 1},
+            charBar: null,
+            shipBar: null,
             actionPrompt: null,
+            showDestroy: false,
             locationInfo: "",
             enginInfo: { max: 0, upDown: 0, frontBack: 0 },
             basicInfo: [],
@@ -30,23 +31,40 @@ class PlayingView extends React.Component {
         }
 
         this.timer = setInterval(() => {
-            if (this.actionAnime) return
-
             let player = MainLevelScript.GetMainChar()
             if (!player) {
+                let char_bar = this.state.charBar
+                let ship_bar = this.state.shipBar
+                if (char_bar) {
+                    char_bar.HP.cur = 0
+                } else if (ship_bar) {
+                    ship_bar.HP.cur = 0
+                }
                 this.setState({
-                    HP: { cur: 0 }
+                    charBar: char_bar,
+                    ship_bar: ship_bar
                 })
+
                 return
             }
 
+            let bar_obj = {
+                charBar: null,
+                shipBar: null
+            }
             if (player.IsDriving()) {
                 player = MainLevelScript.GetSpaceship()
+                bar_obj.shipBar = {
+                    HP: { cur: player.Body.CurrentHP, max: player.Body.MaximumHP },
+                    MP: { cur: player.Engine.CurrentEnergy, max: player.Engine.MaximumEnergy},
+                }
+            } else {
+                bar_obj.charBar = {
+                    HP: { cur: player.Body.CurrentHP, max: player.Body.MaximumHP },
+                    MP: { cur: player.Engine.CurrentEnergy, max: player.Engine.MaximumEnergy},
+                }
             }
-            this.setState({
-                HP: { cur: player.Body.CurrentHP, max: player.Body.MaximumHP },
-                MP: { cur: player.Engine.CurrentEnergy, max: player.Engine.MaximumEnergy},
-            })
+            this.setState(bar_obj)
 
             this.setState({enginInfo: { max: player.Engine.Power, upDown: player.Engine.UpForce, frontBack: player.Engine.ForwardForce }})
 
@@ -66,6 +84,7 @@ class PlayingView extends React.Component {
             setTimeout(() => { this.setState({ speakData: null }) }, Time * 1000)
         })
         MainLevelScript.Instance().ActionAddedDelegate.Add((Key, Tag, Interval) => {
+            this.actionAnimeVal = {X: 0, Y: 999}
             this.setState({ actionPrompt: { key: Key, tag: Tag, interval: Interval } })
         })
         MainLevelScript.Instance().ActionRemovedDelegate.Add(() => {
@@ -79,7 +98,7 @@ class PlayingView extends React.Component {
                     this.actionAnime = AD()
                     this.actionAnime.apply(this.uActionBg, 
                         { duration: prompt.interval }, 
-                        { RenderTranslation: t => { return {X: 0, Y: (1-t) * real_height} } }
+                        { RenderTranslation: t => { this.actionAnimeVal = {X: 0, Y: (1-t) * real_height}; return this.actionAnimeVal } }
                     ).then(_ => {
                         if (this.actionAnime) {
                             this.actionAnime = null
@@ -92,33 +111,59 @@ class PlayingView extends React.Component {
             }
         })
         MainLevelScript.Instance().ActionReleasedDelegate.Add(() => {
-            if (this.uActionBg) {
-                this.uActionBg.SetRenderTranslation({ X: 0, Y: this.uActionBg.GetCachedGeometry().GetLocalSize().Y })
-            }
+            this.actionAnimeVal = { X: 0, Y: 999 }
             if (this.actionAnime) {
                 this.actionAnime.destroy()
                 this.actionAnime = null
             }
         })
 
+        MainLevelScript.Instance().DestroyPressedDelegate.Add(() => {
+            this.destroyAnimeVal = { X: 0, Y: 1.0 }
+            this.setState({ showDestroy: true })
+            this.destroyAnime = AD()
+            this.destroyAnime.apply(this.uDestroyBg, 
+                { delay: 1, duration: 2 }, 
+                { RenderScale: t => { this.destroyAnimeVal = {X: t, Y: 1.0} ; return this.destroyAnimeVal } }
+            ).then(_ => {
+                this.setState({ showDestroy: false })
+                if (this.destroyAnime) {
+                    this.destroyAnime = null
+                    let player = MainLevelScript.GetMainChar()
+                    if (player) {
+                        if (player.IsDriving()) {
+                            player = MainLevelScript.GetSpaceship()
+                        }
+                        player.Body.ChangeHP(-player.Body.MaximumHP)
+                    }
+                }
+            })
+        })
+        MainLevelScript.Instance().DestroyReleasedDelegate.Add(() => {
+            this.destroyAnimeVal = { X: 0, Y: 1.0 }
+            if (this.destroyAnime) {
+                this.destroyAnime.destroy()
+                this.destroyAnime = null
+            }
+        })
+
         this.charKeys = [
-            { keys: this.helper.GetAxisKeys("MoveForward"), desc: this.helper.GetCharOperDesc("MoveForward") },
-            { keys: this.helper.GetAxisKeys("MoveRight"), desc: this.helper.GetCharOperDesc("MoveRight") },
-            { keys: this.helper.GetAxisKeys("MoveUp"), desc: this.helper.GetCharOperDesc("MoveUp") },
-            { keys: this.helper.GetActionKeys("Jump"), desc: this.helper.GetCharOperDesc("Jump") },
-            { keys: this.helper.GetAxisKeys("Turn"), desc: this.helper.GetCharOperDesc("Turn") },
-            { keys: this.helper.GetAxisKeys("LookUp"), desc: this.helper.GetCharOperDesc("LookUp") },
-            { keys: this.helper.GetActionKeys("Lock"), desc: this.helper.GetCharOperDesc("Lock") },
+            { keys: this.helper.GetAxisKeys("MoveForward"), desc: Utils.tr("前后移动/推进") },
+            { keys: this.helper.GetAxisKeys("MoveRight"), desc: Utils.tr("左右移动或(在太空中)左右转动") },
+            { keys: this.helper.GetAxisKeys("MoveUp"), desc: Utils.tr("向上或向下推进") },
+            { keys: this.helper.GetActionKeys("Jump"), desc: Utils.tr("(陆地上)跳跃") },
+            { keys: this.helper.GetAxisKeys("Turn").concat(this.helper.GetAxisKeys("LookUp")), desc: Utils.tr("转动视角") },
+            { keys: this.helper.GetActionKeys("Lock"), desc: Utils.tr("锁定并显示星球信息") },
+            { keys: this.helper.GetActionKeys("Destroy"), desc: Utils.tr("长按自毁") },
         ]
         this.shipKeys = [
-            { keys: this.helper.GetAxisKeys("MoveForward"), desc: this.helper.GetShipOperDesc("MoveForward") },
-            { keys: this.helper.GetAxisKeys("MoveRight"), desc: this.helper.GetShipOperDesc("MoveRight") },
-            { keys: this.helper.GetAxisKeys("MoveUp"), desc: this.helper.GetShipOperDesc("MoveUp") },
-            { keys: this.helper.GetActionKeys("Hold"), desc: this.helper.GetShipOperDesc("Hold") },
-            { keys: this.helper.GetAxisKeys("Turn"), desc: this.helper.GetShipOperDesc("Turn") },
-            { keys: this.helper.GetAxisKeys("LookUp"), desc: this.helper.GetShipOperDesc("LookUp") },
-            { keys: this.helper.GetActionKeys("Lock"), desc: this.helper.GetShipOperDesc("Lock") },
-            { keys: this.helper.GetActionKeys("Drive"), desc: this.helper.GetShipOperDesc("Drive") },
+            { keys: this.helper.GetAxisKeys("MoveForward"), desc: Utils.tr("向前或向后推进") },
+            { keys: this.helper.GetAxisKeys("MoveRight"), desc: Utils.tr("锁定视角时偏转机身") },
+            { keys: this.helper.GetAxisKeys("MoveUp"), desc: Utils.tr("向上或向下推进") },
+            { keys: this.helper.GetActionKeys("Hold"), desc: Utils.tr("按住调整机头朝向(锁定视角)") },
+            { keys: this.helper.GetActionKeys("Lock"), desc: Utils.tr("锁定并显示星球信息") },
+            { keys: this.helper.GetActionKeys("Drive"), desc: Utils.tr("脱离飞船") },
+            { keys: this.helper.GetActionKeys("Destroy"), desc: Utils.tr("长按自毁") },
         ]
     }
 
@@ -129,22 +174,41 @@ class PlayingView extends React.Component {
 
     render() {
         const on_ship = MainLevelScript.GetMainChar() && MainLevelScript.GetMainChar().IsDriving()
+        const char_bar = this.state.charBar
+        const ship_bar = this.state.shipBar
         return (
             <uCanvasPanel>
                 /* 左上角的血条和蓝条 */
+                {char_bar &&
                 <div Slot={{ LayoutData: { Offsets: Utils.ltrb(50, 50, 400, 50) } }} >
                     <PointBar
                         Slot={{Size: { SizeRule: ESlateSizeRule.Fill }}}
-                        curVal={this.state.HP.cur}
-                        maxVal={this.state.HP.max}
+                        curVal={char_bar.HP.cur}
+                        maxVal={char_bar.HP.max}
                     />
                     <uSpacer Size={{ Y: 4 }} />
                     <PointBar
                         Slot={{Size: { SizeRule: ESlateSizeRule.Fill }}}
-                        curVal={this.state.MP.cur}
-                        maxVal={this.state.MP.max}
+                        curVal={char_bar.MP.cur}
+                        maxVal={char_bar.MP.max}
                     />
                 </div>
+                }
+                {ship_bar &&
+                <div Slot={{ LayoutData: { Offsets: Utils.ltrb(50, 50, 400, 50) } }} >
+                    <PointBar
+                        Slot={{Size: { SizeRule: ESlateSizeRule.Fill }}}
+                        curVal={ship_bar.HP.cur}
+                        maxVal={ship_bar.HP.max}
+                    />
+                    <uSpacer Size={{ Y: 4 }} />
+                    <PointBar
+                        Slot={{Size: { SizeRule: ESlateSizeRule.Fill }}}
+                        curVal={ship_bar.MP.cur}
+                        maxVal={ship_bar.MP.max}
+                    />
+                </div>
+                }
                 
                 /* 基本状态信息 */
                 <div Slot={{ LayoutData: { Offsets: Utils.ltrb(50, 105, 400, 32) } }} >
@@ -268,6 +332,71 @@ class PlayingView extends React.Component {
                     Text={"●"}
                 />
 
+                /* 自毁提示 */
+                {this.state.showDestroy &&
+                <uBorder
+                    Slot={{
+                        LayoutData: {
+                            Anchors: EAnchors.Center,
+                            Alignment: { X: 0.5, Y: 0.5 },
+                            Offsets: Utils.ltrb(0, 0, 400, 80)
+                        }
+                    }}
+                    Brush={{
+                        ResourceObject: T_Rect,
+                        DrawAs: ESlateBrushDrawType.Border,
+                        TintColor: { SpecifiedColor: Utils.color("#F33") },
+                        Margin: Utils.ltrb(4/64)
+                    }}
+                >
+                    <uCanvasPanel
+                        Slot={{
+                            Padding: Utils.ltrb(0),
+                            HorizontalAlignment: EHorizontalAlignment.HAlign_Fill,
+                            VerticalAlignment: EVerticalAlignment.VAlign_Fill
+                        }}
+                    >
+                        <uImage
+                            ref={elem => {
+                                if (elem && this.uDestroyBg !== elem.ueobj) {
+                                    this.uDestroyBg = elem.ueobj
+                                }
+                            }}
+                            Slot={{
+                                LayoutData: {
+                                    Anchors: EAnchors.FillAll,
+                                    Offsets: Utils.ltrb(0)
+                                }
+                            }}
+                            Brush={{
+                                TintColor: { SpecifiedColor: Utils.color("#F33") },
+                            }}
+                            RenderTransform={{ Scale: this.destroyAnimeVal }}
+                        />
+                        <uTextBlock
+                            Slot={{
+                                LayoutData: {
+                                    Anchors: EAnchors.Center,
+                                    Alignment: { X: 0.5, Y: 0.5 },
+                                },
+                                bAutoSize: true
+                            }}
+                            Font={{
+                                FontObject: F_Sans,
+                                TypefaceFontName: "Bold",
+                                Size: 18,
+                                LetterSpacing: 50,
+                                OutlineSettings: {
+                                    OutlineSize: 1,
+                                    OutlineColor: Utils.rgba(0, 0, 0, 0.5)
+                                }
+                            }}
+                            ColorAndOpacity={{ SpecifiedColor: Utils.color("#F33") }}
+                            Text={ Utils.tr("自毁程序") }
+                        />
+                    </uCanvasPanel>
+                </uBorder>}
+
                 /* 中间的按键提示 */
                 {this.state.actionPrompt &&
                 <uCanvasPanel
@@ -314,9 +443,7 @@ class PlayingView extends React.Component {
                                 Brush={{
                                     TintColor: { SpecifiedColor: Utils.rgba(1, 1, 1, 0.6) },
                                 }}
-                                RenderTransform={{
-                                    Translation: {X: 0, Y: 999}
-                                }}
+                                RenderTransform={{ Translation: this.actionAnimeVal }}
                             />
                             <uBorder
                                 Slot={{

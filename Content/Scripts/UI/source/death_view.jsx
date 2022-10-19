@@ -82,6 +82,9 @@ class DeathView extends React.Component {
                         }
                     }}
                     WidgetStyle={ButtonStyle}
+                    OnReleased={() => {
+                        GameplayStatics.OpenLevel(GWorld, World.Load("/Game/MainBP/Maps/StarterMap"))
+                    }}
                 >
                     <uTextBlock
                         ColorAndOpacity={{ ColorUseRule: ESlateColorStylingMode.UseColor_Foreground }}

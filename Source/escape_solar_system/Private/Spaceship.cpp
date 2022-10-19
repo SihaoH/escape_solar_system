@@ -102,7 +102,7 @@ void ASpaceship::Destroy()
 		// 如果主角在飞船上，也得死（把血扣光）
 		auto Char = CurrentPilot;
 		UnDrive();
-		Char->Body->ChangeHP(-CurrentPilot->Body->GetCurrentHP());
+		Char->Body->ChangeHP(-Char->Body->GetCurrentHP());
 	}
 }
 

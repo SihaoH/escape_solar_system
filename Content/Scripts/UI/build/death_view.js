@@ -83,7 +83,10 @@ class DeathView extends React.Component {
                             Offsets: Utils.ltrb(0, 90, 200, 60)
                         }
                     },
-                    WidgetStyle: ButtonStyle
+                    WidgetStyle: ButtonStyle,
+                    OnReleased: () => {
+                        GameplayStatics.OpenLevel(GWorld, World.Load("/Game/MainBP/Maps/StarterMap"));
+                    }
                 },
                 React.createElement('uTextBlock', {
                     ColorAndOpacity: { ColorUseRule: ESlateColorStylingMode.UseColor_Foreground },

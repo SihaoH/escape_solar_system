@@ -6,8 +6,6 @@
 #include "MainCharacter.h"
 #include "NPC.h"
 #include "Spaceship.h"
-#include <Components/BoxComponent.h>
-#include <Components/SphereComponent.h>
 
 AEarthBase::AEarthBase()
 {

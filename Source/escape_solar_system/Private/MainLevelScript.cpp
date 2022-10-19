@@ -113,6 +113,8 @@ void AMainLevelScript::BeginPlay()
 	InputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AMainLevelScript::OnPaused);
 	InputComponent->BindAction("Menu", IE_Pressed, this, &AMainLevelScript::OnMenuOpened);
 	InputComponent->BindAction("Enter", IE_Pressed, this, &AMainLevelScript::OnEntered);
+	InputComponent->BindAction("Destroy", IE_Pressed, this, &AMainLevelScript::OnDestroyPressed);
+	InputComponent->BindAction("Destroy", IE_Released, this, &AMainLevelScript::OnDestroyReleased);
 
 	// 第一次进入游戏，播放开场动画
 	if (AMainPlayerState::Instance()->GetTotalTime() < 1.f)
@@ -204,6 +206,16 @@ void AMainLevelScript::OnActionPressed()
 void AMainLevelScript::OnActionReleased()
 {
 	ActionReleasedDelegate.Broadcast();
+}
+
+void AMainLevelScript::OnDestroyPressed()
+{
+	DestroyPressedDelegate.Broadcast();
+}
+
+void AMainLevelScript::OnDestroyReleased()
+{
+	DestroyReleasedDelegate.Broadcast();
 }
 
 void AMainLevelScript::OnSequenceFinshed()
