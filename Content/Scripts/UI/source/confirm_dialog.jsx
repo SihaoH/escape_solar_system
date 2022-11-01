@@ -92,9 +92,9 @@ class Dialog extends React.Component {
                                 {_.map([Utils.tr("取消"), Utils.tr("确定")], (val, idx) => (
                                 <uSizeBox
                                     Slot={{
-                                        Padding: Utils.ltrb(10, 0),
+                                        Padding: Utils.ltrb(20, 0),
                                     }}
-                                    WidthOverride={200}
+                                    WidthOverride={180}
                                     HeightOverride={50}
                                 >
                                     <uButton

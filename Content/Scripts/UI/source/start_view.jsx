@@ -5,17 +5,56 @@ const Utils = require('../utils')
 const EAnchors = require('../anchors')
 const {F_Sans, ButtonStyle} = require('../style')
 
+const SettingsView = require('settings_view')
 const ConfirmDialog = require('confirm_dialog')
 
 let ThisWidget = null
+
+const EPageType = { Home: 0, Settings: 1, About: 2 }
+
+class MainButton extends React.Component {
+    constructor(props) {
+        super(props)
+    }
+
+    render() {
+        return (
+            <uSizeBox
+                Slot={{ Padding: Utils.ltrb(0, 5) }}
+                WidthOverride={280}
+                HeightOverride={80}
+            >
+                <uButton
+                    WidgetStyle={ButtonStyle}
+                    IsFocusable={false}
+                    OnReleased={this.props.onClicked}
+                >
+                    <uTextBlock
+                        Slot={{ Padding: Utils.ltrb(0) }}
+                        Font={{
+                            FontObject: F_Sans,
+                            TypefaceFontName: "Bold",
+                            Size: 24,
+                        }}
+                        ColorAndOpacity={{
+                            ColorUseRule: ESlateColorStylingMode.UseColor_Foreground
+                        }}
+                        Text={ this.props.text }
+                    />
+                </uButton>
+            </uSizeBox>
+        )
+    }
+}
 
 class StartView extends React.Component {
     constructor(props) {
         super(props)
 
-        this.options = [Utils.tr("新游戏"), Utils.tr("设置"), Utils.tr("退出游戏")]
-        if (MainSaveGame.HasAr()) {
-            this.options.unshift(Utils.tr("继续"))
+        GameUserSettings.GetGameUserSettings().ApplySettings(true)
+
+        this.state = {
+            pageType: EPageType.Home
         }
 
         this.openMainLv = (need_load) => {
@@ -25,25 +64,6 @@ class StartView extends React.Component {
             setTimeout(() => {
                 GameplayStatics.OpenLevel(GWorld, World.Load("/Game/MainBP/Maps/SolarSystemMap"))
             }, 2000)
-        }
-
-        this.handleAction = (idx) => {
-            if (idx === 0) { // 继续
-                this.openMainLv(true)
-            } else if (idx === 1) { // 新游戏
-                if (MainSaveGame.HasAr()) {
-                    ConfirmDialog.open(Utils.tr("提示"), Utils.tr("开始新游戏会覆盖已有存档"), () => {
-                        this.openMainLv(false)
-                    })
-                } else {
-                    this.openMainLv(false)
-                }
-            } else if (idx === 2) { // 设置
-                // TODO
-            } else if (idx === 3) { // 退出游戏
-                ThisWidget.RemoveFromViewport()
-                process.nextTick(() => GWorld.QuitGame())
-            }
         }
     }
 
@@ -65,65 +85,105 @@ class StartView extends React.Component {
     }
 
     render() {
-        
         return (
             <uCanvasPanel>
-                <uTextBlock
+                {this.state.pageType === EPageType.Home &&
+                <uCanvasPanel
                     Slot={{
                         LayoutData: {
                             Anchors: EAnchors.Left,
-                            Alignment: { X: 0, Y: 1.0 },
-                            Offsets: Utils.ltrb(100, -50, 0, 0)
-                        },
-                        bAutoSize: true
-                    }}
-                    Font={{
-                        FontObject: F_Sans,
-                        TypefaceFontName: "Bold",
-                        Size: 96,
-                        LetterSpacing: 100,
-                        OutlineSettings: {
-                            OutlineSize: 4,
-                            OutlineColor: Utils.rgba(0, 0, 0, 0.6)
-                        }
-                    }}
-                    ColorAndOpacity={{ SpecifiedColor: Utils.color("#CCF") }}
-                    Text={ Utils.tr("逃离：太阳系") }
-                />
-                <div
-                    Slot={{
-                        LayoutData: {
-                            Anchors: EAnchors.Left,
-                            Alignment: { X: 0, Y: 0 },
-                            Offsets: Utils.ltrb(100, 50, 0, 0)
+                            Alignment: { X: 0, Y: 0.5 },
+                            Offsets: Utils.ltrb(100, 0, 0, 0),
                         },
                         bAutoSize: true
                     }}
                 >
-                    {_.map(this.options, (val, idx) => (
-                    <uButton
-                        Slot={{ Padding: Utils.ltrb(0, 5) }}
-                        WidgetStyle={ButtonStyle}
-                        IsFocusable={false}
-                        OnReleased={() => {
-                            this.handleAction(idx + (this.options.length > 3 ? 0 : 1))
+                    <uTextBlock
+                        Slot={{
+                            LayoutData: {
+                                Anchors: EAnchors.Left,
+                                Alignment: { X: 0, Y: 1.0 },
+                                Offsets: Utils.ltrb(100, -50, 0, 0)
+                            },
+                            bAutoSize: true
+                        }}
+                        Font={{
+                            FontObject: F_Sans,
+                            TypefaceFontName: "Bold",
+                            Size: 96,
+                            LetterSpacing: 100,
+                            OutlineSettings: {
+                                OutlineSize: 4,
+                                OutlineColor: Utils.rgba(0, 0, 0, 0.6)
+                            }
+                        }}
+                        ColorAndOpacity={{ SpecifiedColor: Utils.color("#CCF") }}
+                        Text={ Utils.tr("逃离：太阳系") }
+                    />
+                    <div
+                        Slot={{
+                            LayoutData: {
+                                Anchors: EAnchors.Left,
+                                Alignment: { X: 0, Y: 0 },
+                                Offsets: Utils.ltrb(100, 50, 0, 0)
+                            },
+                            bAutoSize: true
                         }}
                     >
-                        <uTextBlock
-                            Slot={{ Padding: Utils.ltrb(80, 20) }}
-                            Font={{
-                                FontObject: F_Sans,
-                                TypefaceFontName: "Bold",
-                                Size: 24,
+                        {MainSaveGame.HasAr() &&
+                        <MainButton
+                            text={Utils.tr("继续")}
+                            onClicked={() => {
+                                this.openMainLv(true)
                             }}
-                            ColorAndOpacity={{
-                                ColorUseRule: ESlateColorStylingMode.UseColor_Foreground
+                        />}
+                        <MainButton
+                            text={Utils.tr("新游戏")}
+                            onClicked={() => {
+                                if (MainSaveGame.HasAr()) {
+                                    ConfirmDialog.open(Utils.tr("提示"), Utils.tr("开始新游戏会覆盖已有存档"), () => {
+                                        this.openMainLv(false)
+                                    })
+                                } else {
+                                    this.openMainLv(false)
+                                }
                             }}
-                            Text={ val }
                         />
-                    </uButton>
-                    ))}
-                </div>
+                        <MainButton
+                            text={Utils.tr("设置")}
+                            onClicked={() => {
+                                this.setState( {pageType: EPageType.Settings} )
+                            }}
+                        />
+                        <MainButton
+                            text={Utils.tr("关于")}
+                            onClicked={() => {
+                                // this.setState( {pageType: EPageType.About} )
+                            }}
+                        />
+                        <MainButton
+                            text={Utils.tr("退出游戏")}
+                            onClicked={() => {
+                                ThisWidget.RemoveFromViewport()
+                                process.nextTick(() => GWorld.QuitGame())
+                            }}
+                        />
+                    </div>
+                </uCanvasPanel>}
+
+                {this.state.pageType === EPageType.Settings &&
+                <SettingsView
+                    Slot={{
+                        LayoutData: {
+                            Anchors: EAnchors.Left,
+                            Alignment: { X: 0, Y: 0.5 },
+                            Offsets: Utils.ltrb(100, 0, 1000, 800)
+                        }
+                    }}
+                    onBack={() => {
+                        this.setState( {pageType: EPageType.Home} )
+                    }}
+                />}
             </uCanvasPanel>
         )
     }

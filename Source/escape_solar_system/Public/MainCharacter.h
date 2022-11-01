@@ -4,6 +4,7 @@
 
 #include "MassActorInterface.h"
 #include "Controllable.h"
+#include "GravityMovementComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MainCharacter.generated.h"
@@ -38,7 +39,7 @@ public:
 	void SetTalkableNPC(class ANPC* NPC) { TalkableNPC = NPC; }
 
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE float GetMass() const;
+	FORCEINLINE float GetMass() const { return Movement->Mass; }
 
 	virtual FVector GetVelocity() const override;
 

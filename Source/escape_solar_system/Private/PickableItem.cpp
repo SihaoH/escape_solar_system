@@ -14,11 +14,6 @@ UPickableItem::UPickableItem()
 	Enable();
 }
 
-void UPickableItem::SetHighlight(bool bValue)
-{
-	SetRenderCustomDepth(bValue);
-}
-
 void UPickableItem::Pickup(FName& RowName, int32& Count)
 {
 	FItemData& ItemData = UMainLibrary::GetItemData(ItemRowName);

@@ -60,7 +60,10 @@ class ESCAPE_SOLAR_SYSTEM_API ANPC : public APawn, public IMassActorInterface
 public:
 	ANPC();
 
-	FORCEINLINE void SetHighlight(bool bValue);
+	FORCEINLINE void SetHighlight(bool bValue)
+	{
+		MeshComponent->SetRenderCustomDepth(bValue);
+	}
 
 	FORCEINLINE FText GetName() const { return Name; };
 

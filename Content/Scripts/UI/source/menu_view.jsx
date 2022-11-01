@@ -141,11 +141,6 @@ class MenuView extends React.Component {
                     </span>
                 </span>
                 <uWidgetSwitcher
-                    ref={elem => {
-                        if (elem && !this.tabView) {
-                            this.tabView = elem.ueobj
-                        }
-                    }}
                     Slot={{
                         LayoutData: {
                             Anchors: EAnchors.FillAll,

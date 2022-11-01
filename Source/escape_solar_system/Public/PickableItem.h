@@ -14,7 +14,10 @@ class ESCAPE_SOLAR_SYSTEM_API UPickableItem : public UStaticMeshComponent
 public:
 	UPickableItem();
 
-	FORCEINLINE void SetHighlight(bool bValue);
+	FORCEINLINE void SetHighlight(bool bValue)
+	{
+		SetRenderCustomDepth(bValue);
+	}
 
 	UFUNCTION(BlueprintCallable)
 	void Pickup(FName& RowName, int32& Count);

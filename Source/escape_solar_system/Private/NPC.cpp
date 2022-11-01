@@ -28,11 +28,6 @@ ANPC::ANPC()
 	MovementComponent->UpdatedComponent = MeshComponent;
 }
 
-void ANPC::SetHighlight(bool bValue)
-{
-	MeshComponent->SetRenderCustomDepth(bValue);
-}
-
 FText ANPC::GetText(FName Index) const
 {
 	if (Index.IsNone()) {

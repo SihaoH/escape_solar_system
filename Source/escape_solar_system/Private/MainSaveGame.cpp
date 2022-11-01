@@ -19,6 +19,23 @@ bool UMainSaveGame::bIsNeedLoad = false;
 FString UMainSaveGame::SaveSlotName = TEXT("archive");
 uint32 UMainSaveGame::UserIndex = 0;
 
+// UClass::IsClassGroupName只能在编辑器中使用，所以把实现抄过来
+static FORCEINLINE bool _IsClassGroupName(UClass* Class, const TCHAR* InGroupName)
+{
+	static const FName NAME_ClassGroupNames(TEXT("ClassGroupNames"));
+	UPackage* Package = Class->GetOutermost();
+	check(Package);
+
+	UMetaData* MetaData = Package->GetMetaData();
+	check(MetaData);
+
+	if (const FString* ClassGroupNames = MetaData->FindValue(Class, NAME_ClassGroupNames))
+	{
+		return !!FCString::StrfindDelim(**ClassGroupNames, InGroupName, TEXT(" "));
+	}
+	return false;
+}
+
 static FORCEINLINE FByteArray GetObjectData(UObject* Obj)
 {
 	TArray<uint8> Data;
@@ -39,7 +56,7 @@ static FORCEINLINE FActorData GetActorData(UObject* Obj)
 	{
 		auto Comp = (*It)->GetPropertyValue_InContainer(Obj);
 		// 自定义的组名，避免无用的组件被保存下来
-		if (Comp && Comp->GetClass()->IsClassGroupName(L"SaveGame"))
+		if (Comp && _IsClassGroupName(Comp->GetClass(), TEXT("SaveGame")))
 		{
 			(*Data).Add(Comp->GetName(), GetObjectData(Comp));
 		}

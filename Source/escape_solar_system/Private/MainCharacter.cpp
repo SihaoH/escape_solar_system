@@ -2,7 +2,6 @@
 
 #include "MainCharacter.h"
 #include "TechData.h"
-#include "GravityMovementComponent.h"
 #include "BackpackComponent.h"
 #include "BodyComponent.h"
 #include "EngineComponent.h"
@@ -117,11 +116,6 @@ AEarthBase* AMainCharacter::FindEarthBase() const
 		return Cast<AEarthBase>(NearbyActors[0]);
 	}
 	return nullptr;
-}
-
-float AMainCharacter::GetMass() const
-{
-	return Movement->Mass;
 }
 
 FVector AMainCharacter::GetVelocity() const

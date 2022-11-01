@@ -104,9 +104,9 @@ class Dialog extends React.Component {
                                     'uSizeBox',
                                     {
                                         Slot: {
-                                            Padding: Utils.ltrb(10, 0)
+                                            Padding: Utils.ltrb(20, 0)
                                         },
-                                        WidthOverride: 200,
+                                        WidthOverride: 180,
                                         HeightOverride: 50
                                     },
                                     React.createElement(

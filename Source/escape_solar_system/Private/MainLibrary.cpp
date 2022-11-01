@@ -3,6 +3,7 @@
 #include "MainLibrary.h"
 #include "BackpackComponent.h"
 #include "MainLevelScript.h"
+#include <GameFramework/GameUserSettings.h>
 
 UDataTable* UMainLibrary::DT_ItemInfo = nullptr;
 
