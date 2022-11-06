@@ -38,10 +38,10 @@ void UEngineComponent::SetEngine(EPawnType PType, int32 Level, int32 Type)
 			break;
 		}
 	}
-	Power = UMainLibrary::GetTechValue(PowerLV, Level);
-	Mass = UMainLibrary::GetTechValue(MassLV, Level);
-	EPRatio = UMainLibrary::GetTechValue(EprLV, Level);
-	EMRatio = UMainLibrary::GetTechValue(EmrLV, Level);
+	Power = UMainLibrary::GetTechValueVal(PowerLV, Level);
+	Mass = UMainLibrary::GetTechValueVal(MassLV, Level);
+	EPRatio = UMainLibrary::GetTechValueVal(EprLV, Level);
+	EMRatio = UMainLibrary::GetTechValueVal(EmrLV, Level);
 }
 
 void UEngineComponent::SetEnergy(EPawnType PType, int32 Level, int32 Type)
@@ -62,7 +62,7 @@ void UEngineComponent::SetEnergy(EPawnType PType, int32 Level, int32 Type)
 			break;
 		}
 	}
-	MaximumEnergy = UMainLibrary::GetTechValue(LV, Level);
+	MaximumEnergy = UMainLibrary::GetTechValueVal(LV, Level);
 }
 
 void UEngineComponent::ChangeEnergy(float Delta)

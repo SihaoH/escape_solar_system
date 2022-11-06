@@ -16,23 +16,23 @@ UBodyComponent::UBodyComponent()
 
 void UBodyComponent::SetStrength(EPawnType Type, int32 Level)
 {
-	MaximumHP = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharHP : ETech::ShipHP, Level);
-	Mass = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharMass : ETech::ShipMass, Level);
+	MaximumHP = UMainLibrary::GetTechValueVal(IsChar(Type) ? ETech::CharHP : ETech::ShipHP, Level);
+	Mass = UMainLibrary::GetTechValueVal(IsChar(Type) ? ETech::CharMass : ETech::ShipMass, Level);
 }
 
 void UBodyComponent::SetShieldCold(EPawnType Type, int32 Level)
 {
-	ShieldCold = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharShieldCold : ETech::ShipShieldCold, Level);
+	ShieldCold = UMainLibrary::GetTechValueVal(IsChar(Type) ? ETech::CharShieldCold : ETech::ShipShieldCold, Level);
 }
 
 void UBodyComponent::SetShieldHeat(EPawnType Type, int32 Level)
 {
-	ShieldHeat = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharShieldHeat : ETech::ShipShieldHeat, Level);
+	ShieldHeat = UMainLibrary::GetTechValueVal(IsChar(Type) ? ETech::CharShieldHeat : ETech::ShipShieldHeat, Level);
 }
 
 void UBodyComponent::SetShieldPress(EPawnType Type, int32 Level)
 {
-	ShieldPress = UMainLibrary::GetTechValue(IsChar(Type) ? ETech::CharShieldPress : ETech::ShipShieldPress, Level);
+	ShieldPress = UMainLibrary::GetTechValueVal(IsChar(Type) ? ETech::CharShieldPress : ETech::ShipShieldPress, Level);
 }
 
 void UBodyComponent::ChangeHP(int32 Delta)

@@ -13,7 +13,6 @@
 #include "MainLevelScript.h"
 #include <UMG.h>
 
-#define LOCTEXT_NAMESPACE "MenuBase"
 
 FString UMenuBaseHelper::GetGameDate() const
 {
@@ -118,5 +117,3 @@ class UBackpackComponent* UMenuBaseHelper::GetStorehouse() const
 	AEarthBase* EarthBase = AMainLevelScript::GetMainChar()->FindEarthBase();
 	return EarthBase ? EarthBase->Backpack : nullptr;
 }
-
-#undef LOCTEXT_NAMESPACE

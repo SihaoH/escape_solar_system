@@ -22,19 +22,37 @@ struct FTechDemand
 };
 
 USTRUCT(BlueprintType)
-struct FTechDemandList : public FTableRowBase
+struct FTechInfo : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
+	/** 技术名称 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Name;
+
+	/** 技术描述 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+	FText Desc;
+
+	/** 技术图标 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UTexture2D> Icon;
+
+	/** 升级所需的物品 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FTechDemand> List = { FTechDemand(), FTechDemand(), FTechDemand(), FTechDemand(), FTechDemand() };
+	TArray<FTechDemand> DemandList = { FTechDemand(), FTechDemand(), FTechDemand(), FTechDemand(), FTechDemand() };
 };
 
 USTRUCT(BlueprintType)
-struct FTechValueList : public FTableRowBase
+struct FTechValue : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
+	/** 技术属性名称 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Name;
+
+	/** 技术属性每个等级的值 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<float> List = { 0, 0, 0, 0, 0 };
 };
@@ -117,7 +135,7 @@ const TMap<ETech, FName> ValueRow = {
 	{ ETech::ShipEnergy2,      "ShipEnergy2"     },
 };
 
-const TMap<ETech, FName> DemandRow = {
+const TMap<ETech, FName> InfoRow = {
 	{ ETech::CharHP,          "CharStrength"    },
 	{ ETech::CharMass,        "CharStrength"    },
 	{ ETech::CharBackpack,    "CharBackpack"    },
@@ -152,42 +170,4 @@ const TMap<ETech, FName> DemandRow = {
 	{ ETech::ShipEnergy1,      "ShipEnergy1"    },
 	{ ETech::ShipEnergy2,      "ShipEnergy2"    },
 };
-
-#define LOCTEXT_NAMESPACE "LevelData"
-const TMap<ETech, FText> DispName = {
-	{ ETech::CharHP,          LOCTEXT("CharHP",          "血量")   },
-	{ ETech::CharMass,        LOCTEXT("CharMass",        "质量")   },
-	{ ETech::CharBackpack,    LOCTEXT("CharBackpack",    "承重")   },
-	{ ETech::CharShieldCold,  LOCTEXT("CharShieldCold",  "耐寒")   },
-	{ ETech::CharShieldHeat,  LOCTEXT("CharShieldHeat",  "耐热")   },
-	{ ETech::CharShieldPress, LOCTEXT("CharShieldPress", "耐压")   },
-	{ ETech::CharEnginePower, LOCTEXT("CharEnginePower", "推力")   },
-	{ ETech::CharEngineMass,  LOCTEXT("CharEngineMass",  "质量")   },
-	{ ETech::CharEngineEPR,   LOCTEXT("CharEngineEPR",   "能耗比") },
-	{ ETech::CharEngineEMR,   LOCTEXT("CharEngineEMR",   "能质比") },
-	{ ETech::CharEnergy,      LOCTEXT("CharEnergy",      "能量")   },
-
-	{ ETech::ShipHP,           LOCTEXT("CharHP",          "血量")   },
-	{ ETech::ShipMass,         LOCTEXT("CharMass",        "质量")   },
-	{ ETech::ShipBackpack,     LOCTEXT("CharBackpack",    "承重")   },
-	{ ETech::ShipShieldCold,   LOCTEXT("CharShieldCold",  "耐寒")   },
-	{ ETech::ShipShieldHeat,   LOCTEXT("CharShieldHeat",  "耐热")   },
-	{ ETech::ShipShieldPress,  LOCTEXT("CharShieldPress", "耐压")   },
-	{ ETech::ShipEngine0Power, LOCTEXT("CharEnginePower", "推力")   },
-	{ ETech::ShipEngine0Mass,  LOCTEXT("CharEngineMass",  "质量")   },
-	{ ETech::ShipEngine0EPR,   LOCTEXT("CharEngineEPR",   "能耗比") },
-	{ ETech::ShipEngine0EMR,   LOCTEXT("CharEngineEMR",   "能质比") },
-	{ ETech::ShipEngine1Power, LOCTEXT("CharEnergy",      "推力")   },
-	{ ETech::ShipEngine1Mass,  LOCTEXT("CharEnergy",      "质量")   },
-	{ ETech::ShipEngine1EPR,   LOCTEXT("CharEnergy",      "能耗比") },
-	{ ETech::ShipEngine1EMR,   LOCTEXT("CharEnergy",      "能质比") },
-	{ ETech::ShipEngine2Power, LOCTEXT("CharEnergy",      "推力")   },
-	{ ETech::ShipEngine2Mass,  LOCTEXT("CharEnergy",      "质量")   },
-	{ ETech::ShipEngine2EPR,   LOCTEXT("CharEnergy",      "能耗比") },
-	{ ETech::ShipEngine2EMR,   LOCTEXT("CharEnergy",      "能质比") },
-	{ ETech::ShipEnergy0,      LOCTEXT("CharEnergy",      "能量")   },
-	{ ETech::ShipEnergy1,      LOCTEXT("CharEnergy",      "能量")   },
-	{ ETech::ShipEnergy2,      LOCTEXT("CharEnergy",      "能量")   },
-};
-#undef LOCTEXT_NAMESPACE
 }

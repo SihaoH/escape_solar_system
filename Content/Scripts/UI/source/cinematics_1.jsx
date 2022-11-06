@@ -41,7 +41,7 @@ class PromptView extends React.Component {
                 } else {
                     break
                 }
-                await Utils.delay(300)
+                await Utils.delay(150)
             }
         }
         setTimeout(() => { this.play() }, 1000)

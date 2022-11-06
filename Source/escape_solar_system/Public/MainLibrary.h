@@ -58,14 +58,11 @@ public:
 	static FItemData& GetItemData(const FName& RowName);
 	static TArray<FName> GetMakeableItemList();
 
-	static FTechDemand GetTechDemand(ETech Level, int32 Val);
-	static float GetTechValue(ETech Level, int32 Val);
-
-	static TPair<bool, FText> GetDemandInfo(const TMap<FName, int32>& List, class UBackpackComponent* Backpack = nullptr, int32 Count = 1);
+	static FText GetTechValueName(ETech Tech);
+	static float GetTechValueVal(ETech Tech, int32 Val);
 
 private:
 	static UDataTable* DT_ItemInfo;
-	static UDataTable* DT_TechDemand;
 	static UDataTable* DT_TechValue;
 
 	static TMap<FString, FText> TranslationMap;

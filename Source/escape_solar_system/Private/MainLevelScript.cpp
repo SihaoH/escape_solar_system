@@ -36,12 +36,8 @@ void AMainLevelScript::SetMainChar(AMainCharacter* Char)
 
 void AMainLevelScript::SetSpaceship(ASpaceship* Ship)
 {
-	if (Ship != nullptr && ThisInstance->Spaceship != nullptr)
-	{
-		// 只能存在一架飞船
-		check(false);
-	}
 	ThisInstance->Spaceship = Ship;
+	ThisInstance->ShipChangedDelegate.Broadcast();
 }
 
 void AMainLevelScript::SetEarthBase(AEarthBase* Base)

@@ -6,8 +6,6 @@
 #include <GameFramework/GameUserSettings.h>
 
 UDataTable* UMainLibrary::DT_ItemInfo = nullptr;
-
-UDataTable* UMainLibrary::DT_TechDemand = nullptr;
 UDataTable* UMainLibrary::DT_TechValue = nullptr;
 TMap<FString, FText> UMainLibrary::TranslationMap;
 
@@ -17,10 +15,7 @@ UMainLibrary::UMainLibrary()
 	DT_ItemInfo = Finder_Item.Object;
 	check(DT_ItemInfo);
 
-	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Demand(TEXT("DataTable'/Game/DataTable/DT_TechDemand.DT_TechDemand'"));
 	static ConstructorHelpers::FObjectFinder<UDataTable> Finder_Value(TEXT("DataTable'/Game/DataTable/DT_TechValue.DT_TechValue'"));
-	DT_TechDemand = Finder_Demand.Object;
-	check(DT_TechDemand);
 	DT_TechValue = Finder_Value.Object;
 	check(DT_TechValue);
 
@@ -77,54 +72,27 @@ TArray<FName> UMainLibrary::GetMakeableItemList()
 	return List;
 }
 
-FTechDemand UMainLibrary::GetTechDemand(ETech Level, int32 Val)
+FText UMainLibrary::GetTechValueName(ETech Tech)
 {
-	FTechDemandList* DemandList = DT_TechDemand ? DT_TechDemand->FindRow<FTechDemandList>(TECH::DemandRow[Level], FString()) : nullptr;
-	if (DemandList)
+	FTechValue* Value = DT_TechValue ? DT_TechValue->FindRow<FTechValue>(TECH::ValueRow[Tech], FString()) : nullptr;
+	if (Value)
 	{
-		if (Val >= 0 && Val < DemandList->List.Num())
-		{
-			return DemandList->List[Val];
-		}
+		return Value->Name;
 	}
 	//check(false);
-	return FTechDemand();
+	return FText();
 }
 
-float UMainLibrary::GetTechValue(ETech Level, int32 Val)
+float UMainLibrary::GetTechValueVal(ETech Tech, int32 Val)
 {
-	FTechValueList* ValueList = DT_TechValue ? DT_TechValue->FindRow<FTechValueList>(TECH::ValueRow[Level], FString()) : nullptr;
-	if (ValueList)
+	FTechValue* Value = DT_TechValue ? DT_TechValue->FindRow<FTechValue>(TECH::ValueRow[Tech], FString()) : nullptr;
+	if (Value)
 	{
-		if (Val >= 0 && Val < ValueList->List.Num())
+		if (Val >= 0 && Val < Value->List.Num())
 		{
-			return ValueList->List[Val];
+			return Value->List[Val];
 		}
 	}
 	//check(false);
 	return 0;
-}
-
-TPair<bool, FText> UMainLibrary::GetDemandInfo(const TMap<FName, int32>& List, UBackpackComponent* Backpack, int32 Count)
-{
-	FString DemandStr;
-	bool Enough = true;
-	for (const TPair<FName, int32>& Demand : List)
-	{
-		FItemData& DemandData = UMainLibrary::GetItemData(Demand.Key);
-		int32 NeedCount = Demand.Value * FMath::Max(Count, 1);
-		int32 HoldCount = Backpack ? Backpack->CountItem(Demand.Key) : 0;
-		FStringFormatOrderedArguments Arguments;
-		Arguments.Add(DemandData.Name.ToString());
-		Arguments.Add(HoldCount >= NeedCount ? TEXT("Default") : TEXT("Warning"));
-		Arguments.Add(FString::FromInt(NeedCount));
-		Arguments.Add(Backpack ? FString::FromInt(HoldCount) : tr("？？？").ToString());
-		DemandStr += FString::Format(TEXT("{0}  <{1}>×{2}</>  (<img id=\"Storehouse\"/> ×{3})\n"), Arguments);
-		if (HoldCount < NeedCount)
-		{
-			Enough = false;
-		}
-	}
-	DemandStr.RemoveFromEnd(TEXT("\n"));
-	return TPair<bool, FText>(Enough, FText::FromString(DemandStr));
 }

@@ -10,14 +10,15 @@ void UTargetIndicatorHelper::GetLockInfo(const AActor* Target, float& Dist, floa
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GWorld, 0);
 	if (Target && Player)
 	{
-		const double DistValue = FVector::Dist(Target->GetActorLocation(), Player->GetActorLocation());
+		double DistValue = FVector::Dist(Target->GetActorLocation(), Player->GetActorLocation());
 		float TargetRadius = 0.f;
 		if (auto Body = Cast<ACelestialBody>(Target))
 		{
 			TargetRadius = Body->GetSelfRadius();
 		}
+		DistValue -= TargetRadius;
 		Speed = (DistValue - Dist*100.f) / GWorld->GetDeltaSeconds() / 100.f;
-		Dist = (DistValue - TargetRadius) / 100;
+		Dist = DistValue / 100.f;
 	}
 }
 

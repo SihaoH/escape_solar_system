@@ -14,43 +14,31 @@
 
 const int Max_Level = 4;
 
+UMenuTechHelper::UMenuTechHelper()
+{
+	ConstructorHelpers::FObjectFinder<UDataTable> Finder_Info(TEXT("DataTable'/Game/DataTable/DT_TechInfo.DT_TechInfo'"));
+	DT_TechInfo = Finder_Info.Object;
+	check(DT_TechInfo);
+}
+
 void UMenuTechHelper::SelectTech(const TArray<ETech>& Props)
 {
-	CurLevelInfo = FText();
-	NextLevelInfo = FText();
 	DemandPoints = FText();
 	DemandItems = FText();
 
-	ETech Level = Props[0];
-	int Val = *GetTarget(Level);
-	FString InfoStr;
-	if (Val >= 0)
-	{
-		for (const auto& elemt : Props) {
-			InfoStr += TECH::DispName[elemt].ToString() + TEXT(": ");
-			InfoStr += FString::FormatAsNumber(UMainLibrary::GetTechValue(elemt, Val)) + TEXT("\n");
-		}
-		InfoStr.RemoveFromEnd(TEXT("\n"));
-		CurLevelInfo = FText::FromString(InfoStr);
-	}
+	ETech Tech = Props[0];
+	int Val = *GetTarget(Tech);
 	if (Val < Max_Level)
 	{
 		auto PlayerState = AMainPlayerState::Instance();
-		InfoStr = FString();
-		for (const auto& elemt : Props) {
-			InfoStr += TECH::DispName[elemt].ToString() + TEXT(": ");
-			InfoStr += FString::FormatAsNumber(UMainLibrary::GetTechValue(elemt, Val+1)) + TEXT("\n");
-		}
-		InfoStr.RemoveFromEnd(TEXT("\n"));
-		NextLevelInfo = FText::FromString(InfoStr);
 
-		FTechDemand LevelDemand = UMainLibrary::GetTechDemand(Level, Val+1);
+		FTechDemand LevelDemand = GetTechDemand(Tech, Val+1);
 		// 已升级过的技能不消耗探索点
 		DemandPoints = FText::Format(tr("探索点数: {0}"), Val >= PlayerState->GetBestLevel(Props) ? LevelDemand.Points : 0);
 
 		AEarthBase* EarthBase = AMainLevelScript::GetMainChar()->FindEarthBase();
 		UBackpackComponent* Backpack = EarthBase ? EarthBase->Backpack : nullptr;
-		auto DemandInfo = UMainLibrary::GetDemandInfo(LevelDemand.Items, Backpack);
+		auto DemandInfo = GetDemandInfo(LevelDemand.Items, Backpack);
 		CanUpgrade = DemandInfo.Key && (PlayerState->GetExplorePoints() >= LevelDemand.Points);
 		DemandItems = DemandInfo.Value;
 	}
@@ -68,7 +56,7 @@ void UMenuTechHelper::UpgradeTech(const TArray<ETech>& Props)
 	int* ValPtr = GetTarget(Level);
 	if (*ValPtr < Max_Level)
 	{
-		FTechDemand LevelDemand = UMainLibrary::GetTechDemand(Level, *ValPtr+1);
+		FTechDemand LevelDemand = GetTechDemand(Level, *ValPtr+1);
 		auto PlayerState = AMainPlayerState::Instance();
 		auto Backpack = AMainLevelScript::GetEarthBase()->Backpack;
 		// 已升级过的技能不消耗探索点
@@ -92,159 +80,34 @@ void UMenuTechHelper::UpgradeTech(const TArray<ETech>& Props)
 FText UMenuTechHelper::GetTechName(const TArray<ETech>& Props)
 {
 	ETech Level = Props[0];
-	FText Name;
-	switch (Level)
+	FTechInfo* Info = DT_TechInfo ? DT_TechInfo->FindRow<FTechInfo>(TECH::InfoRow[Level], FString()) : nullptr;
+	if (Info)
 	{
-	case ETech::CharHP:
-	case ETech::CharMass:
-		Name = tr("机身强度");
-		break;
-	case ETech::CharBackpack:
-		Name = tr("背包");
-		break;
-	case ETech::CharShieldCold:
-		Name = tr("冷防护");
-		break;
-	case ETech::CharShieldHeat:
-		Name = tr("热防护");
-		break;
-	case ETech::CharShieldPress:
-		Name = tr("压力防护");
-		break;
-	case ETech::CharEnginePower:
-	case ETech::CharEngineMass:
-	case ETech::CharEngineEPR:
-	case ETech::CharEngineEMR:
-		Name = tr("化学引擎");
-		break;
-	case ETech::CharEnergy:
-		Name = tr("化学燃料仓");
-		break;
-	case ETech::ShipHP:
-	case ETech::ShipMass:
-		Name = tr("机身强度");
-		break;
-	case ETech::ShipBackpack:
-		Name = tr("存储仓");
-		break;
-	case ETech::ShipShieldCold:
-		Name = tr("冷防护");
-		break;
-	case ETech::ShipShieldHeat:
-		Name = tr("热防护");
-		break;
-	case ETech::ShipShieldPress:
-		Name = tr("压力防护");
-		break;
-	case ETech::ShipEngine0Power:
-	case ETech::ShipEngine0Mass:
-	case ETech::ShipEngine0EPR:
-	case ETech::ShipEngine0EMR:
-		Name = tr("化学引擎");
-		break;
-	case ETech::ShipEngine1Power:
-	case ETech::ShipEngine1Mass:
-	case ETech::ShipEngine1EPR:
-	case ETech::ShipEngine1EMR:
-		Name = tr("核裂变引擎");
-		break;
-	case ETech::ShipEngine2Power:
-	case ETech::ShipEngine2Mass:
-	case ETech::ShipEngine2EPR:
-	case ETech::ShipEngine2EMR:
-		Name = tr("核聚变引擎");
-		break;
-	case ETech::ShipEnergy0:
-		Name = tr("化学燃料仓");
-		break;
-	case ETech::ShipEnergy1:
-		Name = tr("核裂变燃料仓");
-		break;
-	case ETech::ShipEnergy2:
-		Name = tr("核聚变燃料仓");
-		break;
+		return Info->Name;
 	}
-
-	return Name;
+	return FText();
 }
 
 FText UMenuTechHelper::GetTechDesc(const TArray<ETech>& Props)
 {
 	ETech Level = Props[0];
-	FText Desc;
-	switch (Level)
+	FTechInfo* Info = DT_TechInfo ? DT_TechInfo->FindRow<FTechInfo>(TECH::InfoRow[Level], FString()) : nullptr;
+	if (Info)
 	{
-	case ETech::CharHP:
-	case ETech::CharMass:
-		Desc = tr("机身强度");
-		break;
-	case ETech::CharBackpack:
-		Desc = tr("背包");
-		break;
-	case ETech::CharShieldCold:
-		Desc = tr("冷防护");
-		break;
-	case ETech::CharShieldHeat:
-		Desc = tr("热防护");
-		break;
-	case ETech::CharShieldPress:
-		Desc = tr("压力防护");
-		break;
-	case ETech::CharEnginePower:
-	case ETech::CharEngineMass:
-	case ETech::CharEngineEPR:
-	case ETech::CharEngineEMR:
-		Desc = tr("化学引擎");
-		break;
-	case ETech::CharEnergy:
-		Desc = tr("化学燃料仓");
-		break;
-	case ETech::ShipHP:
-	case ETech::ShipMass:
-		Desc = tr("机身强度");
-		break;
-	case ETech::ShipBackpack:
-		Desc = tr("存储仓");
-		break;
-	case ETech::ShipShieldCold:
-		Desc = tr("冷防护");
-		break;
-	case ETech::ShipShieldHeat:
-		Desc = tr("热防护");
-		break;
-	case ETech::ShipShieldPress:
-		Desc = tr("压力防护");
-		break;
-	case ETech::ShipEngine0Power:
-	case ETech::ShipEngine0Mass:
-	case ETech::ShipEngine0EPR:
-	case ETech::ShipEngine0EMR:
-		Desc = tr("化学引擎");
-		break;
-	case ETech::ShipEngine1Power:
-	case ETech::ShipEngine1Mass:
-	case ETech::ShipEngine1EPR:
-	case ETech::ShipEngine1EMR:
-		Desc = tr("核裂变引擎");
-		break;
-	case ETech::ShipEngine2Power:
-	case ETech::ShipEngine2Mass:
-	case ETech::ShipEngine2EPR:
-	case ETech::ShipEngine2EMR:
-		Desc = tr("核聚变引擎");
-		break;
-	case ETech::ShipEnergy0:
-		Desc = tr("化学燃料仓");
-		break;
-	case ETech::ShipEnergy1:
-		Desc = tr("核裂变燃料仓");
-		break;
-	case ETech::ShipEnergy2:
-		Desc = tr("核聚变燃料仓");
-		break;
+		return Info->Desc;
 	}
+	return FText();
+}
 
-	return Desc;
+TSoftObjectPtr<UTexture2D> UMenuTechHelper::GetTechIcon(const TArray<ETech>& Props)
+{
+	ETech Level = Props[0];
+	FTechInfo* Info = DT_TechInfo ? DT_TechInfo->FindRow<FTechInfo>(TECH::InfoRow[Level], FString()) : nullptr;
+	if (Info)
+	{
+		return Info->Icon;
+	}
+	return nullptr;
 }
 
 int32 UMenuTechHelper::GetMaxLv(const TArray<ETech>& Props)
@@ -256,6 +119,17 @@ int32 UMenuTechHelper::GetMaxLv(const TArray<ETech>& Props)
 int32 UMenuTechHelper::GetCurLv(const TArray<ETech>& Props)
 {
 	return *GetTarget(Props[0]) + 1;
+}
+
+FText UMenuTechHelper::GetTechValueName(ETech Prop)
+{
+	return UMainLibrary::GetTechValueName(Prop);
+}
+
+float UMenuTechHelper::GetTechValueVal(ETech Prop, bool bNext)
+{
+	const int Level = *GetTarget(Prop);
+	return UMainLibrary::GetTechValueVal(Prop, bNext ? Level+1 : Level);
 }
 
 void UMenuTechHelper::Debug()
@@ -274,13 +148,13 @@ void UMenuTechHelper::Debug()
 #endif
 }
 
-int* UMenuTechHelper::GetTarget(ETech Level)
+int* UMenuTechHelper::GetTarget(ETech Tech)
 {
 	auto Char = AMainLevelScript::GetMainChar();
 	auto Ship = AMainLevelScript::GetSpaceship();
 
 	int* ValPtr = nullptr;
-	switch (Level)
+	switch (Tech)
 	{
 	case ETech::CharHP:
 	case ETech::CharMass:
@@ -365,6 +239,43 @@ int* UMenuTechHelper::GetTarget(ETech Level)
 
 	check(ValPtr);
 	return ValPtr;
+}
+
+FTechDemand UMenuTechHelper::GetTechDemand(ETech Tech, int32 Val)
+{
+	FTechInfo* Info = DT_TechInfo ? DT_TechInfo->FindRow<FTechInfo>(TECH::InfoRow[Tech], FString()) : nullptr;
+	if (Info)
+	{
+		if (Val >= 0 && Val < Info->DemandList.Num())
+		{
+			return Info->DemandList[Val];
+		}
+	}
+	return FTechDemand();
+}
+
+TPair<bool, FText> UMenuTechHelper::GetDemandInfo(const TMap<FName, int32>& List, UBackpackComponent* Backpack, int32 Count)
+{
+	FString DemandStr;
+	bool Enough = true;
+	for (const TPair<FName, int32>& Demand : List)
+	{
+		FItemData& DemandData = UMainLibrary::GetItemData(Demand.Key);
+		int32 NeedCount = Demand.Value * FMath::Max(Count, 1);
+		int32 HoldCount = Backpack ? Backpack->CountItem(Demand.Key) : 0;
+		FStringFormatOrderedArguments Arguments;
+		Arguments.Add(DemandData.Name.ToString());
+		Arguments.Add(HoldCount >= NeedCount ? TEXT("Default") : TEXT("Warning"));
+		Arguments.Add(FString::FromInt(NeedCount));
+		Arguments.Add(Backpack ? FString::FromInt(HoldCount) : tr("？？？").ToString());
+		DemandStr += FString::Format(TEXT("{0}  <{1}>×{2}</>  (<img id=\"Storehouse\"/> ×{3})\n"), Arguments);
+		if (HoldCount < NeedCount)
+		{
+			Enough = false;
+		}
+	}
+	DemandStr.RemoveFromEnd(TEXT("\n"));
+	return TPair<bool, FText>(Enough, FText::FromString(DemandStr));
 }
 
 inline TArray<class UBackpackComponent*> UMenuTechHelper::GetBackpackList()

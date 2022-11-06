@@ -43,7 +43,7 @@ class PromptView extends React.Component {
                 } else {
                     break;
                 }
-                yield Utils.delay(300);
+                yield Utils.delay(150);
             }
         });
         setTimeout(() => {

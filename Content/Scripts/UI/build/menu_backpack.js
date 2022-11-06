@@ -368,16 +368,21 @@ class Menu extends React.Component {
         MenuDisplay = helper.GetMenuDisplay().OutList;
         this.charBp = BpGetter(ETitle.Char);
         this.baseBp = BpGetter(ETitle.Base);
-        this.shipBp = BpGetter(ETitle.Ship);
 
         this.char = MainLevelScript.GetMainChar();
-        this.ship = MainLevelScript.GetEarthBase().FindSpaceship();
         this.char.Body.HpChangedDelegate = Delta => this.setState({ charHP: { cur: this.char.Body.CurrentHP, max: this.char.Body.MaximumHP } });
         this.char.Engine.EnergyChangedDelegate = Delta => this.setState({ charHP: { cur: this.char.Engine.CurrentEnergy, max: this.char.Engine.MaximumEnergy } });
-        if (this.ship) {
-            this.ship.Body.HpChangedDelegate = Delta => this.setState({ shipHP: { cur: this.ship.Body.CurrentHP, max: this.ship.Body.MaximumHP } });
-            this.ship.Engine.EnergyChangedDelegate = Delta => this.setState({ shipMP: { cur: this.ship.Engine.CurrentEnergy, max: this.ship.Engine.MaximumEnergy } });
-        }
+
+        this.handleShip = () => {
+            this.shipBp = BpGetter(ETitle.Ship);
+            this.ship = MainLevelScript.GetEarthBase().FindSpaceship();
+            if (this.ship) {
+                this.ship.Body.HpChangedDelegate = Delta => this.setState({ shipHP: { cur: this.ship.Body.CurrentHP, max: this.ship.Body.MaximumHP } });
+                this.ship.Engine.EnergyChangedDelegate = Delta => this.setState({ shipMP: { cur: this.ship.Engine.CurrentEnergy, max: this.ship.Engine.MaximumEnergy } });
+            }
+        };
+        this.handleShip();
+        MainLevelScript.Instance().ShipChangedDelegate.Add(this.handleShip);
 
         this.state = {
             hoveredView: "",
@@ -405,9 +410,16 @@ class Menu extends React.Component {
     componentWillUnmount() {
         helper = null;
         event = null;
-        this.char = MainLevelScript.GetMainChar();
-        if (this.char) this.char.Body.HpChangedDelegate = null;
-        if (this.ship) this.ship.Body.HpChangedDelegate = null;
+        const char = MainLevelScript.GetMainChar();
+        const ship = MainLevelScript.GetSpaceship();
+        if (char) {
+            char.Body.HpChangedDelegate = null;
+            char.Engine.EnergyChangedDelegate = null;
+        }
+        if (ship) {
+            ship.Body.HpChangedDelegate = null;
+            ship.Engine.EnergyChangedDelegate = null;
+        }
     }
 
     render() {

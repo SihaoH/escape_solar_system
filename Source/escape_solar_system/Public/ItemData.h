@@ -37,7 +37,7 @@ struct FItemData : public FTableRowBase
 	bool CanStack = true;
 
 	/** 物品描述 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
 	FText Desc;
 
 	/** 物品图标 */

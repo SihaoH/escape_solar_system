@@ -79,6 +79,9 @@ public:
 	FInteractionSignature EnteredDelegate;
 
 	UPROPERTY(BlueprintAssignable)
+	FInteractionSignature ShipChangedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
 	FMessagedSignature MessagedDelegate;
 	
 	UPROPERTY(BlueprintAssignable)

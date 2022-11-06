@@ -47,7 +47,6 @@ class SplitLine extends React.Component {
                 <uTextBlock
                     Font={{
                         FontObject: F_Sans,
-                        TypefaceFontName: "Bold",
                         Size: 14,
                     }}
                     ColorAndOpacity={{ SpecifiedColor: Utils.color("#333") }}
@@ -100,6 +99,16 @@ class TechButton extends React.Component {
                             const cur_lv = helper.GetCurLv(btnVal.props)
                             const max_lv = helper.GetMaxLv(btnVal.props)
                             const in_base = checkBase(btnVal)
+                            let curLevelInfo = ""
+                            let nextLevelInfo = ""
+                            for (let prop of btnVal.props) {
+                                curLevelInfo += `${helper.GetTechValueName(prop)}: ${Utils.num2Txt(helper.GetTechValueVal(prop))}\n`
+                            }
+                            curLevelInfo = curLevelInfo.slice(0, curLevelInfo.length-1)
+                            for (let prop of btnVal.props) {
+                                nextLevelInfo += `${helper.GetTechValueName(prop)}: ${Utils.num2Txt(helper.GetTechValueVal(prop, true))}\n`
+                            }
+                            nextLevelInfo = nextLevelInfo.slice(0, nextLevelInfo.length-1)
                             return ReactUMG.wrap(
                             <uBorder
                                 Slot={{ Padding: Utils.ltrb(0) }}
@@ -139,7 +148,6 @@ class TechButton extends React.Component {
                                     <uTextBlock
                                         Font={{
                                             FontObject: F_Sans,
-                                            TypefaceFontName: "Bold",
                                             Size: 14,
                                         }}
                                         WrapTextAt={300}
@@ -152,28 +160,26 @@ class TechButton extends React.Component {
                                     <uTextBlock
                                         Font={{
                                             FontObject: F_Sans,
-                                            TypefaceFontName: "Bold",
-                                            Size: 14,
+                                            Size: 12,
                                         }}
                                         WrapTextAt={300}
                                         ColorAndOpacity={{
                                             SpecifiedColor: Utils.color("#222")
                                         }}
-                                        Text={helper.CurTechInfo} 
+                                        Text={curLevelInfo} 
                                     />
                                     { cur_lv < max_lv && <div>
                                     <SplitLine Text={ Utils.tr( Utils.tr("下一级") ) } />
                                     <uTextBlock
                                         Font={{
                                             FontObject: F_Sans,
-                                            TypefaceFontName: "Bold",
-                                            Size: 14,
+                                            Size: 12,
                                         }}
                                         WrapTextAt={300}
                                         ColorAndOpacity={{
                                             SpecifiedColor: Utils.color("#222")
                                         }}
-                                        Text={helper.NextTechInfo} 
+                                        Text={nextLevelInfo} 
                                     />
                                     <SplitLine Text={ Utils.tr("升级所需") } />
                                     <uTextBlock
@@ -212,7 +218,7 @@ class TechButton extends React.Component {
                                         }}
                                         WrapTextAt={300}
                                         ColorAndOpacity={{
-                                            SpecifiedColor: Utils.color(in_base&&helper.CanUpgrade ? "#5F5" : "#F55")
+                                            SpecifiedColor: Utils.color(in_base&&helper.CanUpgrade ? "#2D2" : "#D22")
                                         }}
                                         Text={in_base ? (helper.CanUpgrade ? Utils.tr("长按升级") : Utils.tr("无法升级") ) : Utils.tr("需在基地升级") } 
                                     />
@@ -278,6 +284,18 @@ class TechButton extends React.Component {
                     Clipping={ EWidgetClipping.ClipToBounds }
                 >
                     <uImage
+                        Slot={{
+                            LayoutData: {
+                                Anchors: EAnchors.FillAll,
+                                Offsets: Utils.ltrb(2)
+                            }
+                        }}
+                        Brush={{
+                            ImageSize: {X: 80, Y: 80},
+                            ResourceObject: Texture2D.Load(helper.GetTechIcon(btnVal.props)),
+                        }}
+                    />
+                    <uImage
                         ref={elem => {
                             if (elem) {
                                 this.uBtnBg = elem.ueobj
@@ -289,20 +307,8 @@ class TechButton extends React.Component {
                                 Offsets: Utils.ltrb(0)
                             }
                         }}
+                        Brush={{ TintColor: { SpecifiedColor: Utils.rgba(1, 1, 1, 0.8) }, }}
                         RenderTransform={{ Translation: {X: 0, Y: 80} }}
-                    />
-                    <uImage
-                        Slot={{
-                            LayoutData: {
-                                Anchors: EAnchors.Center,
-                                Alignment: { X: 0.5, Y: 0.5 },
-                                Offsets: Utils.ltrb(0, 0, 64, 64)
-                            }
-                        }}
-                        Brush={{
-                            ResourceObject: Texture2D.Load("/Game/UI/Icon/T_TechTemp"),
-                            ImageSize: {X: 64, Y: 64}
-                        }}
                     />
                     <uTextBlock
                         Slot={{
@@ -339,64 +345,77 @@ class InfoCard extends React.Component {
             <uSizeBox
                 {...this.props}
                 WidthOverride={380}
-                HeightOverride={420}
+                HeightOverride={600}
             >
             <TaggedCard title={this.props.title} >
                 {_.map(this.props.info, (val) => {
                     return Array.isArray(val) ? [
                         ..._.map(val, (c_val) => (
-                            <span>
-                                <uTextBlock
-                                    Slot={{
-                                        HorizontalAlignment: EHorizontalAlignment.HAlign_Left,
-                                        Padding: Utils.ltrb(20, 0, 0, 0)
-                                    }}
-                                    Font={{
-                                        FontObject: F_Sans,
-                                        Size: 12,
-                                    }}
-                                    Text={c_val.key}
+                            <div>
+                                <span>
+                                    <uTextBlock
+                                        Slot={{
+                                            HorizontalAlignment: EHorizontalAlignment.HAlign_Left,
+                                            Padding: Utils.ltrb(20, 0, 0, 0)
+                                        }}
+                                        Font={{
+                                            FontObject: F_Sans,
+                                            Size: 12,
+                                        }}
+                                        Text={c_val.key}
+                                    />
+                                    <uTextBlock
+                                        Slot={{
+                                            HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
+                                            Size: { SizeRule: ESlateSizeRule.Fill }
+                                        }}
+                                        Font={{
+                                            FontObject: F_Sans,
+                                            Size: 12,
+                                        }}
+                                        Text={typeof(c_val.val) === "string" ? c_val.val : `${Utils.num2Txt(c_val.val, 2)} ${c_val.unit}`}
+                                    />
+                                </span>
+                                <uImage
+                                    Brush={{ ImageSize: {X: 32, Y: 1} }}
+                                    ColorAndOpacity={Utils.rgba(1, 1, 1, 0.2)}
                                 />
-                                <uTextBlock
-                                    Slot={{
-                                        HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
-                                        Size: { SizeRule: ESlateSizeRule.Fill }
-                                    }}
-                                    Font={{
-                                        FontObject: F_Sans,
-                                        Size: 12,
-                                    }}
-                                    Text={typeof(c_val.val) === "string" ? c_val.val : `${Utils.num2Txt(c_val.val, 2)} ${c_val.unit}`}
-                                />
-                            </span>)
+                            </div>)
                     )] : 
-                    <span
+                    <div
                         Slot={{
                             Padding: Utils.ltrb(0, 10, 0, 0)
                         }}
                     >
-                        <uTextBlock
-                            Slot={{
-                                HorizontalAlignment: EHorizontalAlignment.HAlign_Left
-                            }}
-                            Font={{
-                                FontObject: F_Sans,
-                                Size: 16,
-                            }}
-                            Text={val.key}
+                        <span>
+                            <uTextBlock
+                                Slot={{
+                                    HorizontalAlignment: EHorizontalAlignment.HAlign_Left
+                                }}
+                                Font={{
+                                    FontObject: F_Sans,
+                                    Size: 16,
+                                }}
+                                Text={val.key}
+                            />
+                            <uTextBlock
+                                Slot={{
+                                    HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
+                                    Size: { SizeRule: ESlateSizeRule.Fill }
+                                }}
+                                Font={{
+                                    FontObject: F_Sans,
+                                    Size: 16,
+                                }}
+                                Text={typeof(val.val) === "string" ? val.val : `${Utils.num2Txt(val.val, 2)} ${val.unit}`}
+                            />
+                        </span>
+                        <uImage
+                            Slot={{ Padding: Utils.ltrb(0, 5) }}
+                            Brush={{ ImageSize: {X: 32, Y: 2} }}
+                            ColorAndOpacity={Utils.rgba(1, 1, 1, 0.2)}
                         />
-                        <uTextBlock
-                            Slot={{
-                                HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
-                                Size: { SizeRule: ESlateSizeRule.Fill }
-                            }}
-                            Font={{
-                                FontObject: F_Sans,
-                                Size: 16,
-                            }}
-                            Text={typeof(val.val) === "string" ? val.val : `${Utils.num2Txt(val.val, 2)} ${val.unit}`}
-                        />
-                    </span>
+                    </div>
                 }
                 )}
             </TaggedCard>
@@ -416,7 +435,7 @@ class TechView extends React.Component {
             >
                 {_.map(this.props.techList, (val) => (
                 <span
-                    Slot={{ Padding: Utils.ltrb(0, 5) }}
+                    Slot={{ Padding: Utils.ltrb(0, 10) }}
                 >
                     <uSizeBox
                         Slot={{ VerticalAlignment: EVerticalAlignment.VAlign_Center }}
@@ -586,7 +605,7 @@ class MenuTech extends React.Component {
                         LayoutData: {
                             Anchors: EAnchors.Center,
                             Alignment: { X: 0.5, Y: 0.5 },
-                            Offsets: Utils.ltrb(0, -100, 0, 0)
+                            Offsets: Utils.ltrb(0, 0, 0, 0)
                         },
                         bAutoSize: true
                     }}
@@ -597,12 +616,21 @@ class MenuTech extends React.Component {
                     />
                     <TechView
                         Slot={{
-                            Padding: Utils.ltrb(20, 70, 120, 0)
+                            Padding: Utils.ltrb(20, 70, 0, 0)
                         }}
                         techList={this.charTech}
                     />
 
-                    {has_ship &&  
+                    {has_ship &&
+                    <uImage
+                        Slot={{
+                            Padding: Utils.ltrb(60, 0)
+                        }}
+                        Brush={{ ImageSize: {X: 2, Y: 32} }}
+                        ColorAndOpacity={Utils.rgba(1, 1, 1, 0.5)}
+                    />}
+
+                    {has_ship &&
                     <InfoCard
                         title={Utils.tr("飞船")}
                         info={this.state.shipInfo}

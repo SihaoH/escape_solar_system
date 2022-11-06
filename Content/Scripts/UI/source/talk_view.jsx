@@ -82,7 +82,7 @@ class TalkView extends React.Component {
                         LayoutData: {
                             Anchors: EAnchors.Right,
                             Alignment: { X: 1.0, Y: 0.5 },
-                            Offsets: Utils.ltrb(-50, 0, 0, 0)
+                            Offsets: Utils.ltrb(-80, 0, 0, 0)
                         },
                         bAutoSize: true
                     }}
@@ -157,7 +157,7 @@ class TalkView extends React.Component {
                             Font={{
                                 FontObject: F_Sans,
                                 TypefaceFontName: "Bold",
-                                Size: 20,
+                                Size: 18,
                             }}
                             Text={ this.NPC.Name }
                         />
@@ -171,7 +171,7 @@ class TalkView extends React.Component {
                             AutoWrapText={true}
                             Font={{
                                 FontObject: F_Sans,
-                                Size: 20,
+                                Size: 16,
                             }}
                             Text={ this.NPC.GetText(this.state.currentIndex) }
                         />
