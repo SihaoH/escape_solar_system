@@ -257,7 +257,7 @@ class TechButton extends React.Component {
                         { RenderTranslation: t => { return {X: 0, Y: (1-t) * 80} } }
                     ).then(_ => {
                         if (upgradeAnime) {
-                            helper.UpgradETech(btnVal.props)
+                            helper.UpgradeTech(btnVal.props)
                             this.uBtnBg.SetRenderTranslation({X: 0, Y: 80})
                             this.btn.SetVisibility(ESlateVisibility.Visible)
                             upgradeAnime = null
