@@ -11,6 +11,10 @@
 #include "MainLibrary.h"
 #include "MainLevelScript.h"
 
+static const TArray<FName> HPItems = { "小型维修包", "中型维修包", "大型维修包" };
+static const TArray<FName> MPItems = { "化学燃料罐", "裂变燃料罐", "聚变燃料罐" };
+static const TArray<FName> SPItems = { "特殊物品" };
+
 void UMenuBackpackHelper::GetListViewItems(UBackpackComponent* InBp, TArray<class UItemDataObject*>& OutItems) const
 {
 	if (InBp) {
@@ -74,13 +78,13 @@ void UMenuBackpackHelper::ConsumeItem(int32 Count, EPawnType Target)
 	check(Body);
 	check(Engine);
 	check(SelectedItem);
-	int32 RowName = FCString::Atoi(*(SelectedItem->RowName.ToString()));
+	FName RowName = SelectedItem->RowName;
 	float Value = UMainLibrary::GetItemData(SelectedItem->RowName).ReplenishedValue * Count;
-	if (RowName >= 3000 && RowName < 4000)
+	if (HPItems.Contains(RowName))
 	{
 		Body->ChangeHP(Value);
 	}
-	else if (RowName >= 4000 && RowName < 5000)
+	else if (MPItems.Contains(RowName))
 	{
 		Engine->ChangeEnergy(Value);
 	}
@@ -136,12 +140,12 @@ void UMenuBackpackHelper::GetMenuDisplay(TMap<EItemOptions, FText>& OutList)
 
 void UMenuBackpackHelper::GetMenuOptions(TArray<EItemOptions>& OutList)
 {
-	int32 RowName = FCString::Atoi(*(SelectedItem->RowName.ToString()));
-	if (RowName > 9000)
+	FName RowName = SelectedItem->RowName;
+	if (SPItems.Contains(RowName))
 	{
 		OutList.Add(EItemOptions::Use);
 	}
-	else if (RowName >= 3000 && RowName < 5000)
+	else if (HPItems.Contains(RowName) || MPItems.Contains(RowName))
 	{
 		OutList.Add(EItemOptions::ConsumeToChar);
 		if (AMainLevelScript::GetSpaceship())

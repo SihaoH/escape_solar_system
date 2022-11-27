@@ -102,7 +102,7 @@ class Menu extends React.Component {
 
     render() {
         const show_demand = this.state.selectedIndex > -1
-        const sel_item = this.state.selectedIndex > -1 ? this.uMakeableList.GetItemAt(this.state.selectedIndex) : {RowName: "1000"}
+        const sel_item = this.state.selectedIndex > -1 ? this.uMakeableList.GetItemAt(this.state.selectedIndex) : {RowName: "未知"}
         const sel_data = MainLibrary.GetItemData(sel_item.RowName)
         const max_make = this.helper.GetMaxMakeableCount(sel_item.RowName)
         const btn_color = Utils.color(max_make > 0 ? "#FFF" : "#F55")
@@ -405,11 +405,16 @@ class Menu extends React.Component {
                                 ColorAndOpacity={Utils.color("#888")}
                             />
                         </span>
-                    {_.map(sel_data.DemandList, (val, key) => {
-                        const item_data = MainLibrary.GetItemData(key)
-                        const hold_count = this.helper.GetHoldCount(key)
-                        const need_count = val * this.state.makeCount
-                        return (
+                        <div
+                            Slot={{
+                                Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 }
+                            }}
+                        >
+                        {_.map(sel_data.DemandList, (val, key) => {
+                            const item_data = MainLibrary.GetItemData(key)
+                            const hold_count = this.helper.GetHoldCount(key)
+                            const need_count = val * this.state.makeCount
+                            return (
                             <span
                                 Slot={{
                                     Padding: Utils.ltrb(10, 5)
@@ -445,15 +450,16 @@ class Menu extends React.Component {
                                         Size: { SizeRule: ESlateSizeRule.Fill, Value: 0.2 }
                                     }}
                                 >
-                                    <uImage
+                                    <uTextBlock
                                         Slot={{
-                                            HorizontalAlignment: EHorizontalAlignment.HAlign_Center,
                                             VerticalAlignment: EVerticalAlignment.VAlign_Center
                                         }}
-                                        Brush={{
-                                            ResourceObject: Texture2D.Load('/Game/UI/Icon/T_Storehouse32x32'),
-                                            ImageSize: {X: 32, Y: 32}
+                                        Font={{
+                                            FontObject: F_Sans,
+                                            Size: 12,
                                         }}
+                                        ColorAndOpacity={{ SpecifiedColor: Utils.color("#555") }}
+                                        Text={Utils.tr("库存")}
                                     />
                                     <uTextBlock
                                         Slot={{
@@ -461,10 +467,10 @@ class Menu extends React.Component {
                                         }}
                                         Font={{
                                             FontObject: F_Sans,
-                                            Size: 16,
+                                            Size: 14,
                                         }}
                                         ColorAndOpacity={{ SpecifiedColor: hold_count >= need_count ? Utils.color("#5F5") : Utils.color("#F55") }}
-                                        Text={` ${hold_count}`}    
+                                        Text={` ${hold_count}`}
                                     />
                                 </span>
                                 <uTextBlock
@@ -480,11 +486,11 @@ class Menu extends React.Component {
                                     ColorAndOpacity={{
                                         SpecifiedColor: Utils.color("#AAA")
                                     }}
-                                    Text={`×${need_count}`}    
+                                    Text={`×${need_count}`}
                                 />
-                            </span>
-                        )
-                    })}
+                            </span>)
+                        })}
+                        </div>
                         <uSpacer Slot={{ Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 }}} />
                         <uSizeBox
                             Slot={{

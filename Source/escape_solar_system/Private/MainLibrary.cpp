@@ -53,7 +53,16 @@ void UMainLibrary::SendMessage(FText Msg)
 
 FItemData& UMainLibrary::GetItemData(const FName& RowName)
 {
-	return *DT_ItemInfo->FindRow<FItemData>(RowName, FString());
+	if (FItemData* DataPtr = DT_ItemInfo->FindRow<FItemData>(RowName, FString()))
+	{
+		return *DataPtr;
+	}
+	else
+	{
+		ensure(false);
+		static FItemData Tmp;
+		return Tmp;
+	}
 }
 
 TArray<FName> UMainLibrary::GetMakeableItemList()

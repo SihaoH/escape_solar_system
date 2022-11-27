@@ -104,7 +104,7 @@ class Menu extends React.Component {
 
     render() {
         const show_demand = this.state.selectedIndex > -1;
-        const sel_item = this.state.selectedIndex > -1 ? this.uMakeableList.GetItemAt(this.state.selectedIndex) : { RowName: "1000" };
+        const sel_item = this.state.selectedIndex > -1 ? this.uMakeableList.GetItemAt(this.state.selectedIndex) : { RowName: "未知" };
         const sel_data = MainLibrary.GetItemData(sel_item.RowName);
         const max_make = this.helper.GetMaxMakeableCount(sel_item.RowName);
         const btn_color = Utils.color(max_make > 0 ? "#FFF" : "#F55");
@@ -423,47 +423,22 @@ class Menu extends React.Component {
                             ColorAndOpacity: Utils.color("#888")
                         })
                     ),
-                    _.map(sel_data.DemandList, (val, key) => {
-                        const item_data = MainLibrary.GetItemData(key);
-                        const hold_count = this.helper.GetHoldCount(key);
-                        const need_count = val * this.state.makeCount;
-                        return React.createElement(
-                            'span',
-                            {
-                                Slot: {
-                                    Padding: Utils.ltrb(10, 5)
-                                }
-                            },
-                            React.createElement('uImage', {
-                                Slot: {
-                                    HorizontalAlignment: EHorizontalAlignment.HAlign_Center,
-                                    VerticalAlignment: EVerticalAlignment.VAlign_Center
-                                },
-                                Brush: {
-                                    ResourceObject: Texture2D.Load(item_data.Icon),
-                                    ImageSize: { X: 32, Y: 32 }
-                                }
-                            }),
-                            React.createElement('uTextBlock', {
-                                Slot: {
-                                    Padding: Utils.ltrb(5, 0),
-                                    Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 },
-                                    VerticalAlignment: EVerticalAlignment.VAlign_Center
-                                },
-                                Font: {
-                                    FontObject: F_Sans,
-                                    Size: 16
-                                },
-                                ColorAndOpacity: {
-                                    SpecifiedColor: Utils.color("#CFF")
-                                },
-                                Text: item_data.Name
-                            }),
-                            React.createElement(
+                    React.createElement(
+                        'div',
+                        {
+                            Slot: {
+                                Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 }
+                            }
+                        },
+                        _.map(sel_data.DemandList, (val, key) => {
+                            const item_data = MainLibrary.GetItemData(key);
+                            const hold_count = this.helper.GetHoldCount(key);
+                            const need_count = val * this.state.makeCount;
+                            return React.createElement(
                                 'span',
                                 {
                                     Slot: {
-                                        Size: { SizeRule: ESlateSizeRule.Fill, Value: 0.2 }
+                                        Padding: Utils.ltrb(10, 5)
                                     }
                                 },
                                 React.createElement('uImage', {
@@ -472,39 +447,73 @@ class Menu extends React.Component {
                                         VerticalAlignment: EVerticalAlignment.VAlign_Center
                                     },
                                     Brush: {
-                                        ResourceObject: Texture2D.Load('/Game/UI/Icon/T_Storehouse32x32'),
+                                        ResourceObject: Texture2D.Load(item_data.Icon),
                                         ImageSize: { X: 32, Y: 32 }
                                     }
                                 }),
                                 React.createElement('uTextBlock', {
                                     Slot: {
+                                        Padding: Utils.ltrb(5, 0),
+                                        Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 },
                                         VerticalAlignment: EVerticalAlignment.VAlign_Center
                                     },
                                     Font: {
                                         FontObject: F_Sans,
                                         Size: 16
                                     },
-                                    ColorAndOpacity: { SpecifiedColor: hold_count >= need_count ? Utils.color("#5F5") : Utils.color("#F55") },
-                                    Text: ` ${hold_count}`
+                                    ColorAndOpacity: {
+                                        SpecifiedColor: Utils.color("#CFF")
+                                    },
+                                    Text: item_data.Name
+                                }),
+                                React.createElement(
+                                    'span',
+                                    {
+                                        Slot: {
+                                            Size: { SizeRule: ESlateSizeRule.Fill, Value: 0.2 }
+                                        }
+                                    },
+                                    React.createElement('uTextBlock', {
+                                        Slot: {
+                                            VerticalAlignment: EVerticalAlignment.VAlign_Center
+                                        },
+                                        Font: {
+                                            FontObject: F_Sans,
+                                            Size: 12
+                                        },
+                                        ColorAndOpacity: { SpecifiedColor: Utils.color("#555") },
+                                        Text: Utils.tr("库存")
+                                    }),
+                                    React.createElement('uTextBlock', {
+                                        Slot: {
+                                            VerticalAlignment: EVerticalAlignment.VAlign_Center
+                                        },
+                                        Font: {
+                                            FontObject: F_Sans,
+                                            Size: 14
+                                        },
+                                        ColorAndOpacity: { SpecifiedColor: hold_count >= need_count ? Utils.color("#5F5") : Utils.color("#F55") },
+                                        Text: ` ${hold_count}`
+                                    })
+                                ),
+                                React.createElement('uTextBlock', {
+                                    Slot: {
+                                        Size: { SizeRule: ESlateSizeRule.Fill, Value: 0.2 },
+                                        HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
+                                        VerticalAlignment: EVerticalAlignment.VAlign_Center
+                                    },
+                                    Font: {
+                                        FontObject: F_Sans,
+                                        Size: 16
+                                    },
+                                    ColorAndOpacity: {
+                                        SpecifiedColor: Utils.color("#AAA")
+                                    },
+                                    Text: `×${need_count}`
                                 })
-                            ),
-                            React.createElement('uTextBlock', {
-                                Slot: {
-                                    Size: { SizeRule: ESlateSizeRule.Fill, Value: 0.2 },
-                                    HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
-                                    VerticalAlignment: EVerticalAlignment.VAlign_Center
-                                },
-                                Font: {
-                                    FontObject: F_Sans,
-                                    Size: 16
-                                },
-                                ColorAndOpacity: {
-                                    SpecifiedColor: Utils.color("#AAA")
-                                },
-                                Text: `×${need_count}`
-                            })
-                        );
-                    }),
+                            );
+                        })
+                    ),
                     React.createElement('uSpacer', { Slot: { Size: { SizeRule: ESlateSizeRule.Fill, Value: 1.0 } } }),
                     React.createElement(
                         'uSizeBox',
