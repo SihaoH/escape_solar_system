@@ -57,6 +57,7 @@ struct FTechValue : public FTableRowBase
 	TArray<float> List = { 0, 0, 0, 0, 0 };
 };
 
+
 UENUM(BlueprintType)
 enum class ETech : uint8
 {

@@ -17,6 +17,7 @@ UExplorableZoneComponent::UExplorableZoneComponent()
 void UExplorableZoneComponent::Reset()
 {
 	SetHiddenInGame(!IsAvailable);
+	SetCollisionProfileName(IsAvailable ? TEXT("OverlapAllDynamic") : TEXT("NoCollision"));
 }
 
 void UExplorableZoneComponent::Serialize(FArchive& Ar)
@@ -24,8 +25,7 @@ void UExplorableZoneComponent::Serialize(FArchive& Ar)
 	Super::Serialize(Ar);
 	if (Ar.IsLoading())
 	{
-		SetHiddenInGame(!IsAvailable);
-		SetCollisionEnabled(IsAvailable ? ECollisionEnabled::QueryOnly : ECollisionEnabled::NoCollision);
+		Reset();
 	}
 }
 

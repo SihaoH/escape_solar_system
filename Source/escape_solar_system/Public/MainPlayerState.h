@@ -48,7 +48,7 @@ private:
 	static AMainPlayerState* s_Instance;
 
 	UPROPERTY(SaveGame)
-	int32 ExplorePoints = 999;
+	int32 ExplorePoints = 0;
 	UPROPERTY(SaveGame)
 	int32 DeathCount = 0;
 	UPROPERTY(SaveGame)

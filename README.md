@@ -5,17 +5,21 @@
 
 ### 平台版本
 - VS2022
-- UE5.0
+- UE5.1
 
 ### 构建步骤
 - 右键`[project_name].uproject`文件，生成vs工程文件
 - 使用vs2022编译
 
 *编译时报错说找不到hostfxr.dll，需要下载安装[.Net Core](https://dotnet.microsoft.com/zh-cn/download/dotnet/3.1)*
+*5.1需要.NET 6.0，需要下载安装[.Net Core](https://dotnet.microsoft.com/zh-cn/download/dotnet/6.0)*
 
 ### 插件
 - Unreal.js，[构建过程](https://github.com/ncsoft/Unreal.js/wiki/Building-the-plugin)
 - Content/Scripts，[脚本目录说明](./Content/Scripts/README.md)
+
+### 打包的问题
+- 需要在【项目设置】→【打包】→【高级】→【需打包的额外非资产目录】里加上`Content/Script`，然后打包完成之后，还要把`Plugins/UnrealJS/Content/Scripts`整个目录拷贝到打包之后的`Content`目录里
 
 
 ## 故事背景

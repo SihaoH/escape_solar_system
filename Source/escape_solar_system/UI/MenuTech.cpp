@@ -23,8 +23,8 @@ UMenuTechHelper::UMenuTechHelper()
 
 void UMenuTechHelper::SelectTech(const TArray<ETech>& Props)
 {
-	DemandPoints = FText();
-	DemandItems = FText();
+	DemandPoints = 0;
+	DemandItems.Empty(0);
 
 	ETech Tech = Props[0];
 	int Val = *GetTarget(Tech);
@@ -34,13 +34,12 @@ void UMenuTechHelper::SelectTech(const TArray<ETech>& Props)
 
 		FTechDemand LevelDemand = GetTechDemand(Tech, Val+1);
 		// 已升级过的技能不消耗探索点
-		DemandPoints = FText::Format(tr("探索点数: {0}"), Val >= PlayerState->GetBestLevel(Props) ? LevelDemand.Points : 0);
+		DemandPoints = Val >= PlayerState->GetBestLevel(Props) ? LevelDemand.Points : 0;
 
 		AEarthBase* EarthBase = AMainLevelScript::GetMainChar()->FindEarthBase();
 		UBackpackComponent* Backpack = EarthBase ? EarthBase->Backpack : nullptr;
-		auto DemandInfo = GetDemandInfo(LevelDemand.Items, Backpack);
-		CanUpgrade = DemandInfo.Key && (PlayerState->GetExplorePoints() >= LevelDemand.Points);
-		DemandItems = DemandInfo.Value;
+		bool Enough = GetDemandInfo(LevelDemand.Items, Backpack);
+		CanUpgrade = Enough && (PlayerState->GetExplorePoints() >= LevelDemand.Points);
 	}
 	else
 	{
@@ -254,28 +253,21 @@ FTechDemand UMenuTechHelper::GetTechDemand(ETech Tech, int32 Val)
 	return FTechDemand();
 }
 
-TPair<bool, FText> UMenuTechHelper::GetDemandInfo(const TMap<FName, int32>& List, UBackpackComponent* Backpack, int32 Count)
+bool UMenuTechHelper::GetDemandInfo(const TMap<FName, int32>& List, UBackpackComponent* Backpack)
 {
-	FString DemandStr;
 	bool Enough = true;
 	for (const TPair<FName, int32>& Demand : List)
 	{
-		FItemData& DemandData = UMainLibrary::GetItemData(Demand.Key);
-		int32 NeedCount = Demand.Value * FMath::Max(Count, 1);
-		int32 HoldCount = Backpack ? Backpack->CountItem(Demand.Key) : 0;
-		FStringFormatOrderedArguments Arguments;
-		Arguments.Add(DemandData.Name.ToString());
-		Arguments.Add(HoldCount >= NeedCount ? TEXT("Default") : TEXT("Warning"));
-		Arguments.Add(FString::FromInt(NeedCount));
-		Arguments.Add(Backpack ? FString::FromInt(HoldCount) : tr("？？？").ToString());
-		DemandStr += FString::Format(TEXT("{0}  <{1}>×{2}</>  (<img id=\"Storehouse\"/> ×{3})\n"), Arguments);
+		const FItemData& DemandData = UMainLibrary::GetItemData(Demand.Key);
+		const int32 NeedCount = Demand.Value;
+		const int32 HoldCount = Backpack ? Backpack->CountItem(Demand.Key) : -1;
+		DemandItems.Add(FTechUpgradeDemand(DemandData.Name, HoldCount, NeedCount));
 		if (HoldCount < NeedCount)
 		{
 			Enough = false;
 		}
 	}
-	DemandStr.RemoveFromEnd(TEXT("\n"));
-	return TPair<bool, FText>(Enough, FText::FromString(DemandStr));
+	return Enough;
 }
 
 inline TArray<class UBackpackComponent*> UMenuTechHelper::GetBackpackList()

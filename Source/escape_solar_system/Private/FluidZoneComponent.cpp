@@ -12,7 +12,7 @@ UFluidZoneComponent::UFluidZoneComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	CastShadow = false;
 	SetGenerateOverlapEvents(true);
-	SetCollisionProfileName("OverlapAllDynamic");
+	SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 
 	OnComponentBeginOverlap.AddDynamic(this, &UFluidZoneComponent::OnBeginOverlap);
 	OnComponentEndOverlap.AddDynamic(this, &UFluidZoneComponent::OnEndOverlap);

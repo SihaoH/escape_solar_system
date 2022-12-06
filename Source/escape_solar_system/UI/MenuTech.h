@@ -7,6 +7,28 @@
 #include "CoreMinimal.h"
 #include "MenuTech.generated.h"
 
+USTRUCT(BlueprintType)
+struct FTechUpgradeDemand
+{
+	GENERATED_USTRUCT_BODY()
+
+	FTechUpgradeDemand() = default;
+
+	FTechUpgradeDemand(FText T, int32 H, int32 N) : Name(T), Has(H), Need(N) {};
+
+	/** 升级所需物品的名称 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText Name;
+
+	/** 升级所需物品的库存量 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 Has;
+
+	/** 升级所需物品的需求量 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 Need;
+};
+
 /**
  * 菜单页面中的等级部件
  */
@@ -45,16 +67,16 @@ public:
 private:
 	int* GetTarget(ETech Tech);
 	FTechDemand GetTechDemand(ETech Tech, int32 Val);
-	TPair<bool, FText> GetDemandInfo(const TMap<FName, int32>& List, class UBackpackComponent* Backpack = nullptr, int32 Count = 1);
+	bool GetDemandInfo(const TMap<FName, int32>& List, class UBackpackComponent* Backpack = nullptr);
 	inline TArray<class UBackpackComponent*> GetBackpackList();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool CanUpgrade = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FText DemandPoints;
+	int32 DemandPoints;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FText DemandItems;
+	TArray<FTechUpgradeDemand> DemandItems;
 
 private:
 	TObjectPtr<UDataTable> DT_TechInfo;

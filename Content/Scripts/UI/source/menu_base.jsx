@@ -467,7 +467,7 @@ class Menu extends React.Component {
                                         }}
                                         Font={{
                                             FontObject: F_Sans,
-                                            Size: 14,
+                                            Size: 12,
                                         }}
                                         ColorAndOpacity={{ SpecifiedColor: hold_count >= need_count ? Utils.color("#5F5") : Utils.color("#F55") }}
                                         Text={` ${hold_count}`}
@@ -486,7 +486,7 @@ class Menu extends React.Component {
                                     ColorAndOpacity={{
                                         SpecifiedColor: Utils.color("#AAA")
                                     }}
-                                    Text={`×${need_count}`}
+                                    Text={`x${need_count}`}
                                 />
                             </span>)
                         })}

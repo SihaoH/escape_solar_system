@@ -39,9 +39,6 @@ ASpaceship::ASpaceship()
 	ShipMesh->SetLinearDamping(0.05f);
 	ShipMesh->SetAngularDamping(0.05f);
 	ShipMesh->OnComponentHit.AddUniqueDynamic(Body, &UBodyComponent::OnComponentHitted);
-	ContactTrigger->SetBoxExtent(FVector(400.f, 400.f, 180.f), false);
-	ContactTrigger->SetEnableGravity(false);
-	ContactTrigger->SetMassOverrideInKg(NAME_None, KINDA_SMALL_NUMBER);
 	SpringArm->SetRelativeLocation(FVector(0, 0, 220));
 	SpringArm->TargetArmLength = 1200;
 	Body->HpChangedDelegate.AddDynamic(this, &ASpaceship::OnHpChanged);
@@ -157,6 +154,9 @@ void ASpaceship::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void ASpaceship::BeginPlay()
 {
+	ContactTrigger->SetBoxExtent(FVector(400.f, 400.f, 180.f), false);
+	ContactTrigger->SetEnableGravity(false);
+	ContactTrigger->SetMassOverrideInKg(NAME_None, KINDA_SMALL_NUMBER);
 	const bool bSimulatePhysics = ShipMesh->GetBodyInstance()->bSimulatePhysics;
 	ShipMesh->GetBodyInstance()->bSimulatePhysics = false;
 	Super::BeginPlay(); // AActor::BeginPlay()会判断附着的父对象是否模拟物理，如果不一致，就解除附着

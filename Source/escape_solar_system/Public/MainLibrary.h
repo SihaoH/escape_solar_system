@@ -15,7 +15,7 @@ struct FTranslatedData : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 
 	/** 原文 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
 	FString Source;
 
 	/** 翻译后文本 */

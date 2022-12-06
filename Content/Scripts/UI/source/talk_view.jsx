@@ -124,7 +124,7 @@ class TalkView extends React.Component {
                                 ColorAndOpacity={{
                                     ColorUseRule: ESlateColorStylingMode.UseColor_Foreground
                                 }}
-                                Text={ val.text }
+                                Text={ val.DispText }
                             />
                         </span>
                     </uButton>

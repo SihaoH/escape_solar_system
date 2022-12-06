@@ -9,7 +9,6 @@ const TaggedCard = require('tagged_card')
 const {F_Sans} = require('../style')
 
 let helper = null
-const DecoratorClass = Blueprint.Load('/Game/UI/BP_RichTextBlockImageDecorator').GeneratedClass
 let upgradeAnime = null
 
 function info_row(k, v, u = "") {
@@ -168,47 +167,83 @@ class TechButton extends React.Component {
                                         }}
                                         Text={curLevelInfo} 
                                     />
-                                    { cur_lv < max_lv && <div>
-                                    <SplitLine Text={ Utils.tr( Utils.tr("下一级") ) } />
-                                    <uTextBlock
-                                        Font={{
-                                            FontObject: F_Sans,
-                                            Size: 12,
-                                        }}
-                                        WrapTextAt={300}
-                                        ColorAndOpacity={{
-                                            SpecifiedColor: Utils.color("#222")
-                                        }}
-                                        Text={nextLevelInfo} 
-                                    />
-                                    <SplitLine Text={ Utils.tr("升级所需") } />
-                                    <uTextBlock
-                                        Font={{
-                                            FontObject: F_Sans,
-                                            TypefaceFontName: "Bold",
-                                            Size: 14,
-                                        }}
-                                        WrapTextAt={300}
-                                        ColorAndOpacity={{
-                                            SpecifiedColor: Utils.color("#222")
-                                        }}
-                                        Text={helper.DemandPoints} 
-                                    />
-                                    <uRichTextBlock
-                                        // 估计是react-umg实现逻辑的问题
-                                        // 这里给TextStyleSet赋值会先调用URichTextBlock::SetTextStyleSet()
-                                        // 导致URichTextBlock::UpdateStyleData()在之后执行就不能正常添加装饰类了（StyleInstance已创建，跳出了分支）
-                                        // 所以这里强行延后了SetTextStyleSet的调用
-                                        ref={elem => {
-                                            if (elem) 
-                                                process.nextTick(() => {
-                                                    if (elem.ueobj)
-                                                        elem.ueobj.SetTextStyleSet(DataTable.Load('/Game/UI/RichTextTable'))
-                                                })
-                                        }}
-                                        DecoratorClasses={[DecoratorClass]}
-                                        Text={helper.DemandItems} 
-                                    />
+                                    { cur_lv < max_lv &&
+                                    <div>
+                                        <SplitLine Text={ Utils.tr( Utils.tr("下一级") ) } />
+                                        <uTextBlock
+                                            Font={{
+                                                FontObject: F_Sans,
+                                                Size: 12,
+                                            }}
+                                            WrapTextAt={300}
+                                            ColorAndOpacity={{
+                                                SpecifiedColor: Utils.color("#222")
+                                            }}
+                                            Text={nextLevelInfo} 
+                                        />
+                                        <SplitLine Text={ Utils.tr("升级所需") } />
+                                        <uTextBlock
+                                            Font={{
+                                                FontObject: F_Sans,
+                                                TypefaceFontName: "Bold",
+                                                Size: 12,
+                                            }}
+                                            WrapTextAt={300}
+                                            ColorAndOpacity={{
+                                                SpecifiedColor: Utils.color("#222")
+                                            }}
+                                            Text={`${Utils.tr("探索点")}: ${helper.DemandPoints}`} 
+                                        />
+                                        <div>
+                                        {_.map(helper.DemandItems, (val) => (
+                                            <span Slot={{ Size: { SizeRule: ESlateSizeRule.Fill} }} >
+                                                <uTextBlock
+                                                    Slot={{
+                                                        Size: { SizeRule: ESlateSizeRule.Fill, Value: 0.5 },
+                                                        VerticalAlignment: EVerticalAlignment.VAlign_Center
+                                                    }}
+                                                    Font={{
+                                                        FontObject: F_Sans,
+                                                        Size: 12,
+                                                    }}
+                                                    WrapTextAt={300}
+                                                    ColorAndOpacity={{ SpecifiedColor: Utils.color("#222") }}
+                                                    Text={val.Name} 
+                                                />
+                                                <uTextBlock
+                                                    Slot={{ VerticalAlignment: EVerticalAlignment.VAlign_Center }}
+                                                    Font={{
+                                                        FontObject: F_Sans,
+                                                        Size: 10,
+                                                    }}
+                                                    ColorAndOpacity={{ SpecifiedColor: Utils.color("#555") }}
+                                                    Text={Utils.tr("库存")} 
+                                                />
+                                                <uTextBlock
+                                                    Slot={{ VerticalAlignment: EVerticalAlignment.VAlign_Center }}
+                                                    Font={{
+                                                        FontObject: F_Sans,
+                                                        Size: 10,
+                                                    }}
+                                                    ColorAndOpacity={{ SpecifiedColor: val.Has >= val.Need ? Utils.color("#5F5") : Utils.color("#F55") }}
+                                                    Text={val.Has > -1 ? val.Has : '??'} 
+                                                />
+                                                <uTextBlock
+                                                    Slot={{
+                                                        Size: { SizeRule: ESlateSizeRule.Fill, Value: 0.2 },
+                                                        HorizontalAlignment: EHorizontalAlignment.HAlign_Right,
+                                                        VerticalAlignment: EVerticalAlignment.VAlign_Center
+                                                    }}
+                                                    Font={{
+                                                        FontObject: F_Sans,
+                                                        Size: 12,
+                                                    }}
+                                                    ColorAndOpacity={{ SpecifiedColor: Utils.color("#222") }}
+                                                    Text={`x${val.Need}`} 
+                                                />
+                                            </span>
+                                        ))}
+                                        </div>
                                     </div>}
                                     <uTextBlock
                                         Slot={{ Padding: Utils.ltrb(0, 5, 0, 0) }}

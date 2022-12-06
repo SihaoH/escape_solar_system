@@ -13,13 +13,13 @@ struct FOptionData
 {
 	GENERATED_USTRUCT_BODY()
 
-	/** 升级所需的点数 */
+	/** 对话选项的下一句RowName */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName Row;
 
-	/** 升级所需的物品 */
+	/** 选项文本 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FText Text;
+	FText DispText;
 };
 
 /** 对话数据 */
