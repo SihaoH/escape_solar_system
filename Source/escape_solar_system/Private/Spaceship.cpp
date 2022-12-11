@@ -326,8 +326,7 @@ void ASpaceship::UpdateMass()
 	const float InMass = Body->GetMass() + Engine->GetTotalMass() + (CurrentPilot ? CurrentPilot->GetMass() : 0);
 	if (GetMass() != InMass)
 	{
-		constexpr float Radius = 100.f;
 		ShipMesh->SetMassOverrideInKg(NAME_None, InMass);
-		Density = CalcDensity(InMass, Radius);
+		Density = CalcDensity(InMass, ShipMesh->Bounds.SphereRadius);
 	}
 }

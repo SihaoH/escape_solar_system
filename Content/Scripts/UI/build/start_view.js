@@ -6,6 +6,7 @@ const EAnchors = require('../anchors');
 const { F_Sans, ButtonStyle } = require('../style');
 
 const SettingsView = require('settings_view');
+const AboutView = require('about_view');
 const ConfirmDialog = require('confirm_dialog');
 
 let ThisWidget = null;
@@ -163,7 +164,7 @@ class StartView extends React.Component {
                     React.createElement(MainButton, {
                         text: Utils.tr("关于"),
                         onClicked: () => {
-                            // this.setState( {pageType: EPageType.About} )
+                            this.setState({ pageType: EPageType.About });
                         }
                     }),
                     React.createElement(MainButton, {
@@ -176,6 +177,18 @@ class StartView extends React.Component {
                 )
             ),
             this.state.pageType === EPageType.Settings && React.createElement(SettingsView, {
+                Slot: {
+                    LayoutData: {
+                        Anchors: EAnchors.Left,
+                        Alignment: { X: 0, Y: 0.5 },
+                        Offsets: Utils.ltrb(100, 0, 1000, 800)
+                    }
+                },
+                onBack: () => {
+                    this.setState({ pageType: EPageType.Home });
+                }
+            }),
+            this.state.pageType === EPageType.Settings && React.createElement(AboutView, {
                 Slot: {
                     LayoutData: {
                         Anchors: EAnchors.Left,

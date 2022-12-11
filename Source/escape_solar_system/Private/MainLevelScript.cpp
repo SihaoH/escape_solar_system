@@ -112,6 +112,12 @@ void AMainLevelScript::BeginPlay()
 	InputComponent->BindAction("Destroy", IE_Pressed, this, &AMainLevelScript::OnDestroyPressed);
 	InputComponent->BindAction("Destroy", IE_Released, this, &AMainLevelScript::OnDestroyReleased);
 
+	// 加载游戏存档
+	if (UMainSaveGame::IsNeedLoad())
+	{
+		UMainSaveGame::LoadAr();
+	}
+
 	// 第一次进入游戏，播放开场动画
 	if (AMainPlayerState::Instance()->GetTotalTime() < 1.f)
 	{
@@ -128,12 +134,7 @@ void AMainLevelScript::BeginPlay()
 		PlayingDelegate.Broadcast();
 	}
 
-	// 加载游戏存档
 	UMainSaveGame::SaveTimestamp = FDateTime::UtcNow().ToUnixTimestamp();
-	if (UMainSaveGame::IsNeedLoad())
-	{
-		UMainSaveGame::LoadAr();
-	}
 }
 
 void AMainLevelScript::EndPlay(const EEndPlayReason::Type EndPlayReason)

@@ -8,15 +8,25 @@ const { F_Sans } = require('../style');
 
 const MessageListView = require('./message_listview');
 
+const PromptColor = [Utils.color("#EEE"), Utils.color("#EE1"), Utils.color("#E11")];
+
 class PromptView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            promptText: "",
+            promptType: EPromptType.Normal,
             bannerText: ""
         };
 
         MainLevelScript.Instance().MessagedDelegate.Add(Msg => {
             this.msgListView.AppendMsg(Msg);
+        });
+        MainLevelScript.Instance().PromptDelegate.Add((Msg, Type) => {
+            this.setState({ promptText: Msg, promptType: Type });
+            setTimeout(() => {
+                this.setState({ promptText: "" });
+            }, 3000);
         });
         MainLevelScript.Instance().EnteredDelegate.Add(() => {
             this.msgListView.toggleReview();
@@ -90,6 +100,38 @@ class PromptView extends React.Component {
                         Text: this.state.bannerText
                     })
                 )
+            ),
+            React.createElement(
+                'uBorder',
+                {
+                    ref: elem => {
+                        if (elem && !this.uPromptBox) {
+                            this.uPromptBox = elem.ueobj;
+                        }
+                    },
+                    Visibility: this.state.promptText ? ESlateVisibility.Visible : ESlateVisibility.Collapsed,
+                    Slot: {
+                        LayoutData: {
+                            Anchors: EAnchors.Top,
+                            Offsets: Utils.ltrb(0, 150, 0, 0)
+                        },
+                        bAutoSize: true
+                    },
+                    Background: {
+                        TintColor: { SpecifiedColor: Utils.rgba(0, 0, 0, 0.5) }
+                    },
+                    Padding: Utils.ltrb(16, 5)
+                },
+                React.createElement('uTextBlock', {
+                    Font: {
+                        FontObject: F_Sans,
+                        Size: 14
+                    },
+                    ColorAndOpacity: {
+                        SpecifiedColor: PromptColor[this.state.promptType]
+                    },
+                    Text: this.state.promptText
+                })
             ),
             '/* \u4FE1\u606F\u6846 */',
             React.createElement(MessageListView, {

@@ -21,4 +21,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	void GetWidgetPosition(const class AActor* Target, FVector2D& Position, int32& Angle);
+
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float GetLockInfoDeltaSeconds = 0.1f;
 };

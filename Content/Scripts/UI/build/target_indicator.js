@@ -146,8 +146,8 @@ class View extends React.Component {
             }
             if (self.state.lockedBody) {
                 self.setState({
-                    lockedLayout: self.helper.GetWidgetPosition(self.state.lockedBody),
-                    lockedInfo: self.helper.GetLockInfo(self.state.lockedBody, self.state.lockedInfo.Dist)
+                    lockedLayout: self.helper.GetWidgetPosition(self.state.lockedBody)
+                    //lockedInfo: self.helper.GetLockInfo(self.state.lockedBody, self.state.lockedInfo.Dist)
                 });
             }
 
@@ -156,14 +156,27 @@ class View extends React.Component {
             }
             if (self.state.spaceship) {
                 self.setState({
-                    shipLayout: self.helper.GetWidgetPosition(self.state.spaceship),
-                    shipInfo: self.helper.GetLockInfo(self.state.spaceship, self.state.shipInfo.Dist)
+                    shipLayout: self.helper.GetWidgetPosition(self.state.spaceship)
+                    //shipInfo: self.helper.GetLockInfo(self.state.spaceship, self.state.shipInfo.Dist)
                 });
             }
 
             if (IsVaild) process.nextTick(tick);
         }
         tick();
+
+        setInterval(() => {
+            if (self.state.lockedBody) {
+                self.setState({
+                    lockedInfo: self.helper.GetLockInfo(self.state.lockedBody, self.state.lockedInfo.Dist)
+                });
+            }
+            if (self.state.spaceship) {
+                self.setState({
+                    shipInfo: self.helper.GetLockInfo(self.state.spaceship, self.state.shipInfo.Dist)
+                });
+            }
+        }, this.helper.GetLockInfoDeltaSeconds * 1000);
     }
 
     componentWillUnmount() {

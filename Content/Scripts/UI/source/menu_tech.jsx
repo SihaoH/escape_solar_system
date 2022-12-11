@@ -101,11 +101,11 @@ class TechButton extends React.Component {
                             let curLevelInfo = ""
                             let nextLevelInfo = ""
                             for (let prop of btnVal.props) {
-                                curLevelInfo += `${helper.GetTechValueName(prop)}: ${Utils.num2Txt(helper.GetTechValueVal(prop))}\n`
+                                curLevelInfo += `${helper.GetTechValueName(prop)}: ${Utils.num2Txt(helper.GetTechValueVal(prop), 4)}\n`
                             }
                             curLevelInfo = curLevelInfo.slice(0, curLevelInfo.length-1)
                             for (let prop of btnVal.props) {
-                                nextLevelInfo += `${helper.GetTechValueName(prop)}: ${Utils.num2Txt(helper.GetTechValueVal(prop, true))}\n`
+                                nextLevelInfo += `${helper.GetTechValueName(prop)}: ${Utils.num2Txt(helper.GetTechValueVal(prop, true), 4)}\n`
                             }
                             nextLevelInfo = nextLevelInfo.slice(0, nextLevelInfo.length-1)
                             return ReactUMG.wrap(

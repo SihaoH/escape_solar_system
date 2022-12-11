@@ -376,7 +376,7 @@ class PlayingView extends React.Component {
                                 OutlineColor: Utils.rgba(0, 0, 0, 0.5)
                             }
                         },
-                        ColorAndOpacity: { SpecifiedColor: Utils.color("#F33") },
+                        ColorAndOpacity: { SpecifiedColor: Utils.color("#F22") },
                         Text: Utils.tr("自毁程序")
                     })
                 )

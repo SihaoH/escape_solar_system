@@ -10,13 +10,13 @@ UExplorableZoneComponent::UExplorableZoneComponent()
 {
 	OnComponentBeginOverlap.AddDynamic(this, &UExplorableZoneComponent::OnBeginOverlap);
 	OnComponentEndOverlap.AddDynamic(this, &UExplorableZoneComponent::OnEndOverlap);
+	SetHiddenInGame(false);
 
 	Reset();
 }
 
 void UExplorableZoneComponent::Reset()
 {
-	SetHiddenInGame(!IsAvailable);
 	SetCollisionProfileName(IsAvailable ? TEXT("OverlapAllDynamic") : TEXT("NoCollision"));
 }
 
@@ -49,7 +49,7 @@ void UExplorableZoneComponent::HandleBonus()
 {
 	AMainPlayerState::Instance()->ChangeExplorePoints(BonusPoints);
 
-	FText Msg = FText::Format(tr("到达{0}\n获得 {1} 探索点"), PlaceName, BonusPoints);
+	FText Msg = FText::Format(tr("到达{0}\r\n获得 {1} 探索点"), PlaceName, BonusPoints);
 	AMainLevelScript::Instance()->ExplorePointsDelegate.Broadcast(Msg);
 
 	IsAvailable = false;

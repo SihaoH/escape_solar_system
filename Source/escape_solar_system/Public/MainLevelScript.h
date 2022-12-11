@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MainLibrary.h"
 #include "Engine/LevelScriptActor.h"
 #include "MainLevelScript.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractionSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCinematicsSignature, FString, File);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessagedSignature, FText, Msg);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPromptSignature, FText, Msg, int32, Type);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FExplorePointsSignature, FText, Msg);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCelestialBodySignature, class ACelestialBody*, Body);
 
@@ -83,6 +85,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMessagedSignature MessagedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FPromptSignature PromptDelegate;
 	
 	UPROPERTY(BlueprintAssignable)
 	FExplorePointsSignature ExplorePointsDelegate;

@@ -41,6 +41,15 @@ class MyOverlayer extends JavascriptWidget {
 let MyOverlayer_C = UClass(global, MyOverlayer);
 ReactUMG.Register('uMyOverlayer', MyOverlayer_C);
 
+function demoFunc() {
+    MainLibrary.SendMessage("获取demo大礼包，请回基地查收");
+    MainLevelScript.GetEarthBase().Backpack.AddItem("飞船动力装置", 1);
+    MainLevelScript.GetEarthBase().Backpack.AddItem("飞船电子系统", 1);
+    MainLevelScript.GetEarthBase().Backpack.AddItem("飞船基础外壳", 1);
+    MainLevelScript.GetEarthBase().Backpack.AddItem("飞船结构支架", 1);
+    ThisWidget.RemoveFromViewport();
+}
+
 class TalkView extends React.Component {
     constructor(props) {
         super(props);
@@ -61,7 +70,9 @@ class TalkView extends React.Component {
             if (count === 1) {
                 // 默认下一句
                 const next_opt = options[0];
-                if (!next_opt.text) {
+                if (next_opt.Row === "测试") {
+                    demoFunc();
+                } else if (!next_opt.text) {
                     this.setState({ currentIndex: next_opt.Row });
                 }
             } else if (count < 1) {

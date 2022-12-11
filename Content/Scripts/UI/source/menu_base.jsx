@@ -105,7 +105,7 @@ class Menu extends React.Component {
         const sel_item = this.state.selectedIndex > -1 ? this.uMakeableList.GetItemAt(this.state.selectedIndex) : {RowName: "未知"}
         const sel_data = MainLibrary.GetItemData(sel_item.RowName)
         const max_make = this.helper.GetMaxMakeableCount(sel_item.RowName)
-        const btn_color = Utils.color(max_make > 0 ? "#FFF" : "#F55")
+        const btn_color = Utils.color(max_make > 0 ? "#FFF" : "#F22")
         return (
             <uCanvasPanel>
                 <TaggedCard
@@ -261,7 +261,7 @@ class Menu extends React.Component {
                                             Offsets: Utils.ltrb(0)
                                         }
                                     }}
-                                    ColorAndOpacity={Utils.color("#F55")}
+                                    ColorAndOpacity={Utils.color("#F22")}
                                     RenderTransform={{Translation: {X: -160, Y: 0}}}
                                 />
                                 <uTextBlock
@@ -575,6 +575,10 @@ class Menu extends React.Component {
                                         FontObject: F_Sans,
                                         TypefaceFontName: "Bold",
                                         Size: 18,
+                                        OutlineSettings: {
+                                            OutlineSize: 2,
+                                            OutlineColor: Utils.rgba(0, 0, 0, 0.6)
+                                        }
                                     }}
                                     ColorAndOpacity={{ SpecifiedColor: btn_color }}
                                     Text={ max_make ? Utils.tr("制作") : Utils.tr("资源不足") }

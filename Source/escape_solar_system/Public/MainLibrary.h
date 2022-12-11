@@ -8,6 +8,15 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MainLibrary.generated.h"
 
+/** 提示类型 */
+UENUM(BlueprintType)
+enum class EPromptType : uint8
+{
+	Normal,
+	Warning,
+	Error,
+};
+
 /** 翻译数据 */
 USTRUCT(BlueprintType)
 struct FTranslatedData : public FTableRowBase
@@ -15,11 +24,11 @@ struct FTranslatedData : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 
 	/** 原文 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = true))
 	FString Source;
 
 	/** 翻译后文本 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MultiLine = true))
 	FText Text;
 };
 
@@ -53,6 +62,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void SendMessage(FText Msg);
+
+	UFUNCTION(BlueprintCallable)
+	static void SendPrompt(FText Msg, EPromptType Type);
 
 	UFUNCTION(BlueprintCallable)
 	static FItemData& GetItemData(const FName& RowName);

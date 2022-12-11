@@ -226,8 +226,7 @@ class BackpackView extends React.Component {
                         helper.DropItem(count)
                     }, ret.MaxAdd)
                 } else {
-                    // TODO 提示
-                    console.error(ret.Reason)
+                    MainLibrary.SendPrompt(ret.Reason, EPromptType.Error)
                 }
             }
         })

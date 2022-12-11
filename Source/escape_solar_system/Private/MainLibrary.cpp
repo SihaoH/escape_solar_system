@@ -44,11 +44,19 @@ FText UMainLibrary::Translate(const FString& Str)
 
 void UMainLibrary::SendMessage(FText Msg)
 {
-	if (AMainLevelScript::Instance())
+	if (const auto* MainLevel = AMainLevelScript::Instance())
 	{
-		AMainLevelScript::Instance()->MessagedDelegate.Broadcast(Msg);
+		MainLevel->MessagedDelegate.Broadcast(Msg);
 	}
 	// 其他Level的委派广播（如有）
+}
+
+void UMainLibrary::SendPrompt(FText Msg, EPromptType Type)
+{
+	if (const auto* MainLevel = AMainLevelScript::Instance())
+	{
+		MainLevel->PromptDelegate.Broadcast(Msg, static_cast<int32>(Type));
+	}
 }
 
 FItemData& UMainLibrary::GetItemData(const FName& RowName)

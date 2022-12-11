@@ -87,6 +87,14 @@ void UBodyComponent::CheckEnvironment()
 
 void UBodyComponent::OnComponentHitted(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// 1秒的伤害间隔，防止连续伤害
+	const static FTimespan CD = FTimespan(0, 0, 1);
+	if (FDateTime::Now() - HittedTime < CD)
+	{
+		return;
+	}
+	HittedTime = FDateTime::Now();
+
 	FVector OtherVelocity = OtherActor->GetVelocity();
 	if (GetOwner()->GetAttachParentActor() == OtherActor)
 	{

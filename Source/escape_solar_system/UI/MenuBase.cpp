@@ -13,7 +13,7 @@
 #include "MainLevelScript.h"
 #include <UMG.h>
 
-static const FName ShipName = "飞船";
+static const FString ShipName = TEXT("飞船");
 
 FString UMenuBaseHelper::GetGameDate() const
 {
@@ -72,7 +72,7 @@ int32 UMenuBaseHelper::GetMaxMakeableCount(const FName& RowName) const
 	}
 
 	// 飞船的物品编号，只能制作一台
-	if (RowName == ShipName)
+	if (RowName.ToString() == ShipName)
 	{
 		if (AMainLevelScript::GetSpaceship())
 		{
@@ -102,7 +102,7 @@ void UMenuBaseHelper::MakeItem(UObject* SelItem, float Count)
 		Storehouse->RemoveItem(Demand.Key, Demand.Value * Count);
 	}
 
-	if (Item->RowName == ShipName)
+	if (Item->RowName.ToString() == ShipName)
 	{
 		AMainLevelScript::GetEarthBase()->CreateSpaceship();
 	}

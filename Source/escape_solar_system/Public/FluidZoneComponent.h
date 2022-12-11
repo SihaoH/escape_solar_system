@@ -62,9 +62,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UMeshPostProcessComponent* PostProcess = nullptr;
 
-	/** 密度，用于计算浮力，标准水的密度为1000 kg/m³ */
+	/** 密度，用于计算浮力，标准水的密度为100 kg/m³（为了不使数值膨胀） */
 	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float Density = 1000.f;
+	float Density = 100.f;
 
 	/** 流体对物体产生的线性阻尼 */
 	UPROPERTY(Category = "流体区域", EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))

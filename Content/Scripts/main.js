@@ -65,3 +65,8 @@ MainLevelScript.Instance().CinematicsDelegate.Add((File)=> {
 
 let prompt_view = require(JSX("prompt_view"))
 prompt_view.AddToViewport(997)
+
+// 存档
+setInterval(() => {
+    MainSaveGame.SaveAr()
+}, 60*1000)

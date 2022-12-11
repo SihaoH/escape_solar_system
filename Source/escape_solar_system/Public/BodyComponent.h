@@ -51,6 +51,7 @@ public:
 
 private:
 	FTimerHandle EnvTimer;
+	FDateTime HittedTime;
 
 	/** 机体质量，强度(HP)会影响质量 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

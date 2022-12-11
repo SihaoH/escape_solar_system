@@ -367,8 +367,8 @@ void AMainCharacter::UpdateMass()
 	{
 		Movement->Mass = InMass;
 
-		// 胶囊体，半径计算要更小一点
-		Density = CalcDensity(InMass, GetCapsuleComponent()->Bounds.SphereRadius / 2);
+		constexpr float SphereRadius = 0.5f;
+		Density = CalcDensity(InMass, SphereRadius);
 	}
 }
 
