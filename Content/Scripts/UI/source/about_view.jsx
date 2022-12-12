@@ -22,7 +22,7 @@ class SettingsView extends React.Component {
                         FontObject: F_Sans,
                         Size: 16,
                     }}
-                    Text={ "TODO" }
+                    Text={ "DEMO 0.1.0" }
                 />
 
                 <span
@@ -39,18 +39,7 @@ class SettingsView extends React.Component {
                         borderWidth={2}
                         text={ Utils.tr("返回") }
                         onClicked={() => {
-                            if (this.settings.IsDirty()) {
-                                ConfirmDialog.open(Utils.tr("提示"), Utils.tr("当前有未保存的修改，是否要放弃并返回"), this.props.onBack)
-                            } else {
-                                this.props.onBack()
-                            }
-                        }}
-                    />
-                    <GeneralButton
-                        borderWidth={2}
-                        text={ Utils.tr("应用") }
-                        onClicked={() => {
-                            this.settings.ApplySettings(true)
+                            this.props.onBack()
                         }}
                     />
                 </span>

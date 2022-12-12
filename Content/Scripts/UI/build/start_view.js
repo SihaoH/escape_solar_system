@@ -188,7 +188,7 @@ class StartView extends React.Component {
                     this.setState({ pageType: EPageType.Home });
                 }
             }),
-            this.state.pageType === EPageType.Settings && React.createElement(AboutView, {
+            this.state.pageType === EPageType.About && React.createElement(AboutView, {
                 Slot: {
                     LayoutData: {
                         Anchors: EAnchors.Left,
