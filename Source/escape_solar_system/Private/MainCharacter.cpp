@@ -148,7 +148,7 @@ void AMainCharacter::Serialize(FArchive& Ar)
 	else if (Ar.IsLoading())
 	{
 		Super::Serialize(Ar);
-		SetActorTransform(SavedTransform);
+		SetActorTransform(SavedTransform, false, nullptr, ETeleportType::TeleportPhysics);
 		ResetProperties();
 	}
 	else

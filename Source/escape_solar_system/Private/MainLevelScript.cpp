@@ -115,11 +115,12 @@ void AMainLevelScript::BeginPlay()
 	// 加载游戏存档
 	if (UMainSaveGame::IsNeedLoad())
 	{
-		UMainSaveGame::LoadAr();
+		GetWorldTimerManager().SetTimerForNextTick([this] {
+			UMainSaveGame::LoadAr();
+			PlayingDelegate.Broadcast();
+		});
 	}
-
-	// 第一次进入游戏，播放开场动画
-	if (AMainPlayerState::Instance()->GetTotalTime() < 1.f)
+	else // 第一次进入游戏，播放开场动画
 	{
 		ULevelSequence* SequenceAsset = Cast<ULevelSequence>(FStringAssetReference("LevelSequence'/Game/Cinematics/LS1.LS1'").TryLoad());
 		ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), SequenceAsset, FMovieSceneSequencePlaybackSettings(), LevelSequence);
@@ -127,11 +128,6 @@ void AMainLevelScript::BeginPlay()
 		SequencePlayer->Play();
 		// TODO 改成外部配置
 		CinematicsDelegate.Broadcast(TEXT("cinematics_1"));
-	}
-	else
-	{
-		GetEarthBase()->CreateMainChar();
-		PlayingDelegate.Broadcast();
 	}
 
 	UMainSaveGame::SaveTimestamp = FDateTime::UtcNow().ToUnixTimestamp();

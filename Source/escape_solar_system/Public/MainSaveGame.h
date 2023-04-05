@@ -6,6 +6,11 @@
 #include "GameFramework/SaveGame.h"
 #include "MainSaveGame.generated.h"
 
+/** 用于判断某对象是否需要存档 */
+UINTERFACE()
+class USaveGameClass : public UInterface { GENERATED_BODY() };
+class ISaveGameClass { GENERATED_IINTERFACE_BODY() };
+
 USTRUCT()
 struct FByteArray
 {

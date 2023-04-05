@@ -26,7 +26,7 @@ AEarthBase::AEarthBase()
 	BP_GuideNPCClass = ConstructorHelpers::FClassFinder<ANPC>(TEXT("Blueprint'/Game/MainBP/Blueprints/BP_GuideNPC.BP_GuideNPC_C'")).Class;
 }
 
-void AEarthBase::CreateMainChar()
+void AEarthBase::CreateMainChar(bool bLoadAr)
 {
 	check(!AMainLevelScript::GetMainChar());
 	const auto SelfTransform = GetActorTransform();
@@ -36,8 +36,11 @@ void AEarthBase::CreateMainChar()
 	if (GuideNPC == nullptr)
 	{
 		GuideNPC = GetWorld()->SpawnActor<ANPC>(BP_GuideNPCClass, GetActorTransform());
-		AMainLevelScript::GetMainChar()->SetTalkableNPC(GuideNPC);
-		AMainLevelScript::Instance()->TalkOpenedDelegate.Broadcast();
+		if (!bLoadAr)
+		{
+			AMainLevelScript::GetMainChar()->SetTalkableNPC(GuideNPC);
+			AMainLevelScript::Instance()->TalkOpenedDelegate.Broadcast();
+		}
 	}
 }
 

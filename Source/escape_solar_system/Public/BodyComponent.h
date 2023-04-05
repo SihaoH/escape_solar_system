@@ -3,6 +3,7 @@
 #pragma once
 
 #include "MainLibrary.h"
+#include "MainSaveGame.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "BodyComponent.generated.h"
@@ -12,8 +13,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHpChangedSignature, float, Delta);
 /**
  * 机体组件，包含强度（血量）、护盾、质量等信息
  */
-UCLASS(ClassGroup = SaveGame)
-class ESCAPE_SOLAR_SYSTEM_API UBodyComponent : public UActorComponent
+UCLASS()
+class ESCAPE_SOLAR_SYSTEM_API UBodyComponent : public UActorComponent, public ISaveGameClass
 {
 	GENERATED_BODY()
 

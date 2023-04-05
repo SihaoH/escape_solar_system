@@ -20,7 +20,7 @@ public:
 	AEarthBase();
 
 	UFUNCTION(BlueprintCallable)
-	void CreateMainChar();
+	void CreateMainChar(bool bLoadAr = false);
 	UFUNCTION(BlueprintCallable)
 	void CreateSpaceship();
 

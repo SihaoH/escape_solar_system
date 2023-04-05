@@ -3,6 +3,7 @@
 #pragma once
 
 #include "MainLibrary.h"
+#include "MainSaveGame.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "BackpackComponent.generated.h"
@@ -25,8 +26,8 @@ struct FItemPair
 /**
  * 背包组件
  */
-UCLASS(ClassGroup = SaveGame)
-class ESCAPE_SOLAR_SYSTEM_API UBackpackComponent : public UActorComponent
+UCLASS()
+class ESCAPE_SOLAR_SYSTEM_API UBackpackComponent : public UActorComponent, public ISaveGameClass
 {
 	GENERATED_BODY()
 

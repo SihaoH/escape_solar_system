@@ -3,6 +3,7 @@
 #pragma once
 
 #include "MainLibrary.h"
+#include "MainSaveGame.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "EngineComponent.generated.h"
@@ -12,8 +13,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnergyChangedSignature, float, Delt
 /**
  * 发动机组件，推动机体运动
  */
-UCLASS(ClassGroup = SaveGame)
-class ESCAPE_SOLAR_SYSTEM_API UEngineComponent : public UActorComponent
+UCLASS()
+class ESCAPE_SOLAR_SYSTEM_API UEngineComponent : public UActorComponent, public ISaveGameClass
 {
 	GENERATED_BODY()
 

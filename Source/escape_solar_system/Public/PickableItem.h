@@ -2,12 +2,13 @@
 
 #pragma once
 
+#include "MainSaveGame.h"
 #include "CoreMinimal.h"
 #include "Components/StaticMeshComponent.h"
 #include "PickableItem.generated.h"
 
-UCLASS(BlueprintType, Blueprintable, ClassGroup = SaveGame, meta = (BlueprintSpawnableComponent))
-class ESCAPE_SOLAR_SYSTEM_API UPickableItem : public UStaticMeshComponent
+UCLASS(BlueprintType, Blueprintable, meta = (BlueprintSpawnableComponent))
+class ESCAPE_SOLAR_SYSTEM_API UPickableItem : public UStaticMeshComponent, public ISaveGameClass
 {
 	GENERATED_BODY()
 	

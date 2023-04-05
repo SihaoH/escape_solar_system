@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "MainSaveGame.h"
 #include "CoreMinimal.h"
 #include "Components/SphereComponent.h"
 #include "ExplorableZoneComponent.generated.h"
@@ -9,8 +10,8 @@
 /**
  * 可探索的区域
  */
-UCLASS(BlueprintType, Blueprintable, ClassGroup = SaveGame, meta = (BlueprintSpawnableComponent))
-class ESCAPE_SOLAR_SYSTEM_API UExplorableZoneComponent : public USphereComponent
+UCLASS(BlueprintType, Blueprintable, meta = (BlueprintSpawnableComponent))
+class ESCAPE_SOLAR_SYSTEM_API UExplorableZoneComponent : public USphereComponent, public ISaveGameClass
 {
 	GENERATED_BODY()
 
